@@ -1,0 +1,433 @@
+{
+  "strategy_id": "systems",
+  "scope": "Systems-track recommendation for the proposed Python 3.14 code-quality/performance diagnosis agent. All external evidence used is dated 2026-03-01 through 2026-08-06, inside the required six-month window; no one-year exception is used. Minimum recommended causal architecture: versioned static fact plane (AST/symbol/CFG/Code Graph) -> deterministic RiskEnvelope and mandatory-route rules -> existing Diagnosis Planner may add at most one optional route -> 1-3 selected LLM hypothesis analysts, with fixed-five fallback only for incomplete/unclassified high-risk cases -> need/utility/affordability arbiter -> authorized focused test/profiler -> RuntimeEvidence normalizer -> deterministic hard Evidence Gate, with an optional semantic critic that may only reject/abstain/request evidence -> report. The five existing perspectives remain coverage facets and a benchmark/fallback, not five mandatory calls. Feedback is provenance-locked and promoted offline; no live self-modification.",
+  "claims": [
+    {
+      "id": "SYS-C1",
+      "claim": "The current project already has the right causal separation—deterministic repository facts, LLM hypotheses, authorized runtime evidence, and a deterministic evidence gate—but it still sends every case through five LLM perspectives and reserves 50% of the LLM run budget for those analysts; the design is not implemented and no project result has been measured.",
+      "kind": "observed",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§1 lines 3-21; §2 lines 23-56; §7 lines 176-184; §11 lines 295-313",
+          "source_type": "local technical design",
+          "supports": true,
+          "notes": "Explicitly separates static facts, LLM hypotheses, and runtime evidence; shows Planner -> Five-view First Pass and the deterministic Evidence Gate. Header says implementation is pending."
+        },
+        {
+          "source": "docs/ai-selection-matrix/04-agent-orchestration-adr.md",
+          "title": "ADR-04: 증거 게이트가 있는 bounded DAG를 사용한다",
+          "date": "2026-08-23",
+          "locator": "§2 lines 11-21; §7 lines 104-114; §8 lines 116-125",
+          "source_type": "local ADR",
+          "supports": true,
+          "notes": "Fixes five parallel first-pass perspectives and gives them 50% of the initial LLM allocation; labels the topology a project hypothesis."
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§13 lines 305-307",
+          "source_type": "local evaluation plan",
+          "supports": true,
+          "notes": "States that every comparison value is unmeasured and the document is an experimental contract."
+        }
+      ],
+      "qualifiers": [
+        "This is an observation about the proposal, not a production-system outcome.",
+        "The fixed-five path may still be valuable as a recall-oriented fallback and experimental control."
+      ]
+    },
+    {
+      "id": "SYS-C2",
+      "claim": "There is no admissible evidence that five mandatory diagnosis experts are the Pareto-optimal operating point. Recent primary studies instead report that role value is task/domain dependent and that verified adaptive routing can beat static routing, but none directly evaluates routing among structure/correctness/performance/concurrency/test perspectives for Python diagnosis.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§7 lines 131-141; §9 lines 153-159; §10 lines 161-168",
+          "source_type": "local ADR",
+          "supports": true,
+          "notes": "Calls five perspectives an initial project hypothesis and explicitly says recent studies do not prove the hybrid five-perspective configuration."
+        },
+        {
+          "source": "https://arxiv.org/html/2606.20629v1",
+          "title": "Specialize Roles, Mix Deployments: Pushing the Cost–Accuracy Frontier of LLM Agent Teams",
+          "date": "2026-05-28",
+          "locator": "Abstract; §4; §6; §7; Appendix D Limitations",
+          "source_type": "primary preprint",
+          "supports": true,
+          "notes": "AgentCARD reports direction- and domain-dependent planner/executor value; its SWE-Bench matrix reports 76.2% for the best heterogeneous pair versus 68.2% for the strongest homogeneous team. The three-role verifier result is only a pilot on MCP-Atlas."
+        },
+        {
+          "source": "https://arxiv.org/html/2606.22902v1",
+          "title": "Agent-as-a-Router: Agentic Model Routing for Coding Tasks",
+          "date": "2026-06-22",
+          "locator": "Abstract; §3.1 Table 1; §3.3; §5 Table 3; §5.3 Limitations",
+          "source_type": "primary preprint",
+          "supports": true,
+          "notes": "ACRouter reports 49.98% ID average performance versus 47.50% for a static dimension-best router, and 62.50% on 176 OOD agentic-programming tasks; this routes models, not diagnosis perspectives."
+        },
+        {
+          "source": "https://arxiv.org/html/2603.01131v1",
+          "title": "MedCollab: Causal-Driven Multi-Agent Collaboration for Full-Cycle Clinical Diagnosis via IBIS-Structured Argumentation",
+          "date": "2026-03-01",
+          "locator": "§2.1 dynamic recruitment; §2.2 structured argumentation; §3.2 Table 2",
+          "source_type": "primary preprint",
+          "supports": true,
+          "notes": "Directly demonstrates dynamic specialist recruitment and pruning, but in clinical diagnosis with domain-specific data and evaluation; it is analogy, not code-diagnosis evidence."
+        }
+      ],
+      "qualifiers": [
+        "AgentCARD studies model-to-role assignment, not whether a perspective should be invoked.",
+        "Agent-as-a-Router studies model routing over coding tasks, not intra-run risk-perspective routing.",
+        "MedCollab is cross-domain and uses a medical causal model; transfer to Python review is unverified.",
+        "Therefore dynamic perspective routing remains a project hypothesis requiring a same-B_run trial."
+      ]
+    },
+    {
+      "id": "SYS-C3",
+      "claim": "Conditional calls should not be delegated to model self-assessment alone: recent experiments report redundant and performance-degrading tool calls, motivating an explicit need/utility/affordability controller for focused tests, profilers, expanded retrieval, and extra perspectives.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.00737v3",
+          "title": "To Call or Not to Call: A Framework to Assess and Optimize LLM Tool Calling",
+          "date": "2026-08-06",
+          "locator": "Abstract; §1 Table 1; §3 normative/descriptive/prescriptive framework; §4.1 Need and Utility",
+          "source_type": "primary preprint v3",
+          "supports": true,
+          "notes": "Across seven models, two tools, and six tasks, the paper reports misalignment between perceived and true need/utility. In the Entity example, 32% of high no-tool-performance instances degraded with search and 58% of all instances were unchanged."
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§9 lines 218-244",
+          "source_type": "local technical design",
+          "supports": true,
+          "notes": "The current profiler decision is already an ordered deterministic rule; learned routing is deferred until paired blind utility labels and power analysis."
+        }
+      ],
+      "qualifiers": [
+        "The external paper evaluates web search and calculators, not tests/profilers or perspective calls.",
+        "The transfer is the decision principle—need, marginal utility, and affordability—not the paper's thresholds or latent estimator."
+      ]
+    },
+    {
+      "id": "SYS-C4",
+      "claim": "The smallest useful AI reasoning unit is a falsifiable risk hypothesis linked to a targeted oracle, not an unconstrained expert essay or a large autonomous swarm. Adopt an explicit precondition/action/expected-observation/oracle contract and at most one evidence-driven revision; do not copy a multi-agent, many-iteration hypothesis loop.",
+      "kind": "inferred",
+      "status": "candidate",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.29910v1",
+          "title": "Agora: Toward Autonomous Bug Detection in Production-Level Consensus Protocols with LLM Agents",
+          "date": "2026-05-28",
+          "locator": "§2.1 Hypothesis-Driven Testing; Algorithm 1; §3.2 Architecture; Table 2; §4.2; §4.3; §5 Limitations",
+          "source_type": "primary preprint",
+          "supports": true,
+          "notes": "Defines H=(C,A,E,O): preconditions, action sequence, expected buggy behavior, and oracle assertions. Agora reports 15 distinct logic bugs where adapted baselines found none, but also 50 reflection iterations, 58.6M tokens in the full ablation run, and 26.1% false positives among 46 reports."
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§2 lines 14-23; Finding contract lines 40-83; invariants lines 95-101",
+          "source_type": "local ADR",
+          "supports": true,
+          "notes": "Already restricts the LLM to causal hypotheses, counterexamples, verification requests, and explanation while deterministic layers own facts and state promotion."
+        }
+      ],
+      "qualifiers": [
+        "Agora is consensus-protocol-specific and its reported zero-days are not evidence for general Python review.",
+        "The recommendation extracts only the falsifiable contract and bounded feedback step; it rejects Agora's three-agent/50-iteration operating point.",
+        "A generated test is evidence only after policy authorization, relevance checks, stable execution, and provenance capture."
+      ]
+    },
+    {
+      "id": "SYS-C5",
+      "claim": "The verifier should be asymmetric and layered: deterministic checks own provenance, schema, reachability where statically decidable, execution state, and status promotion; an optional LLM semantic critic may reject, abstain, or request more evidence but must never promote a claim on its own.",
+      "kind": "inferred",
+      "status": "candidate",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2606.26300v1",
+          "title": "The Verification Horizon: No Silver Bullet for Coding Agent Rewards",
+          "date": "2026-06-24",
+          "locator": "Abstract; §1; §2.2 Agentic Quality Judge; §2.3 Behavior Monitoring; Table 3",
+          "source_type": "primary technical report/preprint",
+          "supports": true,
+          "notes": "Characterizes verifier quality as scalability, faithfulness, and robustness: tests are scalable/robust but narrow, LLM judges scalable/faithful but exploitable, and humans faithful/robust but unscalable. It reports behavior monitoring reducing hacked-resolved rate from 28.57% to 0.56% in its training setup."
+        },
+        {
+          "source": "https://arxiv.org/html/2604.01527v4",
+          "title": "REAP: Automatic Curation of Coding Agent Benchmarks from Interactive Production Usage",
+          "date": "2026-07-28",
+          "locator": "Abstract; §3.3 Test Relevance Filtering and Test Validation",
+          "source_type": "primary paper/preprint, ASE 2026 Industry Showcase",
+          "supports": true,
+          "notes": "REAP orders semantic test-relevance filtering before multi-run execution and excludes flaky/transient failures, showing that execution evidence needs relevance and stability checks rather than blind trust."
+        },
+        {
+          "source": "https://arxiv.org/html/2606.20629v1",
+          "title": "Specialize Roles, Mix Deployments: Pushing the Cost–Accuracy Frontier of LLM Agent Teams",
+          "date": "2026-05-28",
+          "locator": "§7 Table 1 and discussion",
+          "source_type": "primary preprint",
+          "supports": true,
+          "notes": "A plan verifier improved one MCP-Atlas configuration from 80.4% to 83.8% at lower reported per-task cost, but other verifier/planner assignments did not provide the same lift; verifier value was assignment-dependent."
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§11 lines 295-313",
+          "source_type": "local technical design",
+          "supports": true,
+          "notes": "The project already specifies deterministic provenance/status checks and counterexample review, with failure mapped to rejected or abstained rather than a lower confidence score."
+        }
+      ],
+      "qualifiers": [
+        "AgentCARD's verifier pilot audits plans, not code-risk findings.",
+        "The Verification Horizon reports training-reward experiments; the project should use the systems principle, not import its reward function.",
+        "Optional semantic verification needs its own ablation because an always-on critic can add cost and correlated-model bias."
+      ]
+    },
+    {
+      "id": "SYS-C6",
+      "claim": "Use a taxonomy as a shared routing and evaluation index, not as another agent and not as a single exclusive tree: retain the five perspectives as multi-label coverage facets, add versioned hierarchical root-cause leaves underneath, and keep severity, evidence status, and runtime eligibility as orthogonal axes.",
+      "kind": "inferred",
+      "status": "candidate",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "Finding contract lines 40-83; merge rules lines 85-101; perspective responsibilities lines 121-129",
+          "source_type": "local ADR",
+          "supports": true,
+          "notes": "The current schema already separates contributor perspective, root_cause_category, severity, verification state, and runtime eligibility, and permits one cause to have contributors from multiple perspectives."
+        },
+        {
+          "source": "https://arxiv.org/html/2608.04682v1",
+          "title": "Active-SWE: Benchmarking Coding Agents for Proactive Bug Fixing without Issue Reports",
+          "date": "2026-08-05",
+          "locator": "Abstract; §3.2 Taxonomy-driven Data Curation",
+          "source_type": "primary preprint",
+          "supports": true,
+          "notes": "Uses an expert-defined six-category taxonomy plus Out-of-Taxonomy for curation and stratified evaluation; it does not show that taxonomy-based runtime routing improves an agent."
+        },
+        {
+          "source": "https://arxiv.org/html/2605.29910v1",
+          "title": "Agora: Toward Autonomous Bug Detection in Production-Level Consensus Protocols with LLM Agents",
+          "date": "2026-05-28",
+          "locator": "§2.2 five protocol bug classes; §3.3 Knowledge Library; §4.3 constraints-analyzer ablation",
+          "source_type": "primary preprint",
+          "supports": true,
+          "notes": "Domain bug patterns and constraints organize hypothesis generation; removing constraints caused 107 CFT reports with no true protocol bug after manual inspection. This is domain-specific evidence that taxonomy without applicability constraints can amplify false positives."
+        }
+      ],
+      "qualifiers": [
+        "No recent admissible study directly measures hierarchical taxonomy as a Python diagnosis router.",
+        "Cross-cutting mechanisms such as sync I/O in async code legitimately map to performance and concurrency; exclusive top-level assignment would lose evidence.",
+        "The hierarchy should be shallow and versioned; add leaves only from adjudicated train/calibration errors."
+      ]
+    },
+    {
+      "id": "SYS-C7",
+      "claim": "Learned feedback should begin as provenance-locked offline calibration and promotion, not live self-modification. Execution-grounded memory is promising for routing, but the project lacks its own labels and a stable verifier; only train/calibration/regression feedback should change rules or a router, behind frozen regression, shadow deployment, and rollback.",
+      "kind": "inferred",
+      "status": "candidate",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§3.2 lines 61-76; §11 lines 250-288; §12 lines 290-303",
+          "source_type": "local evaluation plan",
+          "supports": true,
+          "notes": "FeedbackEvent v2 binds run, finding, evidence, policy, source, model, and taxonomy hashes; promotion excludes final holdouts and requires frozen regression, no new Critical/High regression, grounding and cost gates, shadowing, and rollback."
+        },
+        {
+          "source": "https://arxiv.org/html/2606.22902v1",
+          "title": "Agent-as-a-Router: Agentic Model Routing for Coding Tasks",
+          "date": "2026-06-22",
+          "locator": "§3.1; §3.2 C-A-F loop; §3.3 Memory; §5 Table 3; §5.3 Limitations",
+          "source_type": "primary preprint",
+          "supports": true,
+          "notes": "Reports that execution-grounded verification plus accumulated memory reduced routing regret, including OOD agentic programming; its verifier, task labels, model pool, and online kNN memory do not match this project."
+        },
+        {
+          "source": "https://arxiv.org/html/2606.26300v1",
+          "title": "The Verification Horizon: No Silver Bullet for Coding Agent Rewards",
+          "date": "2026-06-24",
+          "locator": "Abstract; §1; §2.3 closed-loop behavior monitoring",
+          "source_type": "primary technical report/preprint",
+          "supports": true,
+          "notes": "Argues fixed verifiers saturate or are exploited as policy capability grows and reports iterative monitor updates during training, supporting co-versioning of policy and verifier rather than ungoverned online learning."
+        }
+      ],
+      "qualifiers": [
+        "Feedback collection can start immediately; learned routing should remain shadow-only until label volume and power are adequate.",
+        "Final temporal/OOD holdouts must never seed the taxonomy, memory, thresholds, prompts, verifier, or route policy.",
+        "User acceptance alone is not a gold correctness label; retain expert adjudication and runtime evidence."
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "name": "Fixed five-perspective parallel first pass",
+      "current_gap": "It provides explicit coverage but invokes structure, correctness, performance, concurrency, and test analysts on every case even when deterministic signals show no relevant risk. Its recall/cost advantage is unmeasured.",
+      "mechanism": "Keep the current five isolated analyst contracts, deterministic merge, one optional expansion, runtime tools, and Evidence Gate.",
+      "expected_effect": "Highest expected perspective coverage among simple baselines, predictable failure isolation, and a clean control for ablation; likely excess calls, duplicated findings, and avoidable latency on narrow cases.",
+      "ai_specificity": "Five independent LLM analyst calls plus planner/merge/composer; no dynamic selection.",
+      "minimal_change": "No operating-path change. Re-label it F5 and retain it as deterministic fallback when parser/graph coverage is incomplete, an unclassified High/Critical signal exists, or the dynamic router fails; also retain it as the benchmark control.",
+      "extra_cost": "Current proposal allocates 50% of B_run to five analysts and permits one retry per view. Actual token/call/latency cost is unmeasured.",
+      "risks": [
+        "Repeated reasoning over irrelevant perspectives",
+        "Merge burden and correlated false positives",
+        "A fixed coverage ritual may look safer while hiding that structure/test questions were already decided deterministically",
+        "Removing it before dynamic-route recall is proven could create blind spots"
+      ],
+      "evaluation": "Compare F5 against rule-first dynamic routing on the same cases, model, static snapshot, tools, gate, and inclusive B_run. Primary endpoint: Critical/High Recall; secondary: accepted true findings per token/cost, analyst calls, wall time, merge conflicts, and route-attributable false negatives.",
+      "provisional_decision": "keep"
+    },
+    {
+      "name": "Rule-first dynamic specialist routing with bounded LLM override",
+      "current_gap": "The current planner cannot suppress irrelevant perspective calls, while a fully learned or self-deciding router has no project labels and can miss rare high-risk routes.",
+      "mechanism": "Add RiskEnvelope v1 from deterministic signals. Mandatory rules select performance for loop/I/O/fan-out/regression signals and concurrency for async/task/lock/shared-state signals; correctness is the default LLM route for open-ended review. Structure and test are deterministic-only unless boundary ambiguity or a test-intent gap remains. The Planner may add at most one optional perspective but cannot remove mandatory routes. Dispatch normally 1-3 views. Record a disposition for all five facets: selected, deterministic_only, not_triggered, or fallback. Fall back to all five on extractor failure, unclassified High/Critical evidence, schema failure, or route-budget failure.",
+      "expected_effect": "Preserves cheap all-family coverage accounting while spending LLM calls only where semantic/causal reasoning may change a finding; expected to reduce analyst calls and context duplication without making the LLM the sole safety router.",
+      "ai_specificity": "AI ranks one optional residual route and generates hypotheses; deterministic features own mandatory routes and safety fallback.",
+      "minimal_change": "Change PL -> D1 from a fixed five-view list to a versioned PerspectiveRoute artifact; make D1 fan out over selected views; add five-facet disposition and route reason codes; reuse the existing merge, expansion, runtime, and gate contracts.",
+      "extra_cost": "One small routing artifact and route logging; no new LLM role. It may add an optional planner decision but removes 2-4 analyst calls on many cases. Savings are a hypothesis until measured.",
+      "risks": [
+        "Router false negatives on atypical correctness/test risks",
+        "Static trigger incompleteness under reflection, DI, metaprogramming, or framework magic",
+        "Default-correctness route may still be too broad",
+        "Fallback frequency may erase savings",
+        "Planner and analyst errors may be correlated"
+      ],
+      "evaluation": "Pre-register F5, DR-rule, DR-rule+one-LLM-add, random-k, no-router single analyst, and evaluator-oracle routes. Measure gold-perspective Recall, Critical/High finding Recall, route-attributable FN, mean/p95 selected views, cost, latency, abstention, and fallback rate. Advance only if Critical/High Recall is non-inferior at the pre-registered margin and analyst-call/token reduction is material; all thresholds are project targets, not external facts.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "Versioned hierarchical root-cause taxonomy with multi-label perspective facets",
+      "current_gap": "The project has a flat root_cause_category and five perspectives, but no routing-ready parent/leaf contract or explicit out-of-taxonomy lifecycle. Treating the five perspectives as exclusive categories would misclassify cross-cutting risks.",
+      "mechanism": "Define a shallow versioned hierarchy: risk family -> mechanism group -> root-cause leaf. Keep perspective[] multi-label. Keep severity, status, runtime eligibility, and evidence kind orthogonal. Add unclassified/out_of_taxonomy with an adjudication queue; never auto-merge it. Deterministic signals and learned routing refer to stable leaf IDs, not free-text labels.",
+      "expected_effect": "Provides a common key for routing, merge, benchmark strata, error clusters, and feedback without adding an agent; should make feedback learnable and preserve cross-perspective causality.",
+      "ai_specificity": "LLMs may propose a leaf with evidence, but schema validation and promotion of new leaves are deterministic/offline and expert-adjudicated.",
+      "minimal_change": "Version root_cause_category, add parent_category_id and perspective[]; add out_of_taxonomy reason codes and migration fixtures; preserve existing finding-v2 lineage and merge key.",
+      "extra_cost": "Annotation and taxonomy governance; negligible runtime cost. A deep or frequently changing hierarchy would create label churn and migration work.",
+      "risks": [
+        "Exclusive branching loses performance+concurrency or correctness+test interactions",
+        "Taxonomy ossification misses novel mechanisms",
+        "Label drift corrupts learned feedback",
+        "Excessive granularity produces sparse labels",
+        "LLM-generated labels can appear precise without causal evidence"
+      ],
+      "evaluation": "Measure inter-rater agreement, out-of-taxonomy rate, per-leaf support, cross-perspective label frequency, merge error, and router lift versus the current flat category. Do not claim routing benefit from taxonomy alone.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "Bounded hypothesis-test-revision loop",
+      "current_gap": "The current Finding has a claim and evidence request but does not force every executable hypothesis to specify trigger conditions, expected observation, refutation criterion, and oracle before a tool call.",
+      "mechanism": "For runtime-eligible High/Critical candidates, require HypothesisContract v1: preconditions C, trigger/action A, expected faulty observation E, oracle/refutation O, target location, counterevidence, and verification kind. The deterministic arbiter checks need/utility/affordability and ExecutionPolicy, executes at most one focused test or profiler request, normalizes RuntimeEvidence, and optionally lets the same contributor lineage issue one delta/retraction. Stop on support, refutation, inconclusive/blocked, or budget exhaustion.",
+      "expected_effect": "Turns AI causal reasoning into a falsifiable artifact, narrows tool use, makes negative evidence useful, and prevents open-ended reflection from consuming the run budget.",
+      "ai_specificity": "LLM proposes causal H and interprets ambiguous evidence; deterministic code authorizes execution and maps completed results to status. No new Strategy/TestGen/Orchestrator agent trio.",
+      "minimal_change": "Extend finding-v2 and test_execution_request with C/A/E/O and oracle type; add one post-runtime lineage revision path; reuse RuntimeEvidence, immutable policy, and current retry bound.",
+      "extra_cost": "One targeted executor run and, only when evidence changes the causal explanation, one bounded continuation call. No recursive test generation and no many-iteration swarm.",
+      "risks": [
+        "Generated tests may encode the hypothesis rather than user intent",
+        "Bad workload or oracle can falsely support/refute",
+        "Test repair loops can consume budget",
+        "A profiler hotspot is not necessarily the root cause",
+        "Domain-specific hypothesis templates may overfit"
+      ],
+      "evaluation": "Compare current claim/request versus C/A/E/O contract under the same eligible findings. Measure executable-request validity, relevance, confirmation/refutation yield, false support, abstention, reviewer acceptance, tool seconds, and cost per accepted true finding. Require test relevance and repeated stability where nondeterminism is plausible.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "Asymmetric deterministic Evidence Gate plus optional semantic critic",
+      "current_gap": "A hard gate is already specified, but always adding a generic LLM verifier would duplicate the analysts and could promote correlated hallucinations; relying only on tests would miss intent/test misalignment.",
+      "mechanism": "Always run the deterministic gate for snapshot hashes, source location, evidence envelope, status transition, severity contract, policy, and executable result. Invoke a semantic critic only for High/Critical conflicts, unresolved counterevidence, test-intent misalignment, or profiler root-cause ambiguity. The critic outputs pass, reject, abstain, or evidence_request and can never create runtime_confirmed or raise severity. Default to pass only when no concrete defect is identified; cap one critique/revision.",
+      "expected_effect": "Protects provenance and status with reproducible checks while reserving expensive semantic review for cases where it can add information; reduces the chance that an LLM judge becomes the source of truth.",
+      "ai_specificity": "Optional independent critic reasons about semantics and counterexamples; every promotive transition remains deterministic and evidence-backed.",
+      "minimal_change": "Retain existing §11 gate; add critic eligibility reason codes and a non-promotive output schema. Do not add a mandatory verifier node to every path.",
+      "extra_cost": "Zero extra LLM cost for ordinary findings; one critic call for the eligible subset. Requires calibration and, for independence claims, a model/prompt separation experiment.",
+      "risks": [
+        "Correlated critic/analyst failure",
+        "Over-rejection and unnecessary abstention",
+        "Tests can be stable but irrelevant",
+        "Semantic critic can be gamed by polished explanations",
+        "Optional routing could under-trigger on subtle High risks"
+      ],
+      "evaluation": "Factorial ablation: hard gate only, hard+always critic, hard+selective critic, and no hard gate. Measure unsupported finding rate, status violations, Critical/High Recall, over-rejection, critic precision/recall on adjudicated conflicts, cost, and latency. Preserve P4-NG only as a control, never an operating mode.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "Learned routing and feedback-conditioned adaptation",
+      "current_gap": "FeedbackEvent v2 and promotion gates exist, but there are no measured project labels, stable class frequencies, calibrated verifier, or evidence that online memory will generalize without leakage.",
+      "mechanism": "Collect immutable expert-adjudicated route/finding/tool outcomes now. First learn only thresholds or a small calibrated router offline on train, freeze on calibration, evaluate on regression, shadow in operation, and promote with rollback. Co-version router, taxonomy, prompts, model, and verifier. Do not feed final temporal/OOD artifacts or uncontrolled production text into live route context. Online kNN memory, RL routing, and self-editing prompts remain research variants.",
+      "expected_effect": "May reduce information deficit and adapt routes to repository-specific failure patterns after sufficient verified outcomes, while preserving reproducibility and holdout integrity.",
+      "ai_specificity": "A learned controller predicts relevant perspective/tool utility from versioned features and verified outcomes; it never changes the hard safety gate or execution policy.",
+      "minimal_change": "No runtime learning initially. Add route decision/outcome fields to FeedbackEvent v2 and promotion reports; later plug a versioned router behind the same PerspectiveRoute interface.",
+      "extra_cost": "Labeling, adjudication, feature/version storage, shadow evaluation, drift monitoring, and periodic regression. Online memory would also add retrieval tokens and new leakage/privacy surfaces.",
+      "risks": [
+        "Sparse rare-risk labels and class imbalance",
+        "Feedback loops amplify false negatives because unselected perspectives generate no labels",
+        "Verifier drift changes the target",
+        "Repository leakage and final-holdout contamination",
+        "User acceptance is an imperfect correctness label",
+        "Online adaptation undermines reproducibility"
+      ],
+      "evaluation": "Before promotion, compare rule router, learned router, and evaluator-oracle on frozen train/calibration/regression and one-time final temporal/OOD. Report calibration, per-leaf route Recall, cumulative regret or accepted-TP/cost, rare Critical/High misses, fallback rate, drift, and cost p95. Use counterfactual labels from F5/oracle exploration on a controlled sample to address selective-label bias.",
+      "provisional_decision": "hold"
+    }
+  ],
+  "contradictions": [
+    "AgentCARD reports value from a verifier in one MCP-Atlas plan-verification configuration, while The Verification Horizon argues no fixed verifier remains simultaneously scalable, faithful, and robust. Resolution: retain a hard deterministic gate and make semantic criticism selective, non-promotive, versioned, and independently evaluated.",
+    "Agent-as-a-Router reports gains from online execution-grounded memory, while the project requires immutable artifacts, protected final holdouts, and has no project labels. Resolution: preserve its Context-Action-Feedback idea but begin with offline, provenance-locked promotion; hold live self-learning.",
+    "MedCollab and Agora report large gains from dynamic specialists or multiple specialized agents, but both embed strong domain structure and neither tests general Python quality diagnosis. Resolution: use their structured contracts as inspiration only; do not claim transfer or copy their agent counts.",
+    "Fixed five analysts may protect rare-risk recall, but mandatory execution consumes calls even where structure/test facts are deterministic. Resolution: keep fixed five as fallback/control while requiring dynamic routing to demonstrate Critical/High non-inferiority under the same inclusive B_run.",
+    "A hierarchy aids routing and error analysis, but an exclusive hierarchy conflicts with cross-cutting causes already represented by multiple contributor perspectives. Resolution: hierarchy only for root-cause leaves; perspectives remain multi-label and severity/evidence remain separate axes.",
+    "Executable tests are more objective than LLM judgment, yet REAP and The Verification Horizon show tests can be irrelevant, flaky, incomplete, or exploitable. Resolution: test relevance and stability precede execution; trajectory/provenance checks and abstention remain mandatory."
+  ],
+  "unknowns": [
+    "Gold distribution of relevant perspectives per Python case, including how often more than three perspectives are simultaneously necessary.",
+    "Dynamic route Recall for rare Critical/High correctness, concurrency, and cross-file risks; no project data exists.",
+    "Whether deterministic structure/test analysis is sufficient on framework-heavy Python 3.14 repositories using DI, reflection, decorators, generated code, or metaprogramming.",
+    "The appropriate PerspectiveRoute cap, optional-route rule, trigger thresholds, and fallback frequency; all require pilot calibration.",
+    "Marginal utility and correlated-error rate of an optional LLM semantic critic over the existing deterministic gate.",
+    "Inter-rater agreement and support counts for a hierarchical root-cause taxonomy, especially out-of-taxonomy and multi-label cases.",
+    "Number of adjudicated feedback events needed for a learned router after accounting for rare classes, repository clustering, repeated trials, and selective-label bias.",
+    "Whether post-runtime LLM re-analysis improves root-cause/severity decisions enough to justify its call, versus deterministic state mapping plus human-readable composition.",
+    "Actual end-to-end token, tool-second, wall-time, and accepted-true-finding cost surfaces for F5, dynamic routing, verifier variants, and learned routing.",
+    "External papers are recent primary preprints/technical reports; independent replication and direct applicability to this project are unknown."
+  ],
+  "recommended_followups": [
+    "Revise ADR-01 §7 so '5 perspectives' means five candidate coverage facets. Specify normal dispatch 1-3, per-facet disposition, fixed-five fallback conditions, and state explicitly that the operating point is unproven.",
+    "Revise ADR-04 and E-03 graph/contracts: Static Extractor -> RiskEnvelope -> mandatory route rules -> Planner optional add -> Selected-perspective First Pass. Add PerspectiveRoute v1, HypothesisContract v1 (C/A/E/O), route failure outputs, and a single post-runtime lineage revision path.",
+    "Extend E-02 with a same-B_run routing matrix: F5 fixed, DR-rule, DR-rule+LLM-add, random-k, single-generalist, learned-shadow, and evaluator-oracle. Hold graph, model, tools, hard gate, evidence snapshot, and total budget constant.",
+    "Have blind evaluators label relevant perspective facets, root-cause leaves, route-attributable misses, and tool utility independently of emitted findings. On a controlled exploration sample, run F5/oracle routes to obtain counterfactual labels for perspectives the dynamic router would skip.",
+    "Pre-register Critical/High Recall as the routing safety endpoint and accepted true findings per token/cost as the efficiency endpoint; also report per-leaf route Recall, selected-view count, fallback, abstention, unsupported findings, latency, and inclusive cost. Treat any proposed margin or savings threshold as a project target, not an external result.",
+    "Run a verifier factorial: hard gate only, hard+selective critic, hard+always critic, and no hard gate control. The critic must be non-promotive and evaluated on concrete conflict cases rather than generic prose quality.",
+    "Keep FeedbackEvent v2 collection immediately, adding route candidates, selected routes, all five dispositions, route features, and counterfactual/exploration flag. Hold learned promotion until power, calibration, frozen regression, shadowing, and rollback gates are satisfied; never tune on final temporal/OOD.",
+    "Create a failure corpus for parser/graph incompleteness, async/concurrency, performance-neutral/harmful profiling, normal code, multi-label root causes, and out-of-taxonomy cases. Verify that each failure leads to fallback, rejected, or abstained rather than silent omission.",
+    "Do not add a separate taxonomy agent, autonomous verifier swarm, online prompt optimizer, or recursive test-generation loop. Reconsider only if the targeted ablations show a quality/cost frontier improvement over the minimum architecture."
+  ]
+}

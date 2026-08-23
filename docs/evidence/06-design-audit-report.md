@@ -2,7 +2,7 @@
 
 - 감사일: 2026-08-23
 - 대상: `docs/eval-rubric-analysis.md`, ADR 4개, evidence 문서, proposal/evaluation criteria
-- 상태: 문서 감사 통과 — 최신성·아키텍처·KPI·상태 계약 최종 폐쇄
+- 상태: 초기 설계 문서 감사 통과; 후속 가설 중심 적응형 계약 반영, 구현·성과 미측정
 
 ## 1. 방법
 
@@ -85,7 +85,9 @@
 구현·실측 전이므로 다음은 여전히 미입증이다.
 
 - Python 3.14 resolver가 framework DI/reflection을 충분히 다루는지
-- 5관점 DAG가 같은 B_run의 단일 LLM/fixed chain보다 우수한지
+- P4-F5 5관점 DAG가 같은 `B_run`의 단일 LLM/fixed chain보다 우수한지
+- P4-S2 적응형 관점 선택이 Critical/High Recall을 유지하며 token·호출을 줄이는지
+- semantic critic·ephemeral probe가 기존 Evidence Gate보다 유효한 추가 증거를 만드는지
 - profiler gold utility를 충분한 표본에서 blind 판정할 수 있는지
 - py-spy/Scalene overhead와 안정성
 - final sample size와 KPI 달성
@@ -94,3 +96,5 @@
 ## 7. 현재 판정
 
 기존 설계는 방향은 타당했지만 최신성 위반과 평가·상태 계약의 Major 문제가 있어 그대로 승인할 수 없었다. 모든 지적을 반영한 뒤 링크·fence·출처 pin·핵심 계약을 자동 검사했고, 아키텍처/계약과 KPI/평가를 맡은 독립 reviewer 2명이 최종 폐쇄 검토에서 모두 `pass`를 반환했다. 최신성 검토의 PERFOPT task-count·Graphify benchmark-date Minor 지적도 수치 미인용과 commit-pinned 출처로 교정했다. 따라서 **설계 문서 수준에서는 승인**한다. 구현 성능과 A+ KPI 달성은 §6의 잔여 위험이며 PROJECT RESULT가 생기기 전에는 승인한 것으로 간주하지 않는다.
+
+후속 가설 중심 적응형 계약의 선택 근거·반증·사전등록은 [`07-ai-technology-advancement-research.md`](07-ai-technology-advancement-research.md), [`08-ai-advancement-evidence-ledger.json`](08-ai-advancement-evidence-ledger.json), [`09-ai-advancement-review-artifacts.json`](09-ai-advancement-review-artifacts.json)에 분리해 보존한다.

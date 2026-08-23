@@ -15,6 +15,14 @@ scope: []
 task_description: 동일한 사용자 설명
 workload_or_test: 명령 manifest 또는 실행 불가 사유
 ground_truth_findings: []
+necessary_perspective_gold:
+  - gold_finding_id: G-001
+    perspective_ids: [correctness, concurrency]
+hypothesis_gold:
+  - gold_finding_id: G-001
+    claim_quantifier: existential
+    root_cause_category: race_on_shared_state
+    independent_oracle_id: E-ORACLE-01
 runtime_gold:
   - gold_finding_id: G-001
     severity: high
@@ -55,10 +63,11 @@ Severity는 ADR-01 rubric version과 판정 이유를 저장한다. Cohen's $\ka
 
 초기 60건은 측정 도구·라벨·효과 분포를 확인하는 pilot이다.
 
-- 결함 40건: 5관점별 주 결함 8건
+- 결함 40건: 5개 공통 관점을 주 결함 기준으로 균형화하되 필요한 관점은 multi-label로 판정
 - 음성·경계 20건: 정상, profiler neutral/harmful, workload 없음, unsafe
 - 최소 4개 Python 저장소
 - async/concurrency ≥ 25%, single/cross-file 각각 ≥ 30%
+- fixed-five shadow 출력은 gold로 사용하지 않고 evaluator가 finding·필요 관점·가설 계약을 독립 판정
 
 60건 자체가 최종 A+ 통계 근거는 아니다.
 
@@ -68,7 +77,9 @@ Pilot에서 분산, base rate, intra-repository correlation을 얻고 아래 cla
 
 - Critical/High Recall
 - profiler beneficial Recall/Precision
-- -2%p non-inferiority
+- 적응형 관점 선택의 perspective omission Recall과 `-2%p` 비열등
+- critic의 incremental valid counterevidence yield
+- ephemeral probe의 differential/hermetic validity와 confirmation coverage
 - reviewer time reduction
 
 각 분모에 사전 최소 건수를 정하고 0건 stratum이 있으면 그 claim을 보고하지 않는다. repository-disjoint train/calibration/regression을 개발에 사용하고, label과 manifest 접근이 차단된 temporal/OOD final holdout을 frozen version에 한 번만 실행한다.
@@ -207,7 +218,12 @@ $$
 | 무근거 발견률 | 유효 evidence 없는 최종 finding / 전체 | ≤ 5% |
 | 확인 상태 위반 | 근거 없는 runtime_confirmed | 0 |
 | context evidence Recall | gold evidence 중 context 포함 | ≥ 0.90 |
-| run-level token | 모든 agent·retry·cache 포함 | variant 공정 비교 |
+| perspective omission Recall | routed arm이 필요한 gold perspective를 실행·보존 | 비열등 하한 > -2%p |
+| route-attributable 중요 누락 | 관점 skip/defer가 원인인 Critical/High FN | 0 |
+| analyst 절감 | fixed-five 대비 analyst calls 또는 input/output tokens | ≥ 20% pilot 후보 |
+| critic 추가 근거 | gate-only에 없던 blind-valid counterevidence | self-review보다 CI 하한 > 0 |
+| probe validity | buggy/fixed/wrong-patch differential·hermetic validity | 각각 ≥ 80% pilot 후보 |
+| run-level token | 모든 agent·retry·critic·cache 포함 | variant 공정 비교 |
 | Recall 비열등 | token 절감 구성 - 기준선 | 하한 > -2%p |
 | 안전 실행 위반 | policy/승인 밖 명령 | 0 |
 | protocol exposure | agent가 gold/test artifact 접근 | 0 |
@@ -228,13 +244,17 @@ $$
 run_id: UUID
 case_id: PERF-001
 dataset_version: v1
-variant: P4
+variant: P4-F5
 trial: 1
 source_commit: sha
 model: exact-version
 prompt_version: sha256
 policy_version: sha256
 graph_hash: sha256
+diagnosis_plan_version: diagnosis-plan-v2
+perspective_dispositions: {}
+hypothesis_contract_ids: []
+critic_disposition: null
 execution_attempt_policy_ledger:
   - execution_request_id: UUID
     runtime_evidence_id: E-PROFILE-0001

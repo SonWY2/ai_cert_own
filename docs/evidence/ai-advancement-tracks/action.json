@@ -1,0 +1,235 @@
+{
+  "strategy_id": "action",
+  "scope": "Equivalent/action track only. 현행 Python 3.14 진단 파이프라인을 전면 교체하지 않고, 고정 5관점 Planner를 실제 증거에 반응하는 bounded action policy로 재설계할 수 있는지 검토했다. 최근 6개월(2026-02-23 이후) 1차 자료와 로컬 설계 계약만 사용했으며, 아래 수치들은 외부 연구의 reported result 또는 제안된 채택 기준이지 프로젝트 성과가 아니다.",
+  "claims": [
+    {
+      "id": "ACT-C1",
+      "claim": "현행 Planner는 모든 실행에서 structure/correctness/performance/concurrency/test 5개 first-pass를 먼저 수행한 뒤, 전체 완료 후 관점 하나만 선택해 재분석할 수 있다. 관점별 `run/skip/defer`나 first-pass 이전의 조기 중단 계약은 문서화되어 있지 않다.",
+      "kind": "observed",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§2, flow lines 26-56; §7 lines 176-186",
+          "source_type": "local primary design",
+          "supports": true,
+          "notes": "Flow가 Diagnosis Planner → Five-view First Pass → merge → 최대 한 번의 expansion으로 고정되어 있고 §7이 5개 관점을 모두 열거한다."
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§7 lines 131-141; §8 lines 143-151",
+          "source_type": "local primary design",
+          "supports": true,
+          "notes": "관점 수 5는 초기값이자 ablation 대상이며, 동적 dispatch 누락 위험은 언급하지만 skip/defer 상태 계약은 없다."
+        }
+      ],
+      "qualifiers": [
+        "5관점 우월성은 아직 프로젝트 가설이다.",
+        "병렬 실행이므로 호출 수 절감이 곧 wall-time 절감으로 이어진다고 가정할 수 없다."
+      ]
+    },
+    {
+      "id": "ACT-C2",
+      "claim": "초기 입력만으로 고정 routing하는 것보다 몇 단계의 탐색 결과·테스트 실패·검색 깊이 같은 partial trajectory를 본 뒤 routing하는 설계가 coding-agent cost/quality trade-off를 개선할 가능성이 있다는 최근 직접 근거가 있다.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2607.00053v1",
+          "title": "SWE-Router: Routing in Multi-turn Agentic Software Engineering Tasks",
+          "date": "2026-06-30",
+          "locator": "Abstract; §1; §3; §5.3, Figure 2",
+          "source_type": "primary preprint v1",
+          "supports": true,
+          "notes": "SWE-Router는 K=3의 partial trajectory에 조건화한 model router가 두 weak/strong model pair의 held-out SWE-bench Verified에서 prompt-only embedding baselines보다 대부분의 cost range에서 더 나은 cost-resolved frontier를 보였다고 보고한다."
+        }
+      ],
+      "qualifiers": [
+        "이는 모델 선택 및 issue-resolution 결과이며 관점 선택이나 진단 Recall의 직접 실험이 아니다.",
+        "학습 value head가 필요했던 연구이므로, 본 프로젝트의 첫 구현은 paired label이 없는 learned router가 아니라 deterministic guarded policy여야 한다."
+      ]
+    },
+    {
+      "id": "ACT-C3",
+      "claim": "LLM 코드 추론에 넣는 context는 많을수록 항상 좋지 않다. 최근 Python SWE-bench 연구에서는 file-level context가 중요했지만 line-level expansion은 자주 noise를 늘렸고, bug 특성에 따른 adaptive granularity가 고정 구성보다 유망하다고 결론지었다.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2604.05481v1",
+          "title": "On the Role of Fault Localization Context for LLM-Based Program Repair",
+          "date": "2026-04-07",
+          "locator": "Abstract; §1.1 Findings; §6.0.5 Ensemble and Adaptive Strategies; §8 Threats to Validity",
+          "source_type": "primary preprint v1",
+          "supports": true,
+          "notes": "500 SWE-bench Verified Python instances, GPT-5-mini, 61 context configurations에서 file-level localization이 지배적이고 expanded line context가 흔히 성능을 악화시켰다고 보고한다. 저자들은 scope/dependency/early-failure signal에 따라 context를 조절하는 adaptive strategy를 제안한다."
+        }
+      ],
+      "qualifiers": [
+        "실험은 developer patch의 ground-truth file/element/line을 사용한 optimistic upper bound다.",
+        "목표가 repair success이지 diagnosis precision/recall은 아니다.",
+        "한 모델·한 benchmark에 한정되어 현행 graph retrieval을 대체할 근거가 아니라 bounded adaptive aperture를 시험할 근거다."
+      ]
+    },
+    {
+      "id": "ACT-C4",
+      "claim": "현행 focused-test action은 `finding_id`, policy, command, ephemeral state만 지정하므로, 어떤 관찰이 가설을 지지/반박하는지와 어떤 독립 oracle에 근거하는지를 실행 전에 고정하지 않는다.",
+      "kind": "observed",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§9 Focused test lines 218-232; §10 RuntimeEvidence; §11 Evidence Gate lines 295-303",
+          "source_type": "local primary design",
+          "supports": true,
+          "notes": "`test_execution_request`에는 expected state-change class는 있지만 hypothesis, predicted observations, oracle basis, target path가 없다. Evidence Gate는 실행 후 envelope와 hash를 검증한다."
+        }
+      ],
+      "qualifiers": [
+        "현행 설계가 실행 provenance를 잃는다는 뜻은 아니다. 부족한 것은 실행 전의 discriminating-action 계약이다.",
+        "free-form command 실행 금지와 immutable ExecutionPolicy는 그대로 유지해야 한다."
+      ]
+    },
+    {
+      "id": "ACT-C5",
+      "claim": "LLM이 특정 주장 하나를 반증하도록 실행 가능한 counterexample test를 만들고, 실제 실행으로만 그 반증을 수용하는 패턴은 일반 test generation보다 false-positive 제거에 더 직접적인 최근 근거가 있다.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2604.10761v1",
+          "title": "Improving Dynamic Specification Inference with LLM-Generated Counterexamples",
+          "date": "2026-04-12",
+          "locator": "Abstract; §I; §V-C LLM-based Counterexample Generation; §V-D Counterexample Validation; §VII-A/RQ1; §IX Threats to Validity",
+          "source_type": "primary preprint v1",
+          "supports": true,
+          "notes": "43개 Java method의 SpecFuzzer assertions에 대해 GPT-5.1 counterexamples가 평균 precision을 67.83%에서 74.17%로 높였고, 세 모델은 invalid assertions를 5.63–11.68% 제거했다고 보고한다. 결과 수용은 LLM verdict가 아니라 compiling/executed witness에 의해 이뤄졌다."
+        }
+      ],
+      "qualifiers": [
+        "Java postcondition inference 결과이며 Python defect diagnosis로 직접 일반화할 수 없다.",
+        "해당 workflow에서 recall 불변은 후보 assertion을 추가하지 않고 제거만 한 구조적 결과다. 본 프로젝트 finding Recall 비열등성은 별도로 측정해야 한다.",
+        "LLM invalid-verdict precision은 55%에 불과했다고 보고되어, 생성 시도 자체의 낭비를 막는 eligibility gate가 필요하다."
+      ]
+    },
+    {
+      "id": "ACT-C6",
+      "claim": "실행 결과도 자동으로 신뢰 가능한 oracle이 되지 않는다. test relevance·stability를 먼저 검증해야 하며, 단일 test score가 요청된 artifact/의도를 대표하지 못하는 실패도 최근 관찰됐다.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2604.01527v4",
+          "title": "REAP: Automatic Curation of Coding Agent Benchmarks from Interactive Production Usage",
+          "date": "2026-07-28",
+          "locator": "Abstract; §3.3 Verification, especially Test Relevance Filtering and Test Validation",
+          "source_type": "primary paper/preprint v4, ASE 2026 Industry Showcase",
+          "supports": true,
+          "notes": "REAP는 semantic relevance filter로 candidate tests를 줄인 뒤 multi-run F2P와 transient-failure filtering을 적용한다."
+        },
+        {
+          "source": "https://arxiv.org/html/2606.28430v1",
+          "title": "Building to the Test: Coding Agents Deliver What You Check, Not What You Requested",
+          "date": "2026-06-26",
+          "locator": "Abstract; §1; §3 Library audit methodology; §4 Table 1; §6 Threats to validity",
+          "source_type": "primary preprint v1",
+          "supports": true,
+          "notes": "하나의 React→Angular library task에서 2개 production agents, 18 runs를 비교했을 때 near-perfect hidden-test score와 dead/absent reusable-library implementation이 공존한 사례를 mechanical audit와 no-op ablation으로 확인했다."
+        }
+      ],
+      "qualifiers": [
+        "REAP corpus와 source는 proprietary이고 benchmark curation 맥락이다.",
+        "Building-to-the-Test는 단일 UI task·2 agent 연구로 prevalence를 주장하지 않는다.",
+        "따라서 generated probe는 독립 oracle가 없으면 일반적 정당성을 확인하는 용도가 아니라 반증 또는 abstention 용도로 제한해야 한다."
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "name": "A1. Evidence-conditioned Perspective Scheduler",
+      "current_gap": "고정 5관점 first-pass는 간단한 localized correctness case에도 5 analyst calls를 소비하고, 반대로 실제 어려움은 탐색 후에 드러나도 dispatch는 이미 끝난다. 현재의 one-perspective expansion은 비용을 이미 지출한 뒤의 보정이다.",
+      "mechanism": "기존 Diagnosis Planner를 `perspective_disposition = run | skip | defer`를 내는 typed action policy로 바꾼다. correctness는 안전망으로 항상 `run`; structure/performance/concurrency/test는 AST·CFG·graph·사용자 증상·기존 test link의 enumerated trigger가 있을 때만 `run`; 애매한 하나는 `defer`한다. first merge 뒤 unresolved evidence-gap이 남을 때 defer 관점 하나만 실행하고 종료한다. 각 선택은 evidence IDs, trigger code, expected finding type, allocated budget, stop reason을 저장한다. Planner 오류·timeout·invalid plan이면 현행 fixed-five deterministic fallback을 그대로 실행한다. 초기에는 rule-guarded LLM planner이며 learned routing은 paired blind utility labels와 power analysis 이후 별도 version으로만 허용한다.",
+      "expected_effect": "제안 채택 기준: fixed-five P4 대비 analyst call 수와 analyst token을 각각 최소 25% 줄이되, Critical/High Recall의 paired one-sided CI 하한이 -2%p보다 크고, 무근거 finding ≤5%, 잘못된 `runtime_confirmed` 0을 유지한다. wall time은 별도 측정하며 감소를 선험적으로 주장하지 않는다. Lv3 시연은 localized correctness case가 2개 이하 관점에서 종료되고 async/performance case가 근거에 따라 추가 관점을 dispatch하며 planner failure가 fixed-five fallback으로 회복되는 3개 trace로 구성할 수 있다.",
+      "ai_specificity": "LLM은 단순 분류가 아니라 code-graph/CFG/symptom evidence를 causal diagnostic roles와 예상 검증 산출물로 매핑한다. 결정론적 trigger validator, typed plan, budget ledger, fallback dispatcher가 실제 행동을 바꾸므로 prompt-only 호출이 아니다.",
+      "minimal_change": "새 agent나 저장소 없이 `DiagnosisPlan`에 per-perspective disposition/trigger/evidence/budget/stop fields를 추가하고, 기존 5 analyst node 앞 dispatcher를 조건부 fan-out으로 변경한다. analyst prompts, Finding v2, merger, Evidence Gate, ExecutionPolicy는 유지한다. 비교 variant `P4-F5`와 `P4-DYN`만 추가한다.",
+      "extra_cost": "낮음. Planner는 이미 존재하며 schema validation만 늘어난다. 최악에는 invalid plan 후 fixed-five fallback 때문에 planner 비용만큼 손해가 난다.",
+      "risks": [
+        "희귀 concurrency/performance defect를 trigger가 놓쳐 관점 Recall이 감소할 수 있다.",
+        "관점별 base rate가 낮으면 planner가 다수 skip해 보이는 효율은 얻지만 OOD에서 붕괴할 수 있다.",
+        "병렬 5관점의 tail latency가 작다면 call/token 절감 대비 wall-time 이득이 작을 수 있다.",
+        "skip reason을 자유서술로 두면 재현성과 evaluator audit가 약해진다."
+      ],
+      "evaluation": "Pilot에서 perspective별 missed-gold audit와 skip confusion matrix를 만들고 calibration에서 trigger threshold를 동결한다. same commit/model/tools/evidence/inclusive B_run으로 fixed-five와 paired 비교하며 temporal/OOD를 1회 평가한다. rollback 조건은 (a) 어느 관점이든 Critical/High Recall 비열등 CI 하한 ≤-2%p, (b) skip이 원인인 Critical miss 1건이라도 final에 발생, (c) total analyst token 절감 <10%, (d) fallback rate >5% 중 하나다. rollback은 dispatcher feature flag를 끄고 fixed-five plan으로 즉시 복귀한다.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "A2. Hypothesis-Discriminating Ephemeral Probe",
+      "current_gap": "현재 focused test는 어느 command를 돌렸는지는 추적하지만, 어떤 상충 가설을 구분하는 action인지·지지와 반박의 예상 관찰이 무엇인지·oracle가 독립적인지를 실행 전에 고정하지 않는다. 그 결과 기존 test가 없는 High/Critical hypothesis는 정적 지지나 abstention에 머물고, 관계없는 test 실행도 구분하기 어렵다.",
+      "mechanism": "High/Critical이며 test-eligible한 finding 중 기존 relevant test가 없거나 결과가 inconclusive인 경우에만 LLM이 정확히 하나의 ephemeral pytest probe를 제안한다. request에 `hypothesis_id`, premises, `supports_if`, `refutes_if`, target symbol/path, oracle_basis(`user_observation|existing_test|doc_contract|none`), code hash를 포함한다. relevance validator가 probe가 target path를 실제로 호출하고 독립 oracle를 사용하는지 검사한 뒤 immutable ExecutionPolicy가 허용한 exact pytest command로 sandbox 실행하고 RuntimeEvidence로 정규화한다. `oracle_basis=none`이면 성공 한 번으로 `runtime_confirmed` 승격하지 않고, concrete counterexample에 의한 retraction/refutation 또는 abstention만 허용한다. 한 번의 compile/collection repair만 허용하고 probe는 run 후 폐기하며 product test로 자동 커밋하지 않는다.",
+      "expected_effect": "제안 채택 기준: P4 대비 eligible High/Critical finding의 blind-adjudicated false-positive rate를 상대 20% 이상 줄이거나 accepted-finding precision을 +5%p 높이고, Critical/High Recall CI 하한 >-2%p, confirmed-state violation 0을 유지한다. 부지표는 probe relevance pass rate, collect/execute rate, discriminating yield(`supports|refutes`/attempted), flaky/inconclusive rate, 추가 tool seconds다. Lv3 시연은 하나의 plausible finding이 counterexample로 rejected 되고, 독립 oracle가 있는 defect만 runtime_confirmed 되며, oracle가 없는 passing probe는 승격되지 않는 trace다.",
+      "ai_specificity": "LLM이 경계 입력과 관찰을 합성해 상충하는 코드 가설을 분리하지만, validity 판정은 deterministic relevance check와 실제 Python 실행이 맡는다. 단순 unit-test 생성이나 LLM self-judge가 아니다.",
+      "minimal_change": "`test_execution_request`와 RuntimeEvidence linkage에 hypothesis/prediction/oracle/probe hash fields를 추가하고, 기존 test executor 앞에 small probe generator와 relevance validator를 둔다. pytest만 지원하고 파일 1개·test 1개·retry 1회·High/Critical로 제한한다. 현행 policy, reset, timeout, capability, raw hash 계약을 재사용한다.",
+      "extra_cost": "중간. 추가 LLM generation 1회와 pytest 실행이 들지만 eligible subset에만 적용하고 inclusive B_run/tool-second cap 안에서 실행한다.",
+      "risks": [
+        "LLM이 finding과 같은 잘못된 가정을 test oracle에 복제해 순환 확인을 만들 수 있다.",
+        "생성 test가 implementation detail에 과적합하거나 flaky할 수 있다.",
+        "existential defect claim은 한 counterexample 부재로 refute할 수 없어 claim quantifier와 prediction schema가 필요하다.",
+        "ephemeral source 실행이 ExecutionPolicy surface를 넓히므로 허용 import/fixture/command를 좁혀야 한다."
+      ],
+      "evaluation": "`P4` 대 `P4+PROBE` paired ablation을 별도로 두고 기존 focused-test 효과와 섞지 않는다. expert가 probe relevance와 oracle independence를 blind label한다. rollback 조건은 (a) false `runtime_confirmed` 1건, (b) independent-oracle violation 1건, (c) relevance pass rate <70%, (d) collect/execute success <80%, (e) flaky/inconclusive >20%, (f) precision 개선 CI가 0 이하이거나 Recall 비열등 실패다. rollback 시 generated-probe route만 비활성화하고 existing focused test는 유지한다.",
+      "provisional_decision": "add"
+    },
+    {
+      "name": "A3. Adaptive Evidence Aperture over Existing Retrieval",
+      "current_gap": "현행 retrieval은 exact/BM25/vector anchor 뒤 shared bounded 1-hop을 채우고, 모든 first-pass 완료 뒤 typed 2-hop expansion 하나만 선택한다. file/symbol/span granularity와 semantic-vs-structural context 크기를 finding/perspective별 evidence-gap에 맞춰 조절하는 action은 명시되어 있지 않다.",
+      "mechanism": "새 graph 기술을 추가하지 않고 Planner가 기존 candidate IDs 위에서 `KEEP | NARROW | WIDEN` 한 번을 선택하게 한다. action은 target perspective/finding, missing fact, granularity(file|symbol|span), allowed existing strategy(exact|BM25|vector|graph), anchor IDs, max tokens, stop predicate를 갖는다. 기본은 precise span+symbol이며 cross-module intent/evidence gap일 때만 semantic file shortlist나 bounded graph hop을 넓힌다. deterministic retriever가 candidate membership·source hash·hop/token cap을 검증하고, Evidence Gate까지 provenance를 보존한다.",
+      "expected_effect": "제안 채택 기준: current tiered retrieval 대비 evidence-context token을 최소 20% 줄이면서 localization Recall one-sided CI 하한 >-2%p와 Critical/High Recall을 유지하고, cross-file cohort에서 방향이 악화되지 않아야 한다. Lv3 시연은 localized case가 span/symbol에서 stop하고 cross-module case만 file/2-hop으로 widen되며 동일 source→finding provenance를 보여주는 paired context manifest다.",
+      "ai_specificity": "LLM은 bug intent와 unresolved causal gap에 맞는 semantic aperture를 선택하고, 결정론적 retrieval engine은 실제 context assembly와 provenance를 통제한다. vector store나 prompt 하나를 추가하는 제안이 아니다.",
+      "minimal_change": "기존 `retrieval_expansion_request`에 `action`, `granularity`, `target_finding_id`, `missing_fact`, `stop_predicate`를 추가하고 initial context serializer가 per-perspective slice를 받을 수 있게 한다. exact/BM25/vector, Code Graph, 1/2-hop cap, 24k evidence budget은 그대로 사용한다.",
+      "extra_cost": "낮음~중간. 추가 index/DB는 없고 planner structured output과 rerank만 늘지만, 잘못된 widen은 token을 더 쓴다.",
+      "risks": [
+        "근거 연구가 ground-truth localization을 사용해 실제 noisy anchor 조건에서 이득이 사라질 수 있다.",
+        "semantic selector가 graph provenance보다 그럴듯한 파일을 과선택할 수 있다.",
+        "A1 scheduler와 동시에 바꾸면 관점 선택 효과와 retrieval 효과를 식별할 수 없다.",
+        "현행 typed expansion과 중복되어 복잡도 대비 추가 효용이 작을 수 있다."
+      ],
+      "evaluation": "A1이 안정된 뒤 독립 ablation으로만 평가한다. current tiered context와 adaptive aperture를 same planner/model/B_run으로 비교하고 file/symbol/span별 localization Recall, evidence tokens, expansion rate, unsupported finding을 기록한다. rollback 조건은 localization 또는 Critical/High Recall 비열등 실패, token 절감 <10%, unsupported finding 증가, cross-file cohort 방향 악화 중 하나다. 그 경우 기존 stable arbitration+one expansion으로 복귀한다.",
+      "provisional_decision": "hold"
+    }
+  ],
+  "contradictions": [
+    "SWE-Router와 Agent-as-a-Router 계열의 최근 결과는 model routing/issue resolution에 대한 것이며, 5 diagnostic perspectives를 skip해도 Recall이 유지된다는 직접 근거가 아니다. 따라서 learned router 즉시 도입이 아니라 guarded dynamic-dispatch ablation만 정당화한다.",
+    "Fault-localization 연구는 semantic LLM retrieval이 structural heuristic보다 좋은 구성을 보고하지만 ground-truth buggy locations를 입력했다. 현행 versioned Code Graph를 대체하라는 근거가 아니며, LLM은 deterministic candidate set을 선택하는 역할로 제한해야 한다.",
+    "Counterexample 연구의 recall 불변은 기존 assertion 후보를 제거만 하는 구조에서 나온다. 진단 pipeline에서 probe가 finding 생성/승격/보고 우선순위에 영향을 주면 동일 성질이 보장되지 않는다.",
+    "Runtime test를 강하게 쓰자는 제안과 Building-to-the-Test 관찰은 긴장한다. 해소 조건은 independent oracle provenance, relevance validation, generated passing test의 비확인 처리, blind finding adjudication이다.",
+    "로컬 ADR-03은 learned router를 충분한 paired utility labels와 power analysis 뒤 별도 policy version으로만 허용한다. online self-evolving memory/router를 초기 구현에 넣는 것은 현행 공정성·holdout 계약과 충돌한다."
+  ],
+  "unknowns": [
+    "관점별 실제 defect base rate와 어떤 deterministic trigger 조합이 skip false-negative를 허용 가능한 수준으로 낮추는지 미측정이다.",
+    "자유 confidence field 없이 planner action의 불확실성을 어떻게 calibration할지는 결정되지 않았다. `defer`와 enumerated evidence-gap으로 대체할 수 있는지 pilot이 필요하다.",
+    "5관점이 병렬이므로 calls/tokens 감소가 reviewer decision time 또는 end-to-end wall time으로 얼마나 전환되는지 알 수 없다.",
+    "실제 Python 3.14 repositories에서 LLM-generated ephemeral pytest의 relevance, collection success, flakiness, oracle independence 분포가 없다.",
+    "외부 연구 대부분이 repair/specification inference이므로 진단-only Finding precision/recall로의 전이 크기는 알 수 없다.",
+    "A1 dynamic dispatch와 A3 adaptive retrieval 사이의 상호작용을 함께 추정할 표본·power가 충분한지 알 수 없다."
+  ],
+  "recommended_followups": [
+    "우선 A1만 구현·평가하라: `P4-F5` vs `P4-DYN`을 same-B_run paired experiment로 추가하고 perspective-level skip/miss manifest를 저장한다.",
+    "DiagnosisPlan vNext를 사전 등록하라: perspective disposition, trigger/evidence IDs, deferred action, budget, stop/fallback reason을 enum으로 고정하고 invalid plan은 fixed-five로 fail closed한다.",
+    "A2는 별도 capability flag로 pilot하라: generated probe는 High/Critical, one file/one test/one retry, independent oracle가 없으면 confirm 금지로 제한한다.",
+    "평가 artifact에 action trace를 추가하라: plan version, candidate actions, chosen action, rejected reason, consumed tokens/tool seconds, produced evidence hash, stop/rollback disposition을 기록한다.",
+    "A3는 A1 promotion 후에만 독립 ablation하라. 동시에 바꾸면 perspective-routing 효과와 context-aperture 효과를 식별할 수 없다.",
+    "Lv3 데모를 결과 과장 없이 준비하라: fixed-five baseline과 각 후보의 정상·skip/defer·counterexample·policy block·fallback trace를 동일 사례에서 재생하고, 수치는 pilot/final 구분을 명시한다."
+  ]
+}

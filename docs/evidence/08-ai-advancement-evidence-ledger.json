@@ -1,0 +1,884 @@
+{
+  "schema_version": "deep-research-evidence-ledger-v1",
+  "as_of": "2026-08-23",
+  "freshness_cutoff": "2026-02-23",
+  "claims": [
+    {
+      "id": "ADV-C001",
+      "claim": "조사 당시 Diagnosis Planner는 5개 관점을 모두 1차 실행했고 관점 선택·생략 계약이 없었다.",
+      "kind": "observed",
+      "status": "confirmed-at-research-time; resolved-in-design",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "ai-advancement-tracks/artifact-gap.json",
+          "locator": "AG-C2",
+          "date": "2026-08-23",
+          "supports": true,
+          "notes": "후속 변경 전 fixed-five first pass와 비어 있던 DiagnosisPlan 계약을 기록한 immutable raw research input.",
+          "source_type": "local-research-artifact",
+          "accessed_at": "2026-08-23",
+          "content_sha256": "27d25e43cf34a4a23d5dd3fd542d33be368f1a6a7913ef2351e6a9a2400f6a16"
+        }
+      ],
+      "conflicts": [],
+      "qualifiers": [
+        "현재 문서는 구현 전 설계다."
+      ],
+      "verified_by": "artifact-track + parent inspection",
+      "report_claim_ids": [
+        "E-07 §2",
+        "E-07 §4"
+      ],
+      "canonical_candidate_ids": [
+        "A1"
+      ],
+      "verifier_artifact_uri": "09-ai-advancement-review-artifacts.json",
+      "resolution_status": "resolved-in-design-not-implemented",
+      "resolved_by": [
+        {
+          "uri": "project-context/ai-professional-project-proposal.md",
+          "sha256": "05b07577f5b1e5f831a82fd8447cc7a41e0f1ace84d2ed8b6226cf3a701f1a40"
+        },
+        {
+          "uri": "ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "sha256": "581bcc2d044a3a8b6ff416df87cc02cb316af789b2ccf6ce208bb0494d59ec25"
+        },
+        {
+          "uri": "ai-selection-matrix/04-agent-orchestration-adr.md",
+          "sha256": "35d238a646ddd2a7205f2a8d88601e5765511d445fb55c64f2516725109a7f22"
+        },
+        {
+          "uri": "evidence/03-ai-pipeline-technical-design.md",
+          "sha256": "52a9733c664e549d3468a5587bead5269aeeeb6f7b4bf4fa171f053cc1b7df9b"
+        }
+      ]
+    },
+    {
+      "id": "ADV-C002",
+      "claim": "부분 실행 trajectory를 본 뒤 routing하는 방식은 초기 입력만 사용하는 routing보다 coding-agent 비용·성능 trade-off를 개선할 가능성이 있다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2607.00053v1",
+          "locator": "Abstract, §3, §5.3",
+          "date": "2026-06-30",
+          "supports": true,
+          "notes": "SWE-Router가 partial trajectory 기반 model routing을 평가한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "6ca54d622dfff70f451cfe9cca93221066f822716d74d4069aa18c5ff5b43a89"
+        }
+      ],
+      "conflicts": [],
+      "qualifiers": [
+        "모델 routing 결과이며 코드 진단 관점 생략에 직접 전이되지 않는다."
+      ],
+      "verified_by": "primary-source parent verification + A1 adversarial verifier",
+      "report_claim_ids": [
+        "E-07 §4",
+        "E-07 §7 단계 2"
+      ],
+      "canonical_candidate_ids": [
+        "A1"
+      ],
+      "verifier_artifact_uri": "09-ai-advancement-review-artifacts.json"
+    },
+    {
+      "id": "ADV-C003",
+      "claim": "LLM의 자기 판단만으로 실행·생략을 결정하는 것은 안전한 routing 근거가 아니다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2607.10059v1",
+          "locator": "Abstract, §2",
+          "date": "2026-07-11",
+          "supports": true,
+          "notes": "AgentAbstain의 최고 agent도 act/abstain paired accuracy 59.5%를 보고한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "1e5ab446aaba0c186c5ae710e652030485cea7d8c0959ffcc302377c4debadb0"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.00737v3",
+          "locator": "Abstract, §3-4",
+          "date": "2026-08-06",
+          "supports": true,
+          "notes": "모델이 tool need와 utility를 체계적으로 오판하고 neutral/harmful call이 발생할 수 있음을 보고한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "cc464698a36c86c8e17022565caf2972694724a0cee08f035eb57249f0801745"
+        }
+      ],
+      "conflicts": [],
+      "qualifiers": [
+        "관점 routing 자체를 직접 측정한 연구는 아니다."
+      ],
+      "verified_by": "primary-source parent verification",
+      "report_claim_ids": [
+        "E-07 §4",
+        "E-07 §9"
+      ],
+      "canonical_candidate_ids": [
+        "A1",
+        "A9"
+      ],
+      "verifier_artifact_uri": "09-ai-advancement-review-artifacts.json"
+    },
+    {
+      "id": "ADV-C004",
+      "claim": "근거 형식을 강제하지 않은 reviewer-critic은 false consensus를 만들 수 있으며, 구조화된 이견 형식은 제한된 코드 리뷰 평가에서 개선을 보였다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2608.18167v1",
+          "locator": "§3.5, §4.2-4.4, §5.2",
+          "date": "2026-08-16",
+          "supports": true,
+          "notes": "naive AR F1 0.457, text-constrained AR F1 0.533과 DISAGREE_EVIDENCE/CONCERN을 보고한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "d8a068e9fa3ea1986763e759597d9792f176b2f5334b978cca7e588a157380ed"
+        }
+      ],
+      "conflicts": [
+        "현행 Evidence Gate 대비 추가 critic의 독립 이득은 측정되지 않았다."
+      ],
+      "qualifiers": [
+        "한 코드 리뷰 benchmark의 결과이며 프로젝트 Python 진단으로 직접 일반화할 수 없다."
+      ],
+      "verified_by": "primary-source parent verification + A3 adversarial verifier",
+      "report_claim_ids": [
+        "E-07 §6",
+        "E-07 §7 단계 3"
+      ],
+      "canonical_candidate_ids": [
+        "A3"
+      ],
+      "verifier_artifact_uri": "09-ai-advancement-review-artifacts.json"
+    },
+    {
+      "id": "ADV-C005",
+      "claim": "LLM이 실행 가능한 counterexample 후보를 만들고 실제 실행으로 검증하는 방식은 universal specification 반증에 유효할 수 있다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2604.10761v1",
+          "locator": "Abstract, §V-C-D, §VII-A",
+          "date": "2026-04-12",
+          "supports": true,
+          "notes": "SpecFuzzer의 invalid assertion 최대 11.68% 제거와 precision 최대 7% 개선을 보고한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "5471636d343f78437b08e3fc8f406902f814614088f9c33b4f41c06596d36b68"
+        }
+      ],
+      "conflicts": [],
+      "qualifiers": [
+        "Java method-level specification inference 결과다.",
+        "passing probe는 existential race나 workload-dependent 성능 문제를 반박하지 못한다."
+      ],
+      "verified_by": "primary-source parent verification + A4 adversarial verifier",
+      "report_claim_ids": [
+        "E-07 §5",
+        "E-07 §7 단계 4"
+      ],
+      "canonical_candidate_ids": [
+        "A4"
+      ],
+      "verifier_artifact_uri": "09-ai-advancement-review-artifacts.json"
+    },
+    {
+      "id": "ADV-C006",
+      "claim": "생성 테스트와 단일 verifier는 독립 oracle로 간주할 수 없으며 relevance·stability·leakage 검사가 필요하다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2607.12068v1",
+          "locator": "Abstract, §II-III",
+          "date": "2026-07-13",
+          "supports": true,
+          "notes": "agent-generated test의 quality와 flakiness를 별도 평가한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "efe365ea6462cba669cf73f2e010d32dd2863e0b4a174b766316ee22c6e66093"
+        },
+        {
+          "source": "https://arxiv.org/html/2606.26300v1",
+          "locator": "Abstract, §1-2",
+          "date": "2026-06-24",
+          "supports": true,
+          "notes": "coding-agent reward verification에 단일 silver bullet이 없음을 분석한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "2eb8ee1e4553efd39cf3b70d140f963af1f33d3d96c007bb1a13cbf3838bfb05"
+        },
+        {
+          "source": "https://arxiv.org/html/2604.01527v4",
+          "locator": "§3.3",
+          "date": "2026-07-28",
+          "supports": true,
+          "notes": "test relevance, leakage, stability 검증 절차를 사용한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "0224743a7047ba0b13f350cca4d20bcb7e4f7eeb9ad9b102577b4bc667e1a357"
+        }
+      ],
+      "conflicts": [],
+      "qualifiers": [
+        "프로젝트의 probe yield와 비용은 아직 모른다."
+      ],
+      "verified_by": "experimental/adversarial tracks + parent verification",
+      "report_claim_ids": [
+        "E-07 §5",
+        "E-07 §7 단계 4"
+      ],
+      "canonical_candidate_ids": [
+        "A4"
+      ],
+      "verifier_artifact_uri": "09-ai-advancement-review-artifacts.json"
+    },
+    {
+      "id": "ADV-C007",
+      "claim": "동질적 다중-agent debate를 기본 경로에 추가하는 것은 비용 대비 품질 개선 근거가 약하다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.00914v1",
+          "locator": "Abstract, §3.3-3.5",
+          "date": "2026-04-29",
+          "supports": true,
+          "notes": "7-8B 모델 조건에서 debate가 self-correction보다 2.1-3.4배 token을 쓰고 같거나 낮은 정확도를 보고한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "61b970e2188b8094fc73f2edb29edcd778fcde4329b92252b8f95b18c5cb731d"
+        }
+      ],
+      "conflicts": [],
+      "qualifiers": [
+        "특정 모델 크기와 benchmark 조건이므로 모든 이질적 reviewer 구조를 반증하지는 않는다."
+      ],
+      "verified_by": "adversarial track + parent verification",
+      "report_claim_ids": [
+        "E-07 §9"
+      ],
+      "canonical_candidate_ids": [
+        "A10"
+      ],
+      "verifier_artifact_uri": "09-ai-advancement-review-artifacts.json"
+    },
+    {
+      "id": "ADV-C008",
+      "claim": "저장소 history memory의 retrieval 개선이 downstream bug-fixing 개선을 보장하지 않는다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.18284v1",
+          "locator": "Abstract, §VI-G",
+          "date": "2026-05-18",
+          "supports": true,
+          "notes": "CommitDistill downstream 평가에서 control 대비 headline mean의 통계적 개선을 찾지 못했다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "73ec9e3ced52771cdc548db25b995ebf6723e8e881c6180bb7ba31bc0b4e9946"
+        }
+      ],
+      "conflicts": [],
+      "qualifiers": [
+        "history retrieval 자체의 가능성을 반증하지 않고, 우선순위를 낮추는 근거다."
+      ],
+      "verified_by": "experimental track + parent verification",
+      "report_claim_ids": [
+        "E-07 §6",
+        "E-07 §9"
+      ],
+      "canonical_candidate_ids": [
+        "A7",
+        "A11"
+      ],
+      "verifier_artifact_uri": "09-ai-advancement-review-artifacts.json"
+    },
+    {
+      "id": "ADV-C009",
+      "claim": "적응형 관점 scheduler는 현재 기본 설계로 승격할 근거가 없고 fixed-five shadow 대조 실험이 먼저 필요하다.",
+      "kind": "inferred",
+      "status": "candidate",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "locator": "§2 P4-F5/S1/S2, §7 A12-A15, §10 promotion",
+          "date": "2026-08-23",
+          "supports": true,
+          "notes": "fixed-five, shadow, routed, critic, probe arm과 same-B_run 승격 계약을 정의한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "local-artifact",
+          "content_sha256": "1eef42cae0b7628020a4f5cba0ab7316a4e97cee497d20e36ee0a13f679b2b44"
+        },
+        {
+          "source": "https://arxiv.org/html/2607.00053v1",
+          "locator": "Abstract, §3, §5.3",
+          "date": "2026-06-30",
+          "supports": true,
+          "notes": "partial-trajectory routing 가능성만 지지한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "6ca54d622dfff70f451cfe9cca93221066f822716d74d4069aa18c5ff5b43a89"
+        }
+      ],
+      "conflicts": [
+        "관점 omission의 Critical/High recall 손실 자료가 없다."
+      ],
+      "qualifiers": [
+        "project pilot 전에는 효율·품질 개선을 주장하지 않는다."
+      ],
+      "verified_by": "three-judge panel + A1 adversarial verifier",
+      "report_claim_ids": [
+        "E-07 §1",
+        "E-07 §4",
+        "E-07 §7 단계 2"
+      ],
+      "canonical_candidate_ids": [
+        "A1"
+      ],
+      "verifier_artifact_uri": "09-ai-advancement-review-artifacts.json",
+      "resolution_status": "shadow-pilot-contract-reflected; routed mode not promoted"
+    },
+    {
+      "id": "ADV-C010",
+      "claim": "가장 작은 선행 설계 변경은 Finding을 falsifiable HypothesisContract에 결합하는 것이다.",
+      "kind": "inferred",
+      "status": "accepted-design-contract; project effect unmeasured",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "locator": "§9 HypothesisContract and runtime lifecycle",
+          "date": "2026-08-23",
+          "supports": true,
+          "notes": "claim quantifier, support/refute observations, independent oracle, new-ID rule을 active contract로 정의한다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "local-artifact",
+          "content_sha256": "52a9733c664e549d3468a5587bead5269aeeeb6f7b4bf4fa171f053cc1b7df9b"
+        },
+        {
+          "source": "https://arxiv.org/html/2604.10761v1",
+          "locator": "§V-C-D",
+          "date": "2026-04-12",
+          "supports": true,
+          "notes": "실행 가능한 counterexample과 deterministic validation의 가치가 확인된다.",
+          "accessed_at": "2026-08-23",
+          "source_type": "primary-preprint",
+          "content_sha256": "5471636d343f78437b08e3fc8f406902f814614088f9c33b4f41c06596d36b68"
+        }
+      ],
+      "conflicts": [],
+      "qualifiers": [
+        "계약 추가 자체가 KPI 개선을 의미하지 않는다."
+      ],
+      "verified_by": "action track + A4/A5 adversarial constraints",
+      "report_claim_ids": [
+        "E-07 §1",
+        "E-07 §5"
+      ],
+      "canonical_candidate_ids": [
+        "A4",
+        "A5"
+      ],
+      "verifier_artifact_uri": "09-ai-advancement-review-artifacts.json",
+      "resolution_status": "HypothesisContract v1 reflected in ADR-01 and E-03"
+    },
+    {
+      "id": "ADV-C011",
+      "claim": "절차 skill을 모든 coding task에 주입하는 것은 평균 품질 향상을 보장하지 않고 큰 token overhead를 만들 수 있다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "report_claim_ids": [
+        "E-07 §9"
+      ],
+      "canonical_candidate_ids": [
+        "A1",
+        "A2"
+      ],
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2603.15401v1",
+          "locator": "Abstract, §4",
+          "date": "2026-03-16",
+          "supports": true,
+          "notes": "49개 중 39개 skill이 pass-rate 개선 0, 평균 +1.2%, 최대 +451% token overhead와 일부 성능 저하를 보고한다.",
+          "source_type": "primary-preprint",
+          "accessed_at": "2026-08-23",
+          "content_sha256": "8676fc1fc05f54210b07a92c5225895aa05d9bc9cf6d0abec078a9338878aa6f"
+        }
+      ],
+      "conflicts": [],
+      "qualifiers": [
+        "특정 skill/task/model 분포 결과이며 유용한 개별 skill을 반증하지 않는다."
+      ],
+      "verified_by": "primary-source parent verification",
+      "verifier_artifact_uri": "09-ai-advancement-review-artifacts.json"
+    }
+  ],
+  "review_artifact": {
+    "uri": "09-ai-advancement-review-artifacts.json",
+    "sha256": "957b1dc27ce31a2259688e4bca21b73309b783235437935e1d574c7d7470d420",
+    "schema_version": "ai-advancement-review-artifacts-v4",
+    "contains": [
+      "eight_raw_track_uris_and_hashes",
+      "canonical_candidate_map",
+      "three_judge_scores",
+      "adversarial_verifications",
+      "review_source_snapshots",
+      "canonical_preregistration",
+      "final_dispositions",
+      "design_reflection_hashes"
+    ]
+  },
+  "candidate_decisions": {
+    "A1": {
+      "decision": "shadow-pilot",
+      "reason": "관점 omission gold가 없으므로 fixed-five를 대체하지 않고 evaluator-only shadow로 평가"
+    },
+    "A2": {
+      "decision": "exclude-freeform; focus-lens-only",
+      "reason": "자유형 role 생성은 계약 drift 위험이 커 registered parent 관점의 focus question으로 축소"
+    },
+    "A3": {
+      "decision": "conditional-pilot",
+      "reason": "현행 Evidence Gate 대비 고유 counterevidence와 false retraction을 같은 B_run에서 평가"
+    },
+    "A4": {
+      "decision": "phase-2-pilot",
+      "reason": "HypothesisContract와 독립 oracle이 있는 falsification 후보에만 제한"
+    },
+    "A5": {
+      "decision": "hold",
+      "reason": "직접 marginal-utility 근거가 없고 contradiction laundering 방지 계약이 선행돼야 함"
+    },
+    "A6": {
+      "decision": "hold-until-labels",
+      "reason": "evaluator-confirmed 실패가 축적된 뒤 offline으로만 평가"
+    },
+    "A7": {
+      "decision": "hold",
+      "reason": "retrieval hit 이득이 downstream 진단 이득을 보장하지 않음"
+    },
+    "A8": {
+      "decision": "hold-unless-telemetry-exists",
+      "reason": "telemetry·redaction·retention 비용이 먼저 존재해야 함"
+    },
+    "A9": {
+      "decision": "hold",
+      "reason": "cold-start project utility label과 안정 verifier가 없음"
+    },
+    "A10": {
+      "decision": "exclude",
+      "reason": "반복 homogeneous debate의 비용·false consensus 위험"
+    },
+    "A11": {
+      "decision": "exclude",
+      "reason": "stale memory·오염·holdout leakage 위험"
+    },
+    "A12": {
+      "decision": "supporting-only",
+      "reason": "결정론적 정적 corroboration이며 AI 추론 고도화는 아님"
+    }
+  },
+  "review_source_snapshots": [
+    {
+      "source": "https://arxiv.org/html/2602.19672v1",
+      "title": "SkillOrchestra: Learning to Route Agents via Skill Transfer",
+      "date": "23 Feb 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "253a5b86dac51701592c96cbc492e016672f4a802c9001cc2c269988922a1ab6",
+      "canonical_candidate_ids": [
+        "A9"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A9]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2603.01327v1",
+      "title": "SWE-Adept: An LLM-Based Agentic Framework for Deep Codebase Analysis and Structured Issue Resolution",
+      "date": "01 Mar 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "1b73500d82c601c776def077e7a03d4903f10d61fa9a3bd438f9f873ea46a7e1",
+      "canonical_candidate_ids": [
+        "A5"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A5]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2603.23448v1",
+      "title": "Code Review Agent Benchmark",
+      "date": "24 Mar 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "86d189995b0387ace2b623ee70757fcda9ff1c99c5357d623edfd8731b227d61",
+      "canonical_candidate_ids": [
+        "A4"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A4]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2604.01527v4",
+      "title": "REAP: Automatic Curation of Coding Agent Benchmarks from Interactive Production Usage",
+      "date": "28 Jul 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "0224743a7047ba0b13f350cca4d20bcb7e4f7eeb9ad9b102577b4bc667e1a357",
+      "canonical_candidate_ids": [
+        "A4"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A4]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2604.05481v1",
+      "title": "On the Role of Fault Localization Context for LLM-Based Program Repair",
+      "date": "07 Apr 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "fa22e1889029b93d6f674c007472d67c353f2edafc5b960bb53fb9c2364c4560",
+      "canonical_candidate_ids": [
+        "A7"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A7]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2604.10761v1",
+      "title": "Improving Dynamic Specification Inference with LLM-Generated Counterexamples",
+      "date": "12 Apr 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "5471636d343f78437b08e3fc8f406902f814614088f9c33b4f41c06596d36b68",
+      "canonical_candidate_ids": [
+        "A4"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A4]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2605.00914v1",
+      "title": "The Cost of Consensus: Isolated Self-Correction Prevails Over Unguided Homogeneous Multi-Agent Debate",
+      "date": "29 Apr 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "61b970e2188b8094fc73f2edb29edcd778fcde4329b92252b8f95b18c5cb731d",
+      "canonical_candidate_ids": [
+        "A10"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A10]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2605.06527v1",
+      "title": "STALE: Can LLM Agents Know When Their Memories Are No Longer Valid?",
+      "date": "07 May 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "d4539b76fee1e877b7f5b32430bc017f9c63bbe2d810e2056ae120e1fc0dea6c",
+      "canonical_candidate_ids": [
+        "A11"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A11]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2605.07180v1",
+      "title": "Learning Agent Routing From Early Experience",
+      "date": "08 May 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "bb06a3d30b80b9916229749751744c5ef259103a706f38dbd39f32fcaf91fb9a",
+      "canonical_candidate_ids": [
+        "A9"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A9]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2605.25746v1",
+      "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+      "date": "25 May 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "1f95daeb3b2a34b740757d96afd9d0d1857f49b87f6a918a3aa6f91b02dbeebf",
+      "canonical_candidate_ids": [
+        "A1"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A1]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2605.28433v1",
+      "title": "Roles with Rails: Contract-Preserving Role Evolution in Multi-Agent Structured Reasoning",
+      "date": "27 May 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "1a0bd1ff3bf69e4189727b9685c1c994bb0ecf7d2d302b49913f87faa6a5f104",
+      "canonical_candidate_ids": [
+        "A2"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A2]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2606.22902v1",
+      "title": "Agent-as-a-Router: Agentic Model Routing for Coding Tasks",
+      "date": "22 Jun 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "89de7f35255abe5881017b5333c022d2741b1054d48d36d52375213f914da88a",
+      "canonical_candidate_ids": [
+        "A9"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A9]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2607.00053v1",
+      "title": "SWE-Router: Routing in Multi-turn Agentic Software Engineering Tasks",
+      "date": "30 Jun 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "6ca54d622dfff70f451cfe9cca93221066f822716d74d4069aa18c5ff5b43a89",
+      "canonical_candidate_ids": [
+        "A1"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A1]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2607.10059v1",
+      "title": "AgentAbstain: Do LLM Agents Know When Not to Act?",
+      "date": "11 Jul 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "1e5ab446aaba0c186c5ae710e652030485cea7d8c0959ffcc302377c4debadb0",
+      "canonical_candidate_ids": [
+        "A1"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A1]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2607.12068v1",
+      "title": "Beyond Test Presence: Assessing the Quality and Robustness of Agent-Generated Tests in Open-Source Projects",
+      "date": "13 Jul 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "efe365ea6462cba669cf73f2e010d32dd2863e0b4a174b766316ee22c6e66093",
+      "canonical_candidate_ids": [
+        "A4"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A4]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2607.19653v1",
+      "title": "PerfAgent: Profiler-Guided Iterative Refinement for Repository-Level Code Optimization",
+      "date": "22 Jul 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "1aa83aa978ed68f21e09dcfc982f5fd07fcec574f29341b348975ae85b84e4b0",
+      "canonical_candidate_ids": [
+        "A5"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A5]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2608.18167v1",
+      "title": "Adversarial Review: Structured Disagreement for Grounded Agentic Code Review",
+      "date": "16 Aug 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "d8a068e9fa3ea1986763e759597d9792f176b2f5334b978cca7e588a157380ed",
+      "canonical_candidate_ids": [
+        "A3"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A3]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    }
+  ],
+  "research_report": {
+    "uri": "07-ai-technology-advancement-research.md",
+    "sha256": "231167a1efb4101117de7124eedfe14894b47cbd742ec5abdf2ea678ab1e52a3"
+  },
+  "research_brief": {
+    "uri": "10-ai-advancement-research-brief.json",
+    "sha256": "1d78f8219d03b511c3a2480b7fb05776e4fa737e28e3b34f4b74395bcc392658"
+  },
+  "raw_track_artifacts": [
+    {
+      "strategy_id": "primary-frontier",
+      "uri": "ai-advancement-tracks/primary-frontier.json",
+      "sha256": "dbca5c369bd2619c7ff4e703637e56db9416e2dc90ef8b7d7d47db480fbb7d95",
+      "bytes": 30144,
+      "status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "artifact-gap",
+      "uri": "ai-advancement-tracks/artifact-gap.json",
+      "sha256": "27d25e43cf34a4a23d5dd3fd542d33be368f1a6a7913ef2351e6a9a2400f6a16",
+      "bytes": 35595,
+      "status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "ecosystem",
+      "uri": "ai-advancement-tracks/ecosystem.json",
+      "sha256": "4ed6f008162609a4e73482a979e8e39511655bc79c5432f525c9dd8bedefac11",
+      "bytes": 30075,
+      "status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "protocol",
+      "uri": "ai-advancement-tracks/protocol.json",
+      "sha256": "b284666b1a87af09f607cd2eb8a4ac4547f03308f9d512607aec11bdc96a44a4",
+      "bytes": 32856,
+      "status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "experiment",
+      "uri": "ai-advancement-tracks/experiment.json",
+      "sha256": "7a09b6c904b9013824847cdbfede6460418241d7a0e1564b3fd2a88555000a47",
+      "bytes": 38343,
+      "status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "adversarial",
+      "uri": "ai-advancement-tracks/adversarial.json",
+      "sha256": "d630bb4ee2fcbc0f20d2e88b1efcdb84e0c1b343eb8cb0f3645b76b1a04cfafe",
+      "bytes": 30882,
+      "status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "systems",
+      "uri": "ai-advancement-tracks/systems.json",
+      "sha256": "3da5b59c08b908a0ad8d8cae5a279be41091604130747982bcd64656ba097da1",
+      "bytes": 39780,
+      "status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "action",
+      "uri": "ai-advancement-tracks/action.json",
+      "sha256": "8911c894289339647d069bf5c07fc4a8581230506ebde7579b19ac3c78684906",
+      "bytes": 25138,
+      "status": "raw research input; source claims remain provisional unless promoted to E-08"
+    }
+  ],
+  "canonical_preregistration_uri": "09-ai-advancement-review-artifacts.json#/canonical_preregistration",
+  "design_reflection": {
+    "status": "reflected-in-active-design; implementation and results unmeasured",
+    "artifacts": [
+      {
+        "uri": "project-context/ai-professional-project-proposal.md",
+        "sha256": "05b07577f5b1e5f831a82fd8447cc7a41e0f1ace84d2ed8b6226cf3a701f1a40"
+      },
+      {
+        "uri": "eval-rubric-analysis.md",
+        "sha256": "86bcb958f38de302dbcd3da6f6fb8ce816a20680188feb3e2a77eaae1004e297"
+      },
+      {
+        "uri": "ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+        "sha256": "581bcc2d044a3a8b6ff416df87cc02cb316af789b2ccf6ce208bb0494d59ec25"
+      },
+      {
+        "uri": "ai-selection-matrix/04-agent-orchestration-adr.md",
+        "sha256": "35d238a646ddd2a7205f2a8d88601e5765511d445fb55c64f2516725109a7f22"
+      },
+      {
+        "uri": "evidence/01-kpi-measurement-framework.md",
+        "sha256": "cbc14170cb2d0bfb34b04f1bd337c484bd18d7a30dcf5f0f9c7819dd3bdadf48"
+      },
+      {
+        "uri": "evidence/02-benchmark-and-ablation-plan.md",
+        "sha256": "1eef42cae0b7628020a4f5cba0ab7316a4e97cee497d20e36ee0a13f679b2b44"
+      },
+      {
+        "uri": "evidence/03-ai-pipeline-technical-design.md",
+        "sha256": "52a9733c664e549d3468a5587bead5269aeeeb6f7b4bf4fa171f053cc1b7df9b"
+      },
+      {
+        "uri": "evidence/04-external-technical-evidence.md",
+        "sha256": "7c29ef0bb9334f7de362fbbb948c4d09aa95c9a5942a47a3a89b3bbe76e383e9"
+      },
+      {
+        "uri": "evidence/05-evidence-traceability-index.md",
+        "sha256": "cc87b8040ca9a1a0faeecdfbee649aa35d36f47482c8c55c5851dfc54e1dbaa2"
+      },
+      {
+        "uri": "evidence/06-design-audit-report.md",
+        "sha256": "8555c4d39af27875e8a09dac4ae402037f627b47e9127556cae1f5eb74de3d29"
+      },
+      {
+        "uri": "evidence/07-ai-technology-advancement-research.md",
+        "sha256": "231167a1efb4101117de7124eedfe14894b47cbd742ec5abdf2ea678ab1e52a3"
+      },
+      {
+        "uri": "evidence/ai-diagnosis-pipeline.puml",
+        "sha256": "afdc644c0cabcff24bba149f5381fcbd8dabfdbbd7ade91e0f1776c654fe4f03"
+      },
+      {
+        "uri": "evidence/ai-diagnosis-pipeline.svg",
+        "sha256": "09f8bacf308dfc496054f701cd77e92344d7e4c5320e637706d02437f342a11f"
+      }
+    ]
+  }
+}

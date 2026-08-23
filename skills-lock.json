@@ -12,6 +12,12 @@
       "sourceType": "github",
       "skillPath": "skills/baoyu-youtube-transcript/SKILL.md",
       "computedHash": "27582028cbdd9c81232fba1aafbfa609e4dc1167bff4f2e89ca48a3ecd07049b"
+    },
+    "deep-research": {
+      "source": "kody-w/rapp-skills",
+      "sourceType": "github",
+      "skillPath": "deep-research/SKILL.md",
+      "computedHash": "a3c1e862e03b8e26d5ff92d01c611472ca211185d5109356ac21d44e20e925f6"
     }
   }
 }

@@ -1,0 +1,352 @@
+{
+  "strategy_id": "ecosystem",
+  "scope": "2026-08-23 기준 public-ecosystem track. 2026-02-23 이후의 공식 release 또는 commit-pinned 공식 repository 문서만 근거로 삼아, 현재 Python 3.14 코드 품질·성능 진단 파이프라인에 최소 변경으로 연결 가능한 정적 분석, 변경 영향, 테스트 생성, trace/log 추론, PR 검증, specification/context inference 후보를 조사했다. 제품 성능 수치나 본 프로젝트 결과는 주장하지 않았다.",
+  "claims": [
+    {
+      "id": "ECO-01",
+      "claim": "Semgrep v1.174.0은 Python을 포함한 로컬 정적 분석과 diff scan을 제공하고, v1.173.0의 공식 MCP 구현은 `semgrep mcp`로 로컬 stdio/HTTP 도구 호출을 지원한다. 따라서 AI가 선택한 좁은 파일·diff 범위에 결정론적 정적 근거를 붙이는 실용적 adapter가 될 수 있다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://github.com/semgrep/semgrep/releases/tag/v1.174.0",
+          "title": "Release v1.174.0",
+          "date": "2026-08-20",
+          "locator": "Added — “Diff scans now report which dependency source files were added or modified relative to the merge base”; Changed — partial-scan dependency resolution",
+          "source_type": "official release",
+          "supports": true,
+          "notes": "변경 영향 범위를 좁히는 최신 기능 근거다. 프로젝트 품질 향상 결과를 뜻하지 않는다."
+        },
+        {
+          "source": "https://github.com/semgrep/semgrep/blob/v1.174.0/cli/src/semgrep/mcp/README.md",
+          "title": "Semgrep Guardian / Semgrep MCP README at v1.174.0",
+          "date": "2026-08-20",
+          "locator": "introductory paragraphs; Usage; Standard Input/Output; Custom clients",
+          "source_type": "official version-pinned repository documentation",
+          "supports": true,
+          "notes": "MCP 문서는 Semgrep을 fast deterministic static analysis로 설명하고, `semgrep mcp`, 로컬 stdio, `semgrep_scan_remote` 호출 형식을 명시한다."
+        },
+        {
+          "source": "https://github.com/semgrep/semgrep/releases/tag/v1.173.0",
+          "title": "Release v1.173.0",
+          "date": "2026-08-13",
+          "locator": "Fixed — MCP mode UTF-8 multibyte scan failure under non-UTF-8 locales",
+          "source_type": "official release",
+          "supports": true,
+          "notes": "2026-08-13 publishedAt 기준이며 release body에는 2026-08-12로 표기되어 있다. MCP 경로가 2026년에도 유지보수됨을 확인한다."
+        }
+      ],
+      "qualifiers": [
+        "MCP 자체가 필수인 것은 아니다. 현행 exact-command Executor에는 `semgrep scan --json` CLI adapter가 MCP server보다 더 작은 변경이다.",
+        "공식 문서는 Python 언어 지원을 열거하지만 Python 3.14 문법 전체에 대한 별도 호환성 보증은 확인하지 못했다.",
+        "Semgrep 결과는 `statically_supported` 또는 counterevidence까지만 승격하고 runtime confirmation으로 취급하면 안 된다."
+      ]
+    },
+    {
+      "id": "ECO-02",
+      "claim": "Semgrep Community Edition 공식 문서는 보안 분석에서 single-function/file 경계 때문에 true positive를 놓칠 수 있고 ad-hoc/high-false-positive-tolerance 용도라고 명시한다. 따라서 기존 cross-file Code Graph를 대체하거나 단독 Evidence Gate oracle로 쓰는 설계는 근거와 맞지 않는다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://github.com/semgrep/semgrep/blob/v1.174.0/README.md",
+          "title": "Semgrep README at v1.174.0",
+          "date": "2026-08-20",
+          "locator": "paragraph beginning “Note that in security contexts…”; Semgrep Ecosystem > Semgrep Community Edition",
+          "source_type": "official version-pinned repository documentation",
+          "supports": true,
+          "notes": "Community Edition의 single-function/file 한계와 high tolerance for false positives를 공급자 스스로 명시한다."
+        }
+      ],
+      "qualifiers": [
+        "유료 cross-file 엔진의 vendor 수치는 이 결론에 사용하지 않았다.",
+        "현재 exact/BM25/vector + bounded Code Graph와 중복시키지 말고, 독립 규칙 기반 signal 하나로만 사용해야 한다."
+      ]
+    },
+    {
+      "id": "ECO-03",
+      "claim": "SonarQube MCP Server는 2026-08월에도 유지보수 중이며, v1.24.0에서 `analyze_file_list` 결과에 rule key를 추가해 AI agent가 상세 rule을 조회할 수 있게 했고, v1.25.0은 `ide` toolset으로 해당 파일 분석 도구를 노출한다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://github.com/SonarSource/sonarqube-mcp-server/releases/tag/1.24.0.3152",
+          "title": "SonarQube MCP Server v1.24.0",
+          "date": "2026-08-04",
+          "locator": "introductory paragraph; Bug Fixes — `analyze_file_list` now returns the rule key",
+          "source_type": "official release",
+          "supports": true,
+          "notes": "분석 finding에서 규칙 상세로 이어지는 provenance chain을 만들 수 있는 최신 근거다."
+        },
+        {
+          "source": "https://github.com/SonarSource/sonarqube-mcp-server/releases/tag/1.25.0.3221",
+          "title": "SonarQube MCP Server v1.25.0",
+          "date": "2026-08-18",
+          "locator": "Features — `vortex` toolset, `ide` toolset, deprecation of `analyze_code_snippet`",
+          "source_type": "official release",
+          "supports": true,
+          "notes": "`analyze_file_list`와 `toggle_automatic_analysis`가 `ide` toolset에 있고, Vortex entitlement에서는 snippet tool이 비활성화될 수 있음을 명시한다."
+        }
+      ],
+      "qualifiers": [
+        "실용성은 SonarQube Cloud/Server 또는 SonarQube for IDE가 이미 운영되는 경우에 한정된다.",
+        "현행 프로젝트에 Sonar 설치 상태가 확인되지 않았으므로 새 인프라 도입의 편익은 미확인이다.",
+        "toolset/entitlement별 가용성이 달라 version pin과 capability discovery가 필요하다."
+      ]
+    },
+    {
+      "id": "ECO-04",
+      "claim": "Grafana MCP Server v1.1.0은 Loki log/pattern query, Prometheus query, Sift의 log error-pattern 및 Tempo slow-request 분석을 AI client에 노출하고 tool category를 선택적으로 비활성화할 수 있다. 반면 Grafana Assistant는 opt-in·write-gated이며 stack 상태를 변경할 수 있다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://github.com/grafana/mcp-grafana/blob/v1.1.0/README.md",
+          "title": "Grafana MCP server README at v1.1.0",
+          "date": "2026-08-10",
+          "locator": "Requirements; Features > Loki Querying; Grafana Assistant; Sift Investigations; paragraph beginning “The list of tools is configurable”; RBAC Permissions",
+          "source_type": "official version-pinned repository documentation",
+          "supports": true,
+          "notes": "Grafana 9.0+, Loki log/pattern query, Sift error-pattern/slow-request, tool gating, RBAC와 Assistant의 mutation 가능성을 직접 문서화한다."
+        },
+        {
+          "source": "https://github.com/grafana/mcp-grafana/releases/tag/v1.1.0",
+          "title": "mcp-grafana v1.1.0",
+          "date": "2026-08-10",
+          "locator": "Added — optional bearer-token caller authentication; `ask_assistant` opt-in/write-gated tool",
+          "source_type": "official release",
+          "supports": true,
+          "notes": "원격 transport 인증과 Assistant의 write gate가 최신 release 기능임을 확인한다."
+        }
+      ],
+      "qualifiers": [
+        "현재 RuntimeEvidence는 `profile | test`만 허용하므로 log/trace 도입은 schema와 verification_kind 확장이 필요해 즉시 최소 변경은 아니다.",
+        "Assistant/incident write 도구는 immutable ExecutionPolicy 및 자동 수정·운영 변경 out-of-scope와 충돌하므로 노출하면 안 된다.",
+        "Loki/Tempo/Grafana가 이미 없으면 수집·보존·RBAC 인프라 비용이 AI 편익보다 커질 수 있다."
+      ]
+    },
+    {
+      "id": "ECO-05",
+      "claim": "CoverUp의 2026-04-05 공식 README는 coverage-guided LLM test generation, pytest 실행, coverage 증가 확인, 반복 실행을 통한 flaky-test 탐지, Docker 실행 권고를 문서화한다. 그러나 생성 테스트가 통과하고 coverage를 올린다는 사실만으로 독립적인 결함 oracle이 되지는 않는다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://github.com/plasma-umass/coverup/blob/d9ca25b9282621d2779560f2be397ab0683a6733/README.md",
+          "title": "CoverUp: Automatically Generating Higher-Coverage Test Suites with AI",
+          "date": "2026-04-05",
+          "locator": "About CoverUp; Avoiding flaky tests; Test pollution and isolation; Running CoverUp with Docker; Work In Progress",
+          "source_type": "official commit-pinned repository documentation",
+          "supports": true,
+          "notes": "공식 commit `d9ca25b`는 LLM이 uncovered code용 test를 생성하고 실행·coverage feedback으로 재시도한다고 설명한다. 단독 실행 통과 test만 추가하며 Docker를 권고하고, 동시에 early release라고 경고한다."
+        }
+      ],
+      "qualifiers": [
+        "“coverage 증가 ≠ 결함 탐지/정확한 oracle”은 본 프로젝트 Evidence Gate에 대한 설계 추론이며 CoverUp의 성과를 반박하거나 프로젝트 결과를 주장하는 것이 아니다.",
+        "README에는 failing/polluting test를 비활성화하는 옵션도 있으므로 본 프로젝트에서는 해당 옵션을 명시적으로 금지해야 한다.",
+        "Python 3.14 호환성과 현재 release cadence를 입증하는 6개월 이내 release 근거는 확인하지 못했다."
+      ]
+    },
+    {
+      "id": "ECO-06",
+      "claim": "PR-Agent v0.43.0은 PR diff를 대상으로 AI review를 수행하고 tests/security/ticket-compliance 항목을 구성할 수 있지만, tests 항목은 PR에 test가 포함됐는지를 확인하는 review이며 test 실행·독립 검증은 아니다. 공식 문서도 AI 오류와 context 부족 가능성을 경고한다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://github.com/The-PR-Agent/pr-agent/releases/tag/v0.43.0",
+          "title": "PR-Agent v0.43.0",
+          "date": "2026-08-22",
+          "locator": "release note; PyPI `pr-agent 0.43.0` availability; What’s Changed",
+          "source_type": "official release",
+          "supports": true,
+          "notes": "현재 설치 가능한 version과 release freshness를 확인한다."
+        },
+        {
+          "source": "https://github.com/The-PR-Agent/pr-agent/blob/v0.43.0/docs/docs/tools/review.md",
+          "title": "PR-Agent Review Tool documentation at v0.43.0",
+          "date": "2026-08-22",
+          "locator": "Overview; Configuration options > `require_tests_review`, `require_security_review`, `require_ticket_analysis_review`; Auto-blocking PRs",
+          "source_type": "official version-pinned repository documentation",
+          "supports": true,
+          "notes": "`review`가 PR code changes를 scan하고, test 포함 여부·security·ticket 항목을 생성한다고 명시한다. Auto-blocking 절에서는 AI가 실수하거나 context가 부족할 수 있으므로 judicious use를 권고한다."
+        }
+      ],
+      "qualifiers": [
+        "현재 5관점 Planner를 대체하는 production component보다, off-the-shelf AI review comparator로 쓰는 편이 중복과 위험이 작다.",
+        "모델/provider/prompt 설정을 고정하지 않으면 baseline drift가 발생한다.",
+        "PR diff 중심 도구이므로 전체 repository 구조·runtime profiling을 평가하는 기준선은 아니다."
+      ]
+    },
+    {
+      "id": "ECO-07",
+      "claim": "Microsoft AgentRC의 2026-03-31 공식 README는 codebase에서 agent instruction, MCP config, 자체 eval case를 생성하고 CI에서 instruction drift를 평가한다고 문서화하지만 동시에 experimental·breaking-change 가능성을 경고한다. 이는 authoritative specification inference나 결함 oracle의 근거가 아니다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://github.com/microsoft/agentrc/blob/9d376734c531fb6ee788bb7a2cb29d9239ba9d79/README.md",
+          "title": "AgentRC README at commit 9d376734",
+          "date": "2026-03-31",
+          "locator": "Warning; introductory paragraphs; What it does > Measure/Generate/Maintain; What gets generated",
+          "source_type": "official commit-pinned repository documentation",
+          "supports": true,
+          "notes": "README는 experimental 상태, codebase-derived instructions/evals/dev config, CI drift check를 명시한다."
+        },
+        {
+          "source": "https://github.com/microsoft/agentrc/commit/9d376734c531fb6ee788bb7a2cb29d9239ba9d79",
+          "title": "docs: add APM ecosystem section to README (#95)",
+          "date": "2026-03-31",
+          "locator": "commit metadata for pinned README",
+          "source_type": "official repository commit",
+          "supports": true,
+          "notes": "문서 version/date를 고정한다."
+        }
+      ],
+      "qualifiers": [
+        "현재 코드에서 instruction과 eval을 함께 생성하면 현재 결함을 규약으로 고착하거나 evaluator-owned gold를 오염시킬 수 있다는 점은 설계 추론이다.",
+        "결함 진단 precision/recall 개선을 보고한 admissible source는 확인하지 못했다."
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "name": "Bounded Semgrep static-evidence adapter",
+      "current_gap": "현행 AST/심볼/CFG/Code Graph는 프로젝트 구조와 관계에는 강하지만, 유지보수되는 독립 rule corpus가 제공하는 security/correctness countercheck와 diff dependency-source signal이 없다.",
+      "mechanism": "첫 pass 뒤 correctness/security 성격의 High/Critical 후보 또는 changed-file 범위에만 version-pinned `semgrep scan --json`을 exact command로 실행한다. MCP server를 새로 띄우기보다 기존 Executor의 CLI adapter를 우선한다. 결과를 `E-SEMGREP-*` static evidence로 정규화하고 rule id/ruleset version/scanned path/source hash/raw hash를 보존한다. 자동 fix·Guardian regeneration은 호출하지 않는다.",
+      "expected_effect": "유효한 규칙 기반 corroboration과 counterevidence를 추가하고, diff 범위의 dependency-source 변화를 AI가 놓치는 사례를 줄일 가능성이 있다. 개선 여부는 paired experiment 전에는 알 수 없다.",
+      "ai_specificity": "AI Planner가 어떤 finding/파일에 도구를 호출할지 선택하고 결과를 기존 graph evidence와 결합한다. 분석 본체는 결정론적이므로 LLM-only 추가가 아니다.",
+      "minimal_change": "ADR-01 `evidence.static`에 provider/rule/version/raw hash를 가진 external-static adapter row를 추가하고, Executor manifest에 단일 pinned Semgrep command를 등록한다. `RuntimeEvidence`와 5관점 DAG는 변경하지 않는다.",
+      "extra_cost": "추가 subprocess 시간, Semgrep package/ruleset pinning, JSON 정규화와 parse-failure 처리. 로컬 CLI이면 추가 LLM 호출은 없다.",
+      "risks": [
+        "Community Edition의 cross-file 한계와 false positive",
+        "Python 3.14 syntax parse 불일치 가능성",
+        "registry config 사용 시 rule drift/metrics 전송",
+        "AI가 Semgrep finding을 중복 finding으로 과대계상할 위험"
+      ],
+      "evaluation": "동일 B_run에서 P4 대 P4+Semgrep paired blind ablation. held-out defect별 precision/recall, 독립 유효 증거 수, counterevidence로 reject된 오탐 수, duplicate rate, parse failure, latency를 기록한다. ruleset/version을 동결하고 repository 단위 split을 유지한다. `runtime_confirmed` 승격은 금지한다.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "Existing-Sonar-only MCP corroboration",
+      "current_gap": "branch/PR quality gate, duplication, coverage, 조직에 축적된 Sonar issue/rule history를 현행 진단이 직접 소비하지 못한다.",
+      "mechanism": "조직에 SonarQube Cloud/Server 또는 SonarQube for IDE가 이미 있을 때만 v1.25-pinned read-only toolset을 사용한다. `analyze_file_list` → rule key → rule detail과 branch/PR issue/quality-gate 정보를 source hash에 맞춰 `E-SONAR-*` static evidence로 정규화한다.",
+      "expected_effect": "이미 존재하는 Sonar 분석 자산을 재사용해 static finding의 provenance와 change/branch 맥락을 보강할 수 있다. 새 Sonar 설치의 편익은 입증되지 않았다.",
+      "ai_specificity": "AI agent가 MCP tool을 선택하고 rule detail까지 추적한다. 핵심 analyzer는 Sonar이며 nested LLM은 필요하지 않다.",
+      "minimal_change": "기존 Sonar가 확인된 deployment에 한해 optional adapter 하나를 추가한다. capability discovery로 `ide`/`vortex` tool availability를 확인하고, 없으면 deterministic `blocked/not_available`로 끝낸다.",
+      "extra_cost": "Sonar backend 또는 IDE bridge, Java/Docker MCP server, token/RBAC, network, telemetry 설정과 version compatibility 운영비.",
+      "risks": [
+        "기존 AST/Semgrep과 높은 중복",
+        "entitlement/toolset별 기능 차이",
+        "v1.25에서 snippet tool deprecation처럼 surface drift",
+        "외부 service 장애·권한·source snapshot 불일치"
+      ],
+      "evaluation": "Sonar가 이미 scan하는 repository에서만 blind sample을 구성해 unique valid evidence, duplicate rate, stale-location rate, precision/recall delta, latency를 측정한다. Sonar 미보유 환경에는 비용-편익 실험을 만들지 않는다.",
+      "provisional_decision": "hold"
+    },
+    {
+      "name": "Read-only Grafana log/trace evidence adapter",
+      "current_gap": "현행 profiler는 CPU/memory/call 중심이며 설계 문서도 async I/O wait는 trace/log와 결합해야 한다고 명시하지만, log/trace를 조회·정규화하는 도구 계약은 없다.",
+      "mechanism": "Grafana/Loki/Tempo가 이미 있는 환경에서만 Loki query/pattern과 Sift error-pattern/slow-request read tools를 allowlist한다. 시간 범위, datasource, row 수, query hash를 고정하고 raw 결과를 해시한다. `assistant`, incident mutation, dashboard write 등 모든 write tool을 비활성화한다.",
+      "expected_effect": "production-like trace/log가 존재하는 사례에서 async wait, error burst, slow request 가설을 더 직접적으로 반증·지지할 가능성이 있다.",
+      "ai_specificity": "AI가 bounded query와 evidence interpretation을 수행하며, MCP가 관측 데이터를 구조적으로 제공한다. Grafana Assistant 같은 두 번째 AI는 사용하지 않는다.",
+      "minimal_change": "즉시 구현은 보류한다. 도입 시 `RuntimeEvidence.evidence_kind`와 `verification_kind`에 `trace | log`를 추가하고 exact datasource/time-window policy와 redaction schema를 넣어야 하므로 단순 adapter보다 계약 변경이 크다.",
+      "extra_cost": "Grafana 9+, Loki/Tempo instrumentation와 retention, service account/RBAC, PII redaction, query latency와 context token.",
+      "risks": [
+        "로그의 비밀·개인정보 유출",
+        "representative workload/trace 부재",
+        "LLM이 잘못된 LogQL/시간 범위를 선택",
+        "Assistant가 stack을 변경할 수 있음",
+        "현행 profile/test-only Evidence Gate 확장 비용"
+      ],
+      "evaluation": "backend가 이미 있는 retrospective incident set에서 root-cause localization, valid-evidence acceptance, abstention, query/tool cost를 P4와 paired 비교한다. time range와 incident gold는 evaluator가 독립 소유하고, write tool 호출은 policy violation으로 처리한다.",
+      "provisional_decision": "hold"
+    },
+    {
+      "name": "Sandboxed CoverUp generated-test experiment",
+      "current_gap": "test 관점이 중요한 uncovered branch를 찾더라도 기존 focused test가 없으면 실행 검증으로 넘어갈 수 없다.",
+      "mechanism": "training/calibration 사례에서만 disposable container/worktree에 CoverUp을 실행해 후보 pytest를 생성한다. 생성 test, prompt/model, generator commit, source hash, 반복 결과를 보존한다. `--disable-failing`, `--disable-polluting`, 자동 test 삭제는 금지하며 생성 test를 repository나 gold suite에 병합하지 않는다.",
+      "expected_effect": "기존 test가 없는 결함에서 defect-revealing candidate test를 만들 가능성이 있으나, coverage-only test와 잘못된 oracle도 함께 늘 수 있다.",
+      "ai_specificity": "LLM이 uncovered code를 대상으로 test를 생성하고 coverage/run feedback으로 재시도한다. 단순 template generation이 아니다.",
+      "minimal_change": "production pipeline은 변경하지 않고 evaluator-side experiment runner만 추가한다. 재검토 시 `TestEvidence`에 `oracle_origin=generated`, generator version/model/prompt/test hash 필드를 추가하고, independent specification이 없으면 finding을 `runtime_confirmed`로 올리지 않는다.",
+      "extra_cost": "추가 LLM token, 반복 pytest/coverage 실행, Docker isolation, flaky/pollution 검사와 사람 검토.",
+      "risks": [
+        "buggy implementation을 정답으로 복제하는 false oracle",
+        "generated code 실행 보안",
+        "coverage 상승을 결함 탐지로 오인",
+        "Python 3.14 호환성 미확인",
+        "early-release/breakage",
+        "gold/test exposure와 benchmark contamination"
+      ],
+      "evaluation": "frozen training/calibration set의 buggy/fixed pairs 및 mutation set에서 defect-revealing rate, false-oracle rate, mutation score, flakiness, sandbox violation, 시간/비용을 측정한다. final/OOD gold에는 generation prompt나 expected output을 노출하지 않는다. 동일 B_run에서 유효 결함 recall이 늘고 false oracle이 사전 한계 이하일 때만 advance한다.",
+      "provisional_decision": "hold"
+    },
+    {
+      "name": "PR-Agent v0.43 evaluator-only comparator",
+      "current_gap": "고정 5관점 Planner가 현재 유지보수되는 범용 AI PR reviewer보다 실제로 나은지 또는 어떤 관점이 중복인지 보여 주는 외부 AI baseline이 없다.",
+      "mechanism": "production DAG에 넣지 않고 evaluator에서 version-pinned PR-Agent CLI를 같은 benchmark PR/diff에 실행한다. model/provider/reasoning/config를 고정하고 review findings를 공통 evaluator schema로만 정규화한다. generated labels, auto-block, improvement suggestions는 무시한다.",
+      "expected_effect": "현행 custom Planner의 incremental value, 중복 관점, 비용 대비 이득을 비교할 현실적인 off-the-shelf baseline을 제공할 수 있다.",
+      "ai_specificity": "직접 AI 기반 PR review baseline이다.",
+      "minimal_change": "benchmark/ablation plan에 P-PRAGENT baseline 한 행과 output normalizer를 추가한다. production code, Evidence Gate, Finding status는 변경하지 않는다.",
+      "extra_cost": "baseline별 LLM 호출, provider credential, PR/diff fixture와 multi-run 비용.",
+      "risks": [
+        "model/provider drift",
+        "PR diff 밖 repository/runtime context 부족",
+        "test presence를 test execution으로 오독",
+        "AI label을 merge gate로 사용하면 오탐이 운영 차단으로 이어짐",
+        "community-maintained legacy project 특성"
+      ],
+      "evaluation": "repository-stratified 동일 holdout에서 defect-level precision/recall, severity accuracy, localization, stability, token/latency/cost를 P4와 비교한다. 3회 이상 multi-run stability를 기록하고 PR-Agent output은 gold 생성에 쓰지 않는다.",
+      "provisional_decision": "add"
+    },
+    {
+      "name": "AgentRC specification/context inference in runtime",
+      "current_gap": "project conventions/specification drift를 자동 탐지하는 별도 단계는 없다.",
+      "mechanism": "도입하지 않는다. AgentRC는 current code에서 instructions와 evals를 함께 생성하므로 authoritative spec inference 또는 defect evidence로 연결하지 않는다. 필요하면 별도 비운영 조사에서만 authoritative docs와의 factual-diff comparator로 사용한다.",
+      "expected_effect": "진단 정확도 개선 효과는 확인되지 않았고, 현행 project docs/Code Graph/evaluator-owned gold와 중복 또는 오염 위험이 더 크다.",
+      "ai_specificity": "Copilot SDK를 사용해 codebase-specific agent instructions/evals를 생성한다.",
+      "minimal_change": "없음. ADR에 ‘code-derived instruction/eval을 specification 또는 gold로 자동 승격하지 않음’ 제약만 명시한다.",
+      "extra_cost": "Node.js 20+, Copilot dependency, 생성 artifact review, CI drift 운영.",
+      "risks": [
+        "현재 bug를 규약으로 고착",
+        "같은 code에서 instruction과 eval을 생성하는 self-confirmation",
+        "gold contamination",
+        "experimental breaking changes",
+        "현행 retrieval/context pipeline 중복"
+      ],
+      "evaluation": "재검토할 경우 독립 reviewer가 authoritative docs 대비 inferred fact precision, contradiction, stale-context rate를 blind 평가한다. defect gold나 production Evidence Gate에는 연결하지 않는다.",
+      "provisional_decision": "exclude"
+    }
+  ],
+  "contradictions": [
+    "Semgrep Guardian 문서는 finding이 사라질 때까지 agent에게 code regeneration을 유도하지만, 본 과제는 본격 자동 수정이 out of scope다. scanner만 분리하고 regeneration/fix path는 제외해야 한다.",
+    "SonarQube v1.24는 `analyze_file_list` provenance를 강화했지만 v1.25는 Vortex 조직에서 `analyze_code_snippet`을 deprecate한다. 고정 tool name을 가정하지 말고 version/toolset capability를 확인해야 한다.",
+    "Grafana v1.1.0의 Assistant는 opt-in이지만 write-gated이며 stack을 변경할 수 있다. 현행 immutable ExecutionPolicy와 양립하는 것은 Loki/Tempo/Sift의 bounded read-only subset뿐이다.",
+    "CoverUp README는 isolation을 권고하면서도 polluting/failing test를 비활성화하는 옵션을 제공한다. 실패를 숨기지 않는 본 프로젝트 규칙상 해당 옵션은 허용할 수 없다.",
+    "PR-Agent 문서는 AI label로 merge를 차단하는 방법을 제시하면서도 AI가 실수하거나 context가 부족할 수 있다고 경고한다. 따라서 external AI review를 Evidence Gate나 merge gate로 승격하면 안 된다.",
+    "AgentRC가 codebase에서 instruction과 eval을 함께 생성하는 방식은 evaluator-owned gold 원칙과 충돌할 수 있다. 생성 eval은 gold가 아니라 별도 hypothesis artifact여야 한다."
+  ],
+  "unknowns": [
+    "Semgrep v1.174.0이 대상 Python 3.14 syntax와 프로젝트별 dynamic/reflection pattern을 어느 비율로 정확히 parse하는지 미확인이다.",
+    "SonarQube Cloud/Server/IDE 또는 Grafana/Loki/Tempo가 현재 배포되어 있는지, 데이터 retention과 권한이 준비되어 있는지 미확인이다.",
+    "CoverUp의 Python 3.14 호환성, 현재 executable release 유지 상태, generated-test false-oracle rate는 admissible 최신 근거로 확인되지 않았다.",
+    "외부 tool finding을 현재 static evidence schema에 붙일 때 필요한 provider/rule-version/source-hash 세부 schema가 아직 문서에 정의되어 있지 않다.",
+    "PR-Agent v0.43.0의 선택 model/provider를 완전히 고정할 수 있는지와 동일 입력 multi-run variance는 프로젝트 실험이 필요하다.",
+    "어떤 후보도 본 프로젝트의 quality, recall, precision, latency 개선을 입증하지 않았다."
+  ],
+  "recommended_followups": [
+    "우선순위 1: Semgrep v1.174.0 CLI의 pinned-ruleset adapter를 evaluator에만 구현해 P4 대 P4+Semgrep paired ablation을 수행한다. MCP server나 Guardian 자동 regeneration은 도입하지 않는다.",
+    "우선순위 2: PR-Agent v0.43.0을 production dependency가 아닌 external AI baseline으로 benchmark plan에 추가하고 model/config를 동결한다.",
+    "환경 inventory에서 Sonar와 Grafana가 이미 운영 중인지 확인한다. 둘 다 없으면 신규 인프라를 세우지 않고 hold를 유지한다; 있으면 read-only subset의 10~20 case feasibility pilot만 수행한다.",
+    "CoverUp은 final/OOD holdout 밖의 sandbox pilot로 제한하고 generated test의 independent-oracle provenance, false-oracle, mutation score, flakiness, 실행 보안을 먼저 측정한다.",
+    "설계 문서에는 external static evidence의 provider/tool/rule/version/source/raw hash 계약과 ‘static tool은 runtime_confirmed 불가’를 추가 후보로 기록하되, log/trace RuntimeEvidence schema 확장은 Grafana pilot이 이득을 보이기 전까지 미룬다.",
+    "AgentRC류 code-derived instruction/eval은 authoritative specification 또는 evaluator gold로 자동 승격하지 않는 exclusion rule을 명시한다."
+  ]
+}

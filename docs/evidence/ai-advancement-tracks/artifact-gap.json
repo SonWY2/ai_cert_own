@@ -1,0 +1,406 @@
+{
+  "strategy_id": "artifact-gap",
+  "scope": "2026-08-23 기준, 공유 브리프가 지정한 9개 로컬 설계 문서와 references/*.md 4개를 전부 읽어 비교했다. 외부 조사는 하지 않았다. 여기서 '구현됨'은 코드 구현이 아니라 설계 산출물에 이미 명시된 capability를 뜻한다. 기술 설계 자체가 '구현 전'이며 모든 KPI·비교값은 미측정이다.",
+  "claims": [
+    {
+      "id": "AG-C1",
+      "claim": "현재 산출물에는 이미 상당히 완성된 하이브리드 AI 진단 substrate가 설계되어 있다: Python 3.14 AST/심볼/CFG와 versioned Code Graph, exact/BM25 및 보조 vector anchor, bounded 1/2-hop retrieval, 관점별 LLM 추론, canonical Finding merge, 승인된 focused test/profiler, immutable ExecutionPolicy, RuntimeEvidence, Evidence Gate, inclusive B_run, evaluator-owned gold와 temporal/OOD holdout이다. 따라서 일반적인 '그래프·멀티에이전트·도구 사용·QA 게이트·로그를 추가하자'는 제안은 신규 AI gap이 아니라 대부분 중복이다.",
+      "kind": "observed",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "lines 3-12 (§상태/범위, §1 목표와 불변 조건), 23-56 (§2 전체 bounded DAG), 102-174 (§4-6 구조 추출·Retrieval·B_run), 188-216 (§8 Finding 병합), 260-313 (§10-11 RuntimeEvidence·Evidence Gate)",
+          "source_type": "local design artifact",
+          "supports": true,
+          "notes": "전체 AI/결정론적 계층과 추적·예산 계약이 이미 설계되어 있다. 같은 문서 line 3은 '구현 전'이라고 명시한다."
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "lines 12-23 (§2 결정), 38-101 (§4 Finding 계약·불변 조건), 121-141 (§6-7 관점 책임·초기 설정)",
+          "source_type": "local ADR, status=제안",
+          "supports": true,
+          "notes": "LLM 역할과 결정론적 계층의 역할을 이미 분리하고, evidence-backed 상태 승격을 계약화했다."
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "lines 18-47 (§2 비교 구성·공정성), 61-99 (§3.2 final holdout), 191-207 (§7 Ablation), 250-289 (§11 Feedback와 promotion)",
+          "source_type": "local evaluation design, project results unmeasured",
+          "supports": true,
+          "notes": "같은 예산의 baseline/ablation, locked holdout, feedback provenance와 promotion gate가 이미 있다."
+        },
+        {
+          "source": "references/loop-to-graph-agent-design-transcript.md",
+          "title": "[한영자막] 왜 이제 '루프'가 아니라 '그래프'를 설계해야 할까?",
+          "date": "2026-08-11",
+          "locator": "lines 127-145 (§Claude at the Center of Every Workflow, 00:07:49-00:10:07), 254-298 (§Scaling from One Agent to Thousands, 00:19:34-00:23:31), 352-364 (§Evaluation, Benchmarks, and Product Intuition, 00:27:55-00:29:42)",
+          "source_type": "local secondary inspiration transcript",
+          "supports": true,
+          "notes": "도구 기반 coordinator, dynamic workflows, eval 필요라는 아이디어는 현 설계의 Planner/DAG/tools/eval에 이미 상당 부분 반영됐다. 프로젝트 성능 근거는 아니다."
+        }
+      ],
+      "qualifiers": [
+        "설계 존재와 소프트웨어 구현 완료는 다르다.",
+        "references/ 자막은 공유 브리프에 따라 2차 영감 자료일 뿐 성능 근거가 아니다.",
+        "현재 문서의 target·외부 수치를 PROJECT RESULT로 해석하지 않았다."
+      ]
+    },
+    {
+      "id": "AG-C2",
+      "claim": "Diagnosis Planner의 핵심 AI gap은 분명하다. Planner가 versioned DiagnosisPlan을 만든다고만 되어 있을 뿐 plan schema, 관점 선택 기준, 관점 생략 reason, 신규 관점 생성 계약, 중단 조건이 없다. 실제 D1은 항상 구조·정확성·성능·동시성·테스트 5관점을 병렬 실행하고, fallback도 5개 전부를 포함한다. 즉 DAG 전체는 조건부지만 first-pass 관점 dispatch는 동적이지 않다.",
+      "kind": "observed",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/ai-selection-matrix/04-agent-orchestration-adr.md",
+          "title": "ADR-04: 증거 게이트가 있는 bounded DAG를 사용한다",
+          "date": "2026-08-23",
+          "locator": "lines 7-21 (§1-2 맥락·결정), 33-62 (§4 실행 그래프), 64-78 (§5 노드 계약), 특히 lines 39-40, 62, 70-71",
+          "source_type": "local ADR, status=제안",
+          "supports": true,
+          "notes": "고정 단계의 불필요한 수행을 문제로 정의하지만 D1은 Five-perspective First Pass이며 fallback도 all-five다. Planner output은 이름만 있고 필드 계약이 없다."
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "lines 23-56 (§2 전체 bounded DAG), 176-186 (§7 단계 3: 5관점 분석), 329-338 (§13 최적화와 실패 처리)",
+          "source_type": "local design artifact",
+          "supports": true,
+          "notes": "perspectives를 품질/비용 조절값으로 인정하지만 실행 topology는 Five-view First Pass로 고정되어 있다."
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "lines 131-141 (§7 초기 설정), 143-151 (§8 비용과 위험), 153-168 (§9-10 채택 검증·근거 한계)",
+          "source_type": "local ADR, status=제안",
+          "supports": true,
+          "notes": "관점 수 5는 ablation 대상 프로젝트 가설이고, 동적 dispatch 누락을 위험으로만 기록한다."
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "lines 22-36 (§2 비교 구성), 191-207 (§7 Ablation)",
+          "source_type": "local evaluation design",
+          "supports": true,
+          "notes": "A4는 5관점→단일 관점만 비교한다. 고정 5 대 동적 subset/generated/stop variant는 없다."
+        }
+      ],
+      "qualifiers": [
+        "'없다'는 공유 브리프가 지정한 모든 로컬 artifact와 references/*.md를 전수 검토한 범위의 결론이다.",
+        "관점별 1회 optional re-analysis는 retrieval expansion이지 first-pass 관점 선택·생성·중단이 아니다."
+      ]
+    },
+    {
+      "id": "AG-C3",
+      "claim": "현재 설계의 retrieval, profiler routing, 실행 승인, state promotion, evidence validation은 의도적으로 결정론적이다. 이를 곧바로 LLM self-routing·LLM graph 생성·LLM completion judge로 대체하는 것은 AI 고도화가 아니라 이미 분리한 안전 경계를 중복하거나 약화한다. AI는 조사 우선순위·위험 가설·반례·설명에 유지하는 것이 artifact 간 일관된 결정이다.",
+      "kind": "observed",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "lines 12-23 (§2 결정)",
+          "source_type": "local ADR, status=제안",
+          "supports": true,
+          "notes": "LLM 역할을 계획·인과 가설·반례·설명으로 제한하고 구조 사실·승인·실행·상태 승격은 결정론적 계층에 둔다."
+        },
+        {
+          "source": "docs/ai-selection-matrix/03-profiler-in-the-loop-adr.md",
+          "title": "ADR-03: 결정론적 정책으로 profiler를 선택 실행한다",
+          "date": "2026-08-23",
+          "locator": "lines 12-16 (§2 결정), 61-109 (§4-5 승인·router·tool 선택), 111-119 (§6 학습 router 전환 조건)",
+          "source_type": "local ADR, status=제안",
+          "supports": true,
+          "notes": "초기 router는 deterministic이고 learned router는 충분한 paired utility label 이후 별도 policy version으로만 비교한다."
+        },
+        {
+          "source": "references/unlazy-claude-skill-transcript.md",
+          "title": "[한영자막] GitHub 1위 개발자가 만든 새로운 Claude 스킬이 대단한 이유입니다",
+          "date": "2026-08-22",
+          "locator": "lines 50-76 (§에이전트가 게을러지는 이유, 00:01:47-00:04:24), 79-111 (§트리 구조와 게이트 검증 시스템, 00:04:24-00:08:06)",
+          "source_type": "local secondary inspiration transcript",
+          "supports": true,
+          "notes": "agent의 자기 완료 판정 대신 외부 checker와 증거 ledger를 두라는 아이디어는 Finding lifecycle·RuntimeEvidence·Evidence Gate에 이미 반영됐다."
+        },
+        {
+          "source": "references/ai-software-fundamentals-uncle-bob-transcript.md",
+          "title": "[한영자막] AI 시대에 소프트웨어 기본기가 중요한 이유를 엉클 밥에게 물었습니다",
+          "date": "2026-08-21",
+          "locator": "lines 105-159 (§Building a Deterministic Agent Harness / Context Windows, 00:09:00-00:18:01)",
+          "source_type": "local secondary inspiration transcript",
+          "supports": true,
+          "notes": "긴 steering보다 deterministic checks와 focused fresh agents를 선호한다는 보고는 현재 역할 분리와 일치한다. 프로젝트 결과 근거는 아니다."
+        }
+      ],
+      "qualifiers": [
+        "향후 learned router 자체를 배제하지는 않는다. 현 ADR처럼 paired gold, calibration, 별도 version을 통과한 뒤의 후보여야 한다.",
+        "LLM coordinator와 결정론적 안전·증거 gate는 상호 배타적이지 않다."
+      ]
+    },
+    {
+      "id": "AG-C4",
+      "claim": "Focused test 경로에는 진짜 AI gap이 있다. 현재 설계는 이미 승인된 command_id를 exact-match로 실행하고 RuntimeEvidence로 정규화하지만, 결함 가설에서 최소 재현 입력·반례·assertion을 합성하거나 후보 테스트를 생성·검토하는 계약은 없다. 이는 '실행기 추가'가 아니라 LLM의 가설→검증 실험 설계 능력을 bounded하게 추가하는 영역이다.",
+      "kind": "observed",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "lines 218-249 (§9 Runtime request와 router), 특히 lines 220-231 Focused test request",
+          "source_type": "local design artifact",
+          "supports": true,
+          "notes": "요청 schema는 finding_id, execution_policy_id, command_id만 가진다. test candidate/spec/oracle/provenance 생성 단계가 없다."
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "lines 22-38 (§2 P2 focused test), 122-134 (§4 실행 절차), 191-205 (§7 A6/A9)",
+          "source_type": "local evaluation design",
+          "supports": true,
+          "notes": "focused test 유무와 runtime feedback은 평가하지만 existing-only 대 generated-test 비교는 없다."
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "lines 143-151 (§8 비용과 위험), 특히 line 151",
+          "source_type": "local ADR, status=제안",
+          "supports": true,
+          "notes": "기존 테스트·재현 테스트·사용자 관찰을 분리하라고 하지만 재현 테스트의 생성·검증 계약은 정의하지 않는다."
+        }
+      ],
+      "qualifiers": [
+        "생성 테스트는 evaluator-owned gold가 될 수 없고, claim을 그대로 assertion으로 복제하면 순환 검증이다.",
+        "repo에 자동 커밋하는 패치 생성은 범위 밖이다. 임시 overlay의 검증 후보로 제한할 수 있다."
+      ]
+    },
+    {
+      "id": "AG-C5",
+      "claim": "FeedbackEvent→regression→promotion은 이미 강하게 설계되어 있지만, 반복 실패를 retrieval/graph-resolution/pruning/reasoning/severity/router/merge/report 중 어느 subsystem·config가 원인인지 AI로 localize하고 변경안을 합성하는 단계는 비어 있다. 이는 운영 중 자동 변경이 아니라 offline failure-cluster diagnoser로 채울 수 있는 AI gap이다.",
+      "kind": "observed",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "lines 250-289 (§11 Feedback와 promotion), 290-303 (§12 오류 분류와 보존)",
+          "source_type": "local evaluation design",
+          "supports": true,
+          "notes": "provenance, error taxonomy, regression promotion gate는 있으나 feedback cluster에서 subsystem attribution/config diff를 생성하는 actor·schema가 없다."
+        },
+        {
+          "source": "docs/project-context/ai-professional-project-proposal.md",
+          "title": "(AI인증) AI Professional 과제심사형 지원서",
+          "date": "undated",
+          "locator": "lines 120-140 (§4.2 최적화 계획), 특히 lines 134-136 피드백 기반 개선",
+          "source_type": "local project proposal",
+          "supports": true,
+          "notes": "유용/불필요 finding과 반복 누락 패턴을 진단 기준에 반영하겠다는 목표는 있으나 방법 계약은 없다."
+        },
+        {
+          "source": "references/uber-multimodal-ai-agent-evaluation-transcript.md",
+          "title": "[한영자막] 우버가 멀티모달 AI 에이전트를 대규모 실전에 배포하며 깨달은 핵심 평가 전략",
+          "date": "2026-08-20",
+          "locator": "lines 118-136 (§자가 진단 및 프롬프트 자동 튜닝, 00:10:25-00:12:49), 196-208 (§사내 도그푸딩 및 다중 피드백 통합, 00:18:21-00:20:01)",
+          "source_type": "local secondary inspiration transcript",
+          "supports": true,
+          "notes": "umbrella diagnoser가 mismatch를 localize하고 대상 agent/config로 route한 뒤 golden benchmark와 rollback을 거친다는 영감이 현 FeedbackEvent provenance에는 아직 직접 구현되어 있지 않다."
+        }
+      ],
+      "qualifiers": [
+        "Uber 사례는 이미지 도메인의 2차 reported inspiration이며 코드 진단 성능을 입증하지 않는다.",
+        "자동 config 적용은 현 promotion gate를 우회하면 안 된다."
+      ]
+    },
+    {
+      "id": "AG-C6",
+      "claim": "references가 제시하지만 현재 설계에 없는 mutation testing, CRAP/cyclomatic-complexity threshold, architecture dependency rule checker는 유용할 수 있으나 본질적으로 deterministic evidence provider다. 이를 '추가 AI 기술'로 세는 것은 잘못이며, 필요하면 별도 engineering backlog로 추가해야 한다.",
+      "kind": "inferred",
+      "status": "candidate",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "references/ai-software-fundamentals-uncle-bob-transcript.md",
+          "title": "[한영자막] AI 시대에 소프트웨어 기본기가 중요한 이유를 엉클 밥에게 물었습니다",
+          "date": "2026-08-21",
+          "locator": "lines 89-103 (§First Experiments, CRAP·mutation testing, 00:05:31-00:09:02), 205-223 (§Hallucinations, Deep Modules, and Interfaces, 00:26:06-00:29:15), 253-269 (§CRAP, Mutation Testing, and Thresholds, 00:32:24-00:35:23)",
+          "source_type": "local secondary inspiration transcript",
+          "supports": true,
+          "notes": "이 기능들은 명시적으로 deterministic tool/check로 설명된다."
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "lines 102-123 (§4 구조 지식 추출), 295-313 (§11 Evidence Gate)",
+          "source_type": "local design artifact",
+          "supports": true,
+          "notes": "AST/CFG와 evidence checks는 있으나 mutation score, complexity metric, declarative dependency-policy checker는 명시되지 않는다."
+        },
+        {
+          "source": "docs/project-context/ai-professional-evaluation-criteria.md",
+          "title": "AI Professional 과제 평가 기준",
+          "date": "undated",
+          "locator": "lines 102-129 (§2.2-2.4 결과물 평가 기준·제한 사항)",
+          "source_type": "local evaluation criteria",
+          "supports": true,
+          "notes": "AI 요소 개수보다 문제 적합성과 실제 효과를 평가하고 prompt-only/개발 없는 제출을 제한한다. deterministic 기능을 AI로 포장할 유인이 없어야 한다."
+        }
+      ],
+      "qualifiers": [
+        "현재 지정 문서는 구현 전이므로 실제 static-analysis code에 이 기능이 없는지는 확인하지 않았다.",
+        "이 claim은 기능 가치가 낮다는 뜻이 아니라 AI-specificity가 없다는 분류다."
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "name": "Bounded dynamic subset planner",
+      "current_gap": "DiagnosisPlan의 이름만 있고 D1은 항상 고정 5관점을 실행한다. 관점별 relevance·생략 근거·coverage 의무가 없다.",
+      "mechanism": "Diagnosis Planner가 기존 5개 taxonomy 안에서 `selected_perspectives`, `skipped_perspectives[{reason,evidence_ids}]`, `required_seed_coverage`, `budget_allocation`, `fallback_reason`을 구조화 출력한다. 결정론적 Plan Gate가 schema, scope, evidence reference, 최소 안전 규칙을 검증하고 실패 시 기존 all-five fallback을 사용한다.",
+      "expected_effect": "관련 없는 관점 호출·token을 줄이면서 중요한 결함 Recall을 유지할 가능성이 있다. Planner의 현재 역할인 '우선 조사 경로 제안'을 실제 dispatch에 연결한다.",
+      "ai_specificity": "높음. 정적 feature만으로는 포착하기 어려운 사용자 의도·코드 의미·교차 관점 relevance 판단을 LLM이 담당하고, 승인·상태 승격은 그대로 결정론적으로 유지한다.",
+      "minimal_change": "ADR-04/E-03에 DiagnosisPlan v2 schema와 Plan Gate를 추가하고, D1 fan-out을 plan의 subset으로 바꾼다. Analyst/Finding/Merger/RuntimeEvidence schema는 유지하며 planner 실패 시 기존 5관점 plan을 그대로 생성한다.",
+      "extra_cost": "Planner structured output과 plan audit 필드가 조금 늘고, 관점 omission gold 및 evaluator adjudication이 필요하다. 정상 run의 analyst 비용은 감소 가능하다.",
+      "risks": [
+        "planner와 analyst의 correlated miss",
+        "성능/동시성처럼 교차 관점 결함을 한쪽만 선택",
+        "고정 5관점 strata로 만든 pilot이 selector를 유리하거나 불리하게 왜곡",
+        "skip reason이 설명일 뿐 실제 근거가 아닐 수 있음"
+      ],
+      "evaluation": "P4-FIX(all five)와 P4-SEL(dynamic subset)을 같은 commit/model/tools/evidence snapshot/inclusive B_run cap에서 비교한다. Critical/High Recall, 전체 Recall, Precision, per-perspective omission FN, tokens, calls, machine/reviewer time, unsupported finding을 보고한다. 기존 -2%p one-sided non-inferiority 틀을 사용하되 selection threshold와 최소 strata는 calibration 전에 고정한다. 모든 skipped perspective에 evaluator-owned missed-gold audit를 수행한다.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "Evidence-gap adaptive stopping",
+      "current_gap": "현재 조건부 branch는 retrieval expansion과 runtime tool뿐이다. first-pass 자체는 한 번에 모두 실행되어 '충분한 evidence를 얻었을 때 중단'하는 계약이 없다.",
+      "mechanism": "동적 subset 중 우선 wave를 실행한 뒤, canonical unresolved 상태·counterevidence gap·remaining budget을 입력으로 Planner가 `continue_with_perspective` 또는 `stop`을 제안한다. 결정론적 Stop Gate는 unresolved Critical/High, mandatory evidence coverage, retry/expansion 상한, B_run을 검사하며 stop을 거부할 수 있다.",
+      "expected_effect": "쉬운 사례에서는 조기 종료하고, 복합 사례에서만 추가 관점을 써서 평균 token/call을 줄일 수 있다.",
+      "ai_specificity": "중간~높음. 다음 관점의 의미적 marginal value 평가는 AI가, 안전·예산·terminal completeness는 deterministic gate가 담당한다.",
+      "minimal_change": "D1을 최대 2개 bounded wave로 나누고 기존 Expansion Completion Join 앞에 Perspective Completion Join/Stop disposition 하나를 추가한다. Finding과 runtime 계약은 변경하지 않는다.",
+      "extra_cost": "중간 상태 merge와 두 번째 planner decision이 필요하며 병렬 5관점 대비 wall time이 늘 수 있다.",
+      "risks": [
+        "serial latency 증가",
+        "초기 관점 anchoring과 confirmation bias",
+        "조기 stop이 rare Critical/High를 누락",
+        "동적 graph expansion과 역할이 겹쳐 topology가 복잡해짐"
+      ],
+      "evaluation": "먼저 P4-SEL을 검증한 뒤 P4-ADAPT를 추가한다. P4-FIX/P4-SEL/P4-ADAPT에서 같은 B_run으로 stop-error FN, 관점당 marginal accepted TP, tokens/calls, wall time, Critical/High Recall을 비교한다. 첫 wave에서 이미 확인된 사례와 추가 wave가 필요한 사례를 evaluator가 사전 stratify한다.",
+      "provisional_decision": "hold"
+    },
+    {
+      "name": "Constrained supplemental perspective synthesis",
+      "current_gap": "고정 5관점 밖의 domain-specific concern을 발견해도 `unclassified` root cause 외에 새 분석 lens의 목적·evidence type·중복 경계를 표현할 계약이 없다.",
+      "mechanism": "Planner가 기존 5관점으로 포착 불가능하다는 evidence-backed gap이 있을 때만 최대 1개 supplemental lens를 생성한다. 출력은 `name`, `question`, `scope`, `allowed_evidence_kinds`, `excluded_overlap`, `termination`, `maps_to_root_cause_taxonomy`를 포함하고 Novelty Gate가 기존 관점과의 중복 및 scope를 검증한다.",
+      "expected_effect": "transaction/resource-lifecycle/framework-specific invariant 같은 rare residual defect의 Recall을 높일 가능성이 있으나, 대부분 사례에서는 실행하지 않는다.",
+      "ai_specificity": "높음. 프로젝트 의도와 domain semantics에서 새로운 조사 질문을 합성하는 능력이다.",
+      "minimal_change": "DiagnosisPlan v2에 optional `supplemental_perspective` 1개와 Novelty Gate만 추가하고, contributor Finding schema와 canonical merge key는 그대로 재사용한다.",
+      "extra_cost": "추가 analyst 호출, novelty adjudication, generated-lens용 residual benchmark가 필요하다.",
+      "risks": [
+        "기존 정확성·동시성·구조 관점의 말 바꾸기 수준인 중복",
+        "taxonomy drift와 평가 불가능성",
+        "화려한 lens 생성이 실제 evidence Recall보다 앞서는 과잉 설계",
+        "gold가 고정 관점별로 구성되어 공정 비교가 어려움"
+      ],
+      "evaluation": "fixed-five가 놓친 evaluator-owned residual root causes만 별도 capability cohort로 만들고, generated lens의 marginal TP/1k tokens, duplicate contributor rate, unsupported claim rate, root-cause mapping success를 측정한다. 일반 cohort에서 추가 호출률과 zero-gain rate도 보고한다. subset selector가 비열등을 통과하기 전에는 도입하지 않는다.",
+      "provisional_decision": "hold"
+    },
+    {
+      "name": "Sandboxed reproduction-test proposal",
+      "current_gap": "Focused-test executor와 policy는 있지만 AI가 finding을 최소 재현 실험으로 변환하는 단계가 없다.",
+      "mechanism": "Test Hypothesis node가 claim·CFG path·counterevidence로부터 입력, precondition, expected observable, falsification condition, temporary test/command patch를 생성한다. 별도 deterministic validator가 source/gold 접근, assertion circularity, exact argv, sandbox/reset, timeout, test relevance를 검사하고 사용자 승인 후 ephemeral overlay에서만 실행한다.",
+      "expected_effect": "기존 테스트가 없는 correctness/concurrency/performance 가설의 runtime confirmation 또는 refutation coverage를 높이고, 추정 finding을 더 많이 rejected/abstained/runtime_confirmed로 정확히 분류할 수 있다.",
+      "ai_specificity": "높음. 코드 의미와 가설을 반증 가능한 입력·assertion으로 합성하는 부분이 AI이고, oracle·승인·실행·상태 승격은 deterministic이다.",
+      "minimal_change": "E-03의 Focused test 앞에 `test_hypothesis`/`test_candidate` schema와 validator를 추가한다. repo에는 쓰지 않고 RuntimeEvidence에 candidate hash·validator result를 추가한다.",
+      "extra_cost": "테스트 생성 token, validator와 sandbox 실행 시간, human approval·oracle adjudication 비용이 든다.",
+      "risks": [
+        "finding 문장을 assertion으로 복사한 순환 검증",
+        "잘못된 test oracle이 false confirmation 생성",
+        "flaky concurrency test",
+        "hidden/evaluator artifact exposure",
+        "fixture setup이 원 결함보다 커짐"
+      ],
+      "evaluation": "P2-existing-test-only와 P2-generated-candidate를 paired 비교한다. evaluator-owned runtime-eligible cohort에서 valid-test yield, test relevance, support/refute 정확도, flaky rate, confirmation coverage, false runtime_confirmed, tool seconds를 측정한다. generated test는 gold에서 제외하고 multi-run stability를 요구한다.",
+      "provisional_decision": "add"
+    },
+    {
+      "name": "Offline feedback failure-localization diagnoser",
+      "current_gap": "FeedbackEvent provenance와 promotion gate는 있지만 error cluster를 어느 pipeline component가 만들었는지 진단하고 최소 config diff를 제안하는 단계가 없다.",
+      "mechanism": "오프라인 Diagnoser가 train/calibration/regression의 immutable FeedbackEvent·trace·context manifest를 읽고 기존 오류 taxonomy로 subsystem attribution, supporting feedback IDs, alternative cause, candidate config/prompt/retrieval rule diff를 구조화한다. 적용은 human review와 기존 deterministic promotion gate만 담당한다.",
+      "expected_effect": "반복 누락·FP를 무작정 prompt에 누적하지 않고 retrieval/planner/perspective/router/merge/report의 실제 실패 위치로 연결해 개선 cycle을 단축할 가능성이 있다.",
+      "ai_specificity": "높음. 여러 trace와 자유형 reviewer feedback에서 공통 원인과 최소 변경 가설을 합성한다.",
+      "minimal_change": "E-02 §11의 FeedbackEvent와 promotion 사이에 offline proposal artifact 하나를 삽입한다. production auto-write와 final holdout 접근은 금지한다.",
+      "extra_cost": "주기적 offline LLM 분석, subsystem gold labeling, reviewer 승인 비용이 필요하다.",
+      "risks": [
+        "self-training feedback loop와 overfit",
+        "잘못된 subsystem attribution",
+        "prompt/config churn",
+        "final holdout leakage",
+        "큰 diff를 정당화하는 사후 설명"
+      ],
+      "evaluation": "과거 regression failure를 숨긴 attribution set으로 subsystem localization accuracy와 proposed-diff acceptance를 평가한다. promotion 후에는 대상 cluster 개선, 새 Critical/High regression 0, 전체 Recall 하락 ≤2%p, grounding ≤5%, cost p95 비악화를 기존 gate 그대로 요구한다.",
+      "provisional_decision": "add"
+    },
+    {
+      "name": "CRAP/mutation/dependency checks as an 'AI feature'",
+      "current_gap": "현재 static evidence에는 cyclomatic-complexity×coverage, mutation survivor, declarative module dependency violation이 명시되지 않았다.",
+      "mechanism": "필요하면 deterministic extractor/test adapters로 해당 값을 Finding evidence에 연결한다. LLM은 결과를 우선순위화·설명할 뿐 계산하거나 pass/fail을 결정하지 않는다.",
+      "expected_effect": "구조·테스트 공백에 더 재현 가능한 evidence를 줄 수 있지만, AI 고도화 자체는 아니다.",
+      "ai_specificity": "없음. 명백한 deterministic engineering capability다.",
+      "minimal_change": "기존 Extractor/Authorized Test Executor에 optional evidence provider를 추가하고 threshold는 project pilot에서 calibration한다.",
+      "extra_cost": "mutation testing의 큰 실행 비용, coverage/complexity 수집, dependency policy 유지 비용이 든다.",
+      "risks": [
+        "threshold를 외부 일화에서 복사",
+        "coverage나 mutation score를 품질 자체로 오해",
+        "항상 실행해 비용 폭증",
+        "AI 요소 수를 부풀리는 평가 왜곡"
+      ],
+      "evaluation": "별도 engineering ablation으로 additional accepted true evidence/1k tool-seconds, false-positive rate, reviewer decision time을 측정한다. AI기술 선택 점수에는 신규 AI로 계상하지 않는다.",
+      "provisional_decision": "exclude"
+    }
+  ],
+  "contradictions": [
+    "docs/ai-selection-matrix/04-agent-orchestration-adr.md lines 7-19는 고정 순서가 불필요한 관점·도구까지 수행한다고 비판하지만, lines 39-40과 docs/evidence/03-ai-pipeline-technical-design.md lines 32-33은 모든 5관점을 고정 first pass로 실행한다. 조건부 DAG라는 명칭은 현재 관점 단계가 아니라 expansion/runtime branch에만 완전히 적용된다.",
+    "docs/project-context/ai-professional-project-proposal.md lines 103-105는 agent가 분석 단위와 어떤 파일·함수·테스트·경로를 먼저 볼지 자동 계획한다고 하지만, ADR-04/E-03에는 DiagnosisPlan의 version 이름 외에 실제 schema·selection/stop semantics가 없다.",
+    "references/loop-to-graph-agent-design-transcript.md lines 135-145와 272-298은 모델이 tool/context와 dynamic workflow를 orchestrate하는 방향을 reported inspiration으로 제시하고, references/ai-software-fundamentals-uncle-bob-transcript.md lines 121-159는 steering을 줄이고 deterministic tools를 강조한다. 현 설계의 올바른 해소는 AI semantic planning + deterministic safety/evidence gate인데, Planner contract가 비어 있어 균형의 AI 쪽이 아직 구체화되지 않았다.",
+    "references/uber-multimodal-ai-agent-evaluation-transcript.md lines 118-136은 diagnoser가 mismatch를 localize하고 config를 갱신한다고 보고하지만, 현 E-02 §11은 immutable feedback·promotion 검증은 상세한 반면 누가/어떻게 원인을 localize하고 diff를 만드는지는 정의하지 않는다.",
+    "'이미 구현된 아이디어'라는 표현과 달리 docs/evidence/03-ai-pipeline-technical-design.md line 3은 구현 전, docs/evidence/01-kpi-measurement-framework.md lines 3-4와 262-264 및 docs/evidence/02-benchmark-and-ablation-plan.md lines 3-4와 305-307은 실측 전·모든 비교값 미측정이라고 명시한다."
+  ],
+  "unknowns": [
+    "DiagnosisPlan의 canonical schema, versioning fields, plan evidence references, Plan Gate owner가 정해지지 않았다.",
+    "동적 selector가 반드시 포함해야 할 관점/조건이 있는지, 아니면 all-five fallback 외에는 완전 자유인지 정해지지 않았다.",
+    "one-shot subset과 staged adaptive stop 중 어느 쪽이 latency·Recall Pareto에서 나은지 project evidence가 없다.",
+    "고정 5관점별로 균형 잡힌 pilot/gold가 동적 selector와 generated lens를 공정하게 평가할 수 있는지 불명확하다.",
+    "Focused test가 기존 repository command만 의미하는지, 임시 생성 test candidate도 허용하는지 정책 해석이 명시되지 않았다.",
+    "FeedbackEvent의 `reason_code=false_positive` 등 label을 누가 어느 taxonomy로 subsystem attribution까지 확장할지 정해지지 않았다.",
+    "반대 검토자 1개(ADR-01 lines 131-139)와 Evidence Gate의 반대 검토(E-03 lines 305-313)가 같은 실행 주체인지 별도 LLM node인지 모호해 중복 비용을 계산할 수 없다.",
+    "실제 코드 구현을 읽지 않았으므로 설계 문서에 명시된 capability의 구현 완성도와 deterministic quality tool의 실제 존재 여부는 알 수 없다."
+  ],
+  "recommended_followups": [
+    "우선 ADR-04와 E-03에 DiagnosisPlan v2/Plan Gate를 명시하고 fixed-five fallback을 유지한 `P4-SEL`만 구현·평가한다. 이것이 가장 작은 변경으로 현재 핵심 AI gap을 직접 검증한다.",
+    "E-02 비교표와 ablation에 `P4-FIX vs P4-SEL`을 추가하고, perspective omission FN·skip reason validity·accepted TP/1k tokens를 사전 지표로 넣는다. 기존 A4(single perspective)는 dynamic selector 검증을 대체하지 않는다.",
+    "P4-SEL이 Critical/High Recall 비열등과 비용 개선을 보인 뒤에만 staged adaptive stopping을 시험한다. supplemental lens 생성은 residual cohort에서 명확한 fixed-five blind spot이 확인될 때까지 보류한다.",
+    "Focused test semantics를 existing command와 generated ephemeral candidate로 분리하고, 생성 테스트에는 falsification condition·oracle provenance·relevance validator·multi-run stability를 의무화한다.",
+    "FeedbackEvent와 promotion 사이에 offline Diagnoser proposal schema를 추가하되 exact feedback IDs, alternative cause, minimal diff, regression artifact를 필수로 하고 final holdout 접근과 자동 production 적용을 금지한다.",
+    "references의 CRAP/mutation/dependency checker는 AI 후보 목록에서 제외해 별도 deterministic evidence-provider backlog로 관리한다. threshold와 실행 빈도는 프로젝트 pilot으로만 정한다.",
+    "모든 보고서에서 '설계 반영', '구현 완료', 'project result'를 별도 상태로 표시해 현재 문서의 구현 전/미측정 상태가 과장되지 않게 한다."
+  ]
+}

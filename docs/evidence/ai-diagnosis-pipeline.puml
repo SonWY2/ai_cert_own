@@ -1,0 +1,134 @@
+@startuml
+!theme plain
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName "Noto Sans CJK KR"
+skinparam activity {
+  BackgroundColor #F8FAFC
+  BorderColor #334155
+  FontColor #0F172A
+  DiamondBackgroundColor #FEF3C7
+  DiamondBorderColor #D97706
+  StartColor #2563EB
+  EndColor #2563EB
+  BarColor #64748B
+}
+
+title AI 기반 코드 품질·성능 리스크 진단 에이전트
+
+start
+
+partition "입력·안전 정책" #E0F2FE {
+  :진단 범위, PR diff, 증상 입력;
+  :ExecutionPolicy 생성\n명령·권한·timeout·redaction 고정;
+}
+
+partition "결정론적 구조 분석" #DCFCE7 {
+  :Python 3.14 AST·심볼·CFG 추출;
+  :Versioned Code Graph 구성\n호출·의존·예외·테스트 관계;
+  :Lexical anchor + bounded 1-hop 문맥 구성;
+}
+
+note right
+  <b>AI 전문가 역량 1</b>
+  LLM에 구조 사실을 추측시키지 않고
+  심볼릭 분석과 생성형 AI의 역할을 분리
+end note
+
+partition "AI 가설 중심 적응형 진단" #F3E8FF {
+  :Diagnosis Planner v2\n관점별 run·skip·defer·shadow와 근거 제안;
+
+  if (Plan Gate 통과?) then (예)
+    :Fixed-five | Shadow | Routed mode로\n등록 관점 dispatch;
+  else (아니오)
+    :Fixed-five fallback;
+  endif
+
+  :구조·정확성·성능·동시성·테스트 분석\n+ 등록 focus lens;
+  :Contributor Finding 병합\n원인·위치·Severity 표준화;
+  :HypothesisContract 생성\n조건·지지/반박 관찰·독립 oracle 고정;
+}
+
+note right
+  <b>AI 전문가 역량 2</b>
+  고정 5관점을 taxonomy와 안전 기준으로 유지하면서
+  증거에 따라 필요한 관점과 검증 행동을 계획
+end note
+
+if (구조 증거가 부족한가?) then (예)
+  partition "제한적 재검색" #FFF7ED {
+    :Typed ExpansionRequest 검증;
+    :선택된 관계만 최대 2-hop 확장;
+    :해당 관점만 재분석 후 결과 갱신;
+  }
+else (아니오)
+endif
+
+if (High/Critical 충돌·미해결 반례인가?) then (예)
+  :근거 인용형 critic 최대 1회\n반박·우려·probe 요청만 허용;
+else (아니오)
+endif
+
+if (실행 증거가 필요한가?) then (예)
+  if (독립 oracle이 있는 Focused test인가?) then (예)
+    partition "가설 실행 검증" #FFEDD5 {
+      :HypothesisContract와 command manifest exact match;
+      :Sandbox focused test 실행;
+    }
+  else (아니오)
+    if (Profiler 후보이며 opt-in 승인됐는가?) then (예)
+      partition "선택적 Profiler" #FEE2E2 {
+        :결정론적 router로 도구 선택;
+        :cProfile | py-spy | Scalene 실행;
+      }
+    else (아니오)
+      :abstained / not-needed / blocked 사유 기록;
+    endif
+  endif
+else (아니오)
+endif
+
+note right
+  <b>AI 전문가 역량 3</b>
+  AI가 가설을 만들되 실행 전 반증 기준을 고정하고
+  권한·oracle·비용 조건을 코드가 검증
+end note
+
+partition "증거 정규화·환각 통제" #ECFDF5 {
+  :RuntimeEvidence 생성\nsource·policy·workload·raw hash 보존;
+  :Evidence Gate에서 위치·계약·근거·반례 검사;
+}
+
+if (근거가 가설을 지지하는가?) then (지지)
+  :runtime_confirmed;
+elseif (반박) then (반박)
+  :rejected;
+else (불충분)
+  :abstained;
+endif
+
+partition "결과·평가" #EDE9FE {
+  :위험도·근거·영향·최소 조치 보고서 생성;
+  :동일 B_run으로 P4-F5·S1·S2·critic·probe 비교;
+  :Evaluator-owned gold로 관점 누락·Recall·token 검증;
+}
+
+note right
+  <b>AI 전문가 역량 4</b>
+  5관점 분업을 넘어 Planner routing 자체의
+  품질·누락·비용·반증 가능성을 정량 평가
+end note
+
+stop
+
+legend left
+  |= 색상 |= 의미 |
+  |<#DCFCE7> | 결정론적 분석 |
+  |<#F3E8FF> | LLM 추론 |
+  |<#FFEDD5> | 실행 검증 |
+  |<#ECFDF5> | 증거·환각 통제 |
+  |<#EDE9FE> | 결과·정량 평가 |
+endlegend
+
+@enduml

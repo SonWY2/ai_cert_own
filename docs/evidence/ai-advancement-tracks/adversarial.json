@@ -1,0 +1,337 @@
+{
+  "strategy_id": "adversarial",
+  "scope": "2026-08-23 기준 adversarial track. 동적 관점 생성, LLM/학습 router, debate·reflection loop, 장기 agent memory, 자율 테스트 생성, embedding, learned graph expansion, learned profiler routing을 현행 Python 3.14 진단 설계와 비교해 반증 가능성·과잉 설계·상관 오류·평가 leakage·비용 confound·직접 근거 공백 관점에서 검토했다. 모든 외부 근거는 기본 6개월 창(2026-02-23 이후)의 1차 자료이며 1년 예외는 사용하지 않았다. 프로젝트 성과는 주장하지 않는다.",
+  "claims": [
+    {
+      "id": "ADV-01",
+      "claim": "현행 고정 5관점, bounded DAG, selective profiler는 이미 비용·안전·검증 계약을 갖춘 '제안/실험 가설'이며, 현재 프로젝트 결과로 우월성이 입증된 상태가 아니다. 따라서 새 AI 계층을 더하기 전에 현행 P4와 같은 B_run·temporal/OOD 조건에서 독립 기여를 측정해야 한다.",
+      "kind": "observed",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§7 초기 설정, lines 131-141; §9 채택 검증, lines 153-159; §10 최신 근거, lines 161-168",
+          "source_type": "local ADR",
+          "supports": true,
+          "notes": "관점 수 5, retry, 반대 검토자 수를 모두 프로젝트 가설·ablation 대상으로 명시하고 외부 연구가 5관점 우월성을 직접 입증하지 않는다고 적는다."
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§2 공정성 계약, lines 16-47; §3.2, lines 61-76; §10, lines 237-246",
+          "source_type": "local evaluation plan",
+          "supports": true,
+          "notes": "모든 agent·retry·gate를 포함한 inclusive B_run, final-temporal/OOD 분리, Pareto 판정 조건을 요구하며 문서 상태가 '프로젝트 결과 미측정'이다."
+        }
+      ],
+      "qualifiers": [
+        "'고정 5관점 유지'도 최종 사실이 아니라 현재 가장 감사 가능한 기준선이라는 의미다.",
+        "동적 방식이 열등하다는 프로젝트 결과는 아직 없다."
+      ]
+    },
+    {
+      "id": "ADV-02",
+      "claim": "고정 라운드의 동질적 multi-agent debate는 독립 오류를 상쇄하기보다 다수 의견 동조, 정답 경로 붕괴, 정답 minority 폐기를 일으킬 수 있고, 단독 self-correction보다 2.1–3.4배 token을 쓰면서 정확도가 같거나 낮았다는 최근 통제 실험이 있다. 따라서 debate/reflection loop를 기본 업그레이드로 넣는 것은 반증된다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.00914v1",
+          "title": "The Cost of Consensus: Isolated Self-Correction Prevails Over Unguided Homogeneous Multi-Agent Debate",
+          "date": "2026-04-29",
+          "locator": "Abstract; §1 Introduction, contributions 1-3; §3.3 Architectural Baselines and Controls; §3.5 and Table 1",
+          "source_type": "preprint / controlled empirical study",
+          "supports": true,
+          "notes": "10개 동질 agent, 3라운드, Qwen2.5-7B/Llama-3.1-8B/Ministral-3-8B, GSM-Hard·MMLU-Hard에서 sycophantic conformity, contextual fragility, consensus collapse와 2.1–3.4× token 비용을 보고한다."
+        }
+      ],
+      "qualifiers": [
+        "7–8B open-weight model과 수학·지식 추론에 대한 결과이며 Python 코드 진단을 직접 평가하지 않았다.",
+        "unguided homogeneous debate만 반증한다. 역할이 분리된 현행 5관점 DAG나 단일 독립 반증 패스를 반증하지 않는다.",
+        "preprint이며 독립 재현 전 일반화하면 안 된다."
+      ]
+    },
+    {
+      "id": "ADV-03",
+      "claim": "최근 tool-routing 근거는 'LLM이 스스로 필요성·효용을 판단하면 된다'는 설계를 지지하지 않는다. Self-decision은 실제 need/utility와 어긋나 불필요하거나 해로운 호출을 만들었고 latent utility estimator도 안정적으로 효용을 예측하지 못했다. 반면 calibrated routing의 성공 근거는 75K NER cascade 한 도메인과 명시적 가정 아래의 결과다. profiler trigger에 대한 직접 학습-router 근거는 없다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.00737v3",
+          "title": "To Call or Not to Call: A Framework to Assess and Optimize LLM Tool Calling",
+          "date": "2026-08-06",
+          "locator": "Abstract; §1 Introduction and Table 1; §3 Prescriptive lens; §4.1 Need and Utility",
+          "source_type": "preprint / empirical tool-use study",
+          "supports": true,
+          "notes": "7개 model, web search·calculator, 6개 task에서 perceived need/utility와 true values의 misalignment, harmful/redundant calls를 보고하며 LUE가 true utility를 신뢰성 있게 예측하지 못한다고 명시한다."
+        },
+        {
+          "source": "https://arxiv.org/html/2605.18796v1",
+          "title": "UCCI: Calibrated Uncertainty for Cost-Optimal LLM Cascade Routing",
+          "date": "2026-05-11",
+          "locator": "Abstract; §1 Introduction; §4.2-4.3; §5 Theorem 1 and assumptions",
+          "source_type": "preprint / production NER case study",
+          "supports": true,
+          "notes": "75,000 production NER query에서 isotonic calibration과 held-out thresholding을 평가했지만 model cascade이며 profiler 호출이 아니다. Theorem 1은 세 가정, 특히 escalated subset에서도 large-model accuracy가 불변이라는 제한을 둔다."
+        },
+        {
+          "source": "docs/ai-selection-matrix/03-profiler-in-the-loop-adr.md",
+          "title": "ADR-03: 결정론적 정책으로 profiler를 선택 실행한다",
+          "date": "2026-08-23",
+          "locator": "§2, lines 12-16; §6, lines 111-119; §9-10, lines 170-190",
+          "source_type": "local ADR",
+          "supports": true,
+          "notes": "paired blind utility label·repository split·calibration·final holdout 이전에는 deterministic router를 유지하며 To Call/UCCI 수치를 profiler 성능으로 전용하지 않는다고 명시한다."
+        }
+      ],
+      "qualifiers": [
+        "To Call의 도구는 web search/calculator이고 UCCI는 NER cascade이므로 profiler나 관점 dispatch에 score를 전용할 수 없다.",
+        "UCCI는 learned routing 자체가 불가능하다는 반례가 아니라 충분한 label·calibration·도메인 검증이 필수라는 근거다.",
+        "두 논문 모두 preprint다."
+      ]
+    },
+    {
+      "id": "ADV-04",
+      "claim": "장기 agent memory는 retrieval 성공만으로 신뢰할 수 없다. 최신 근거가 검색되어도 stale state를 행동에 반영하지 않는 실패가 관찰됐고, 평가된 최선 시스템도 STALE 전체 정확도 55.2%에 그쳤다. 현행 commit/version/hash 기반 artifact를 free-form persistent memory로 대체하는 것은 근거보다 freshness·오염·split leakage 위험이 크다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.06527v1",
+          "title": "STALE: Can LLM Agents Know When Their Memories Are No Longer Valid?",
+          "date": "2026-05-07",
+          "locator": "Abstract; §1 Introduction, especially the retrieval-versus-action gap and Table 1; §3 benchmark definition",
+          "source_type": "preprint / memory benchmark",
+          "supports": true,
+          "notes": "400 expert-validated conflict scenario, 1,200 query, 최대 150K context에서 State Resolution, Premise Resistance, Implicit Policy Adaptation을 분리하고, 새 근거 retrieval 후에도 stale belief에 따라 행동하는 실패와 최고 55.2%를 보고한다."
+        }
+      ],
+      "qualifiers": [
+        "개인화 대화 memory benchmark이며 코드 저장소 memory를 직접 평가하지 않았다.",
+        "이 결과는 versioned Code Graph나 immutable FeedbackEvent를 반증하지 않는다. 시간·provenance 없는 자유형 cross-run memory에 대한 경고다.",
+        "preprint이며 CUPMem 개선안도 초기 prototype이다."
+      ]
+    },
+    {
+      "id": "ADV-05",
+      "claim": "최근 코드 retrieval 근거는 lexical anchor에서 제한된 구조 확장을 보조적으로 쓰는 현행 방향은 지지하지만, all-query embedding, learned expansion, graph-only memory를 지지하지 않는다. LARGER의 deterministic graph expansion ablation은 이득을 보였지만 Codebase-Memory는 token/tool-call 절감과 함께 explorer보다 낮은 전체 answer quality를 보였고 embedding baseline 비교와 runtime/dynamic behavior는 공백으로 남겼다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.16352v1",
+          "title": "LARGER: Lexically Anchored Repository Graph Exploration and Retrieval",
+          "date": "2026-05-08",
+          "locator": "§5.1 Experimental Setup; §5.2 Table 1 and efficiency paragraph; §5.3 Ablation Study and Table 3; Appendix B Table 7",
+          "source_type": "preprint / code localization study",
+          "supports": true,
+          "notes": "fixed hyperparameter의 lexical-anchor + confidence-filtered local expansion에서 MuLocBench Acc@5 55.7 대 Codex 50.0을 보고하고 graph expansion 제거 시 48.2로 하락했다. 이는 learned policy가 아니라 bounded deterministic expansion이다; token telemetry도 일부 instance만 포괄한다."
+        },
+        {
+          "source": "https://arxiv.org/html/2603.27277v1",
+          "title": "Codebase-Memory: Tree-Sitter-Based Knowledge Graphs for LLM Code Exploration via MCP",
+          "date": "2026-03-28",
+          "locator": "Abstract; §4 evaluation summary; §5.2 Structural Retrieval; §5.4 Threats to Validity",
+          "source_type": "preprint / code exploration study",
+          "supports": true,
+          "notes": "31 repository에서 graph quality 83% 대 explorer 92%, 약 10× fewer tokens와 2.1× fewer tool calls를 보고한다. §5.4는 언어당 한 repository, single Claude backend, author grading, embedding-RAG systematic comparison 부재, static-only graph, reflection/dynamic dispatch 미표현을 명시한다."
+        }
+      ],
+      "qualifiers": [
+        "두 연구 모두 code localization/exploration이며 Python 결함·비동기·성능 진단의 최적 hop·node·token을 정하지 않는다.",
+        "LARGER는 graph 확장의 가치에 대한 긍정 근거이므로 graph 자체를 제외하는 결론은 지지하지 않는다.",
+        "Codebase-Memory의 token 절감과 quality 하락은 동일 효용점이 아니므로 단일 우열 수치로 합치면 안 된다.",
+        "모두 preprint다."
+      ]
+    },
+    {
+      "id": "ADV-06",
+      "claim": "자율 생성 테스트를 곧바로 검증 oracle이나 gold로 쓰면 평가 leakage, 같은 모델의 상관 blind spot, 무관·flaky test를 통해 score가 부풀 수 있다. 최근 production benchmark 방법은 solution-diff leakage 제거, code-path relevance, 다중 실행 안정성을 별도 gate로 두며, protocol audit 연구는 dataset/metric만 올바른 것으로는 agent 평가 타당성이 확보되지 않는다고 보고한다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2604.01527v4",
+          "title": "REAP: Automatic Curation of Coding Agent Benchmarks from Interactive Production Usage",
+          "date": "2026-07-28",
+          "locator": "Abstract; §3 overview; §3.2 Candidate Test Retrieval; §3.3 Verification — Solution Diff Leakage, Test Relevance Filtering, Test Validation",
+          "source_type": "ASE 2026 Industry Showcase / production methodology",
+          "supports": true,
+          "notes": "prompt leakage를 제거하고 test가 수정 코드 또는 dependency를 실제로 exercise하는지 확인하며 pre-change 다중 실행과 transient failure filtering 후에만 F2P signal로 채택한다."
+        },
+        {
+          "source": "https://arxiv.org/html/2607.22368v1",
+          "title": "Do Agent Benchmarks Measure Capability? Protocol Validity in the Age of Agentic AI",
+          "date": "2026-07-24",
+          "locator": "Abstract; §1 Introduction; §3.1 Benchmarks as Evolving Protocols; §3.2 From Exposure to Mislead",
+          "source_type": "preprint / post-hoc benchmark audit",
+          "supports": true,
+          "notes": "15 benchmark의 2,385 trace를 감사해 reachable hidden artifacts, public solutions, mutable scoring, feedback shortcut이 capability score를 왜곡할 수 있음을 보고하고 Expose→Exploit→Mislead chain을 요구한다."
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§4 실행 절차, lines 122-134",
+          "source_type": "local evaluation plan",
+          "supports": true,
+          "notes": "gold·hidden test·evaluation artifact 접근 차단과 trace audit를 이미 요구한다."
+        }
+      ],
+      "qualifiers": [
+        "REAP의 corpus는 proprietary single monorepo·assistant이고 test relevance 자체에도 LLM classifier를 사용한다.",
+        "HackDetect는 post-hoc audit이며 본 프로젝트 score가 이미 오염됐다는 결과가 아니다.",
+        "이 근거는 test generation 자체를 금지하지 않는다. 생성 테스트를 untrusted candidate로 격리하라는 결론을 지지한다."
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "name": "자유형 동적 관점 생성",
+      "current_gap": "고정 5관점이 저장소별 특수 위험을 놓칠 수 있지만, 관점별 marginal Recall·오류 상관과 dynamic generation의 직접 Python 진단 근거가 없다.",
+      "mechanism": "Planner가 매 run마다 자유형 reviewer 역할을 만들고 수·중단 조건을 결정한다.",
+      "expected_effect": "새 결함 taxonomy를 발견할 가능성은 있으나, 현재 근거로 품질 또는 효율 개선 방향을 예측할 수 없다.",
+      "ai_specificity": "높음. LLM이 분석뿐 아니라 taxonomy와 orchestration topology까지 생성한다.",
+      "minimal_change": "운영 DAG에는 넣지 말고 offline capability arm 하나로만 추가한다. `fixed-5`, deterministic subset, generated-perspective를 동일 B_run에서 비교하고 generated contributor도 기존 Finding schema/root-cause taxonomy에 매핑하지 못하면 abstain 처리한다.",
+      "extra_cost": "최소 planner generation 1회, 추가 perspective call, 새로운 merge/taxonomy calibration, labeler 교육과 unmatched-output 검토 비용.",
+      "risks": [
+        "동일 backbone이 만든 역할 간 상관 오류",
+        "관점 이름만 다양하고 증거·추론은 중복되는 pseudo-diversity",
+        "dev split의 issue wording·taxonomy에 과적합",
+        "자유형 역할로 merge key와 severity 기준이 흔들림",
+        "관점 수 증가가 Recall 개선처럼 보이는 token-budget confound"
+      ],
+      "evaluation": "고정 commit/model/tools/evidence와 inclusive B_run에서 3-arm paired 실험. perspective별 unique TP, Critical/High Recall, grounded FP, unmatched taxonomy rate, tokens/accepted TP, temporal/OOD를 보고한다. generated arm이 같은 비용에서 고정/선택 arm보다 Pareto 개선하지 못하면 폐기한다.",
+      "provisional_decision": "hold"
+    },
+    {
+      "name": "단일 독립 반증 패스(토론·반복 reflection 대체)",
+      "current_gap": "현행 Evidence Gate에 반대 검토가 있으나, peer rationale를 반복 노출하는 debate는 상관 오류와 비용을 키울 수 있다. 반면 minority 정답을 보존할 좁은 반증 채널은 여전히 필요하다.",
+      "mechanism": "High/Critical, contributor 충돌, unresolved path에만 한 번 실행한다. 반증자는 먼저 동일 evidence snapshot에서 독립 verdict를 고정한 뒤 기존 finding과 비교하며, agent-to-agent 대화·majority vote·추가 round는 금지한다.",
+      "expected_effect": "반례·더 단순한 원인 후보를 보존하면서 fixed-round debate의 동조와 communication tax를 피할 수 있다는 검증 가능한 가설이다.",
+      "ai_specificity": "중간. 별도 LLM 추론은 쓰지만 topology는 deterministic이고 한 번으로 제한한다.",
+      "minimal_change": "현행 §11 반대 검토를 유지하되 `independent_verdict_hash`, trigger reason, finding을 보기 전 verdict, 비교 후 disposition을 기록한다. 새 loop는 만들지 않는다.",
+      "extra_cost": "trigger된 사례당 LLM call 1회와 gate 비교 비용. 모든 사례에 실행하지 않는다.",
+      "risks": [
+        "같은 model family면 독립 호출도 상관 오류가 남음",
+        "반증자가 근거 없는 의심을 늘릴 수 있음",
+        "trigger가 넓으면 사실상 두 배 비용",
+        "기존 finding을 먼저 보여주면 anchoring·sycophancy 재발"
+      ],
+      "evaluation": "`no counter-review` 대 `blind one-pass` 대 `visible iterative debate`를 같은 B_run에서 비교한다. FP rejection, recovered FN, correct-to-wrong reversal, tokens/accepted TP, cross-trial stability를 측정하고 one-pass가 Pareto상 우세할 때만 유지한다.",
+      "provisional_decision": "keep"
+    },
+    {
+      "name": "학습 LLM·profiler router",
+      "current_gap": "deterministic router의 trigger Precision/Recall도 아직 project result가 없지만, learned policy를 훈련할 profiler-specific paired utility label은 더더욱 축적되지 않았다.",
+      "mechanism": "finding·static signal·workload·cost 특성으로 profile/no-profile utility를 예측해 호출·도구를 선택한다. LLM self-decision, logistic/GBDT, calibrated threshold가 후보가 된다.",
+      "expected_effect": "충분한 label과 stable distribution이 있을 때 neutral/harmful profile을 줄일 가능성이 있으나, 현재 직접 근거는 없다.",
+      "ai_specificity": "중간~높음. LLM self-routing 또는 supervised/calibrated policy가 deterministic eligibility 위에 추가된다.",
+      "minimal_change": "운영은 현행 deterministic rule을 유지한다. 동일 case의 no-profile/profile blind utility label을 별도 version으로 모은 뒤 offline shadow policy만 학습한다. 안전·승인·ExecutionPolicy는 router가 우회할 수 없다.",
+      "extra_cost": "paired profile 실행, 전문가 2명+tie-breaker label, calibration/power analysis, policy versioning·drift monitoring, ECE/Brier 평가.",
+      "risks": [
+        "희소 positive와 class imbalance",
+        "모델·repository·workload drift",
+        "profile을 실행해야 utility label을 아는 counterfactual 비용",
+        "LLM self-confidence 오보정",
+        "NER/tool-search 근거를 profiler에 잘못 전용",
+        "router 개선과 더 많은 profiler seconds의 confound"
+      ],
+      "evaluation": "계획된 never/always/LLM-self/rule/logistic/GBDT/calibrated/oracle를 동일 B_run에서 비교한다. beneficial P/R, harmful run rate, unsafe-run, ECE/Brier, profiler wall time, confirmed TP당 비용, final repository-family OOD를 사용한다. power와 calibration gate 전에는 promotion 금지.",
+      "provisional_decision": "hold"
+    },
+    {
+      "name": "자유형 persistent agent memory",
+      "current_gap": "반복 진단에서 과거 context 재사용 유혹은 있으나, 현행 versioned Code Graph·immutable artifact·FeedbackEvent가 이미 provenance를 제공하며 별도 memory의 incremental value는 측정되지 않았다.",
+      "mechanism": "과거 finding, reasoning summary, tool outcome을 embedding/graph memory에 쓰고 다음 run에서 검색해 planner와 reviewer를 조건화한다.",
+      "expected_effect": "반복 repository의 context 비용을 줄일 수 있으나 stale code, 잘못된 finding, 사용자 feedback이 장기 오염으로 굳을 수 있다.",
+      "ai_specificity": "높음. AI가 write/select/consolidate/forget 정책을 수행한다.",
+      "minimal_change": "도입하지 않는다. 필요한 재사용은 commit/hash/policy/version이 필수인 기존 immutable artifact 조회로 제한하고 final/test split 간 memory namespace를 완전히 분리한다.",
+      "extra_cost": "write-time summarization, vector/graph storage, invalidation·TTL, poisoning 방어, privacy/retention, cross-version migration과 read latency.",
+      "risks": [
+        "stale memory가 최신 source보다 우선",
+        "FP·잘못된 severity의 장기 증폭",
+        "train/calibration/final 간 label·solution leakage",
+        "prompt injection·tool output의 persistent poisoning",
+        "삭제·감사·개인정보 거버넌스 부담",
+        "retrieval 성공을 behavior correctness로 오인"
+      ],
+      "evaluation": "도입 재검토 시에만 `no memory` 대 exact versioned artifact retrieval 대 learned memory를 commit-update·revert·conflicting feedback scenario에서 비교한다. stale-use rate, source-hash mismatch, leakage 0, unique TP/1k token, write/read latency를 측정한다.",
+      "provisional_decision": "exclude"
+    },
+    {
+      "name": "현행 lexical/BM25 + 보조 vector + bounded typed graph",
+      "current_gap": "자연어 query에서 vector anchor가 보조가 될 수 있지만 vector-only·learned expansion·all-query GraphRAG의 Python 진단 개선은 입증되지 않았다.",
+      "mechanism": "exact/BM25를 1차 anchor로 유지하고 자연어 질의에만 vector를 낮은 tier로 사용하며, 명시적 typed request가 있는 anchor만 bounded 1/2-hop 확장한다. free-form learned expansion은 넣지 않는다.",
+      "expected_effect": "최근 localization 근거가 지지하는 구조 recall 이득을 유지하면서 embedding noise와 graph 폭발을 제한하는 가장 작은 설계다.",
+      "ai_specificity": "낮음~중간. embedding은 의미 anchor에만 쓰고 구조 확장·상한은 deterministic이다.",
+      "minimal_change": "현행 구성을 그대로 유지하고 exact/BM25, vector-only, 1-hop, typed conditional 2-hop ablation을 완료한다. learned edge scorer나 all-query vector store는 만들지 않는다.",
+      "extra_cost": "기존 vector index와 graph build/retrieval 비용만 발생한다. learned expansion을 추가하면 training label·drift·calibration과 추가 context 비용이 생긴다.",
+      "risks": [
+        "vector semantic similarity가 causal code path와 다름",
+        "static graph의 reflection/DI/dynamic dispatch 누락",
+        "2-hop context 폭발",
+        "benchmark-tuned hop/threshold 과적합",
+        "graph 품질과 agent backbone 차이를 혼동"
+      ],
+      "evaluation": "file/function Acc@K, evidence Recall@K, graph path completeness, gold evidence/1k tokens, expansion당 unique TP와 token, index/retrieval latency를 동일 snapshot/B_run에서 비교한다. fixed deterministic variant를 learned candidate의 필수 baseline으로 둔다.",
+      "provisional_decision": "keep"
+    },
+    {
+      "name": "격리된 자율 테스트 생성—oracle이 아닌 candidate producer",
+      "current_gap": "현행 focused test는 승인된 command 실행 계약은 있으나, 결함을 재현하는 새 테스트 후보 생성의 incremental value는 정의되지 않았다.",
+      "mechanism": "gated finding 하나에 대해 LLM이 최소 reproduction test 후보를 만들되 별도 sandbox에서 실행하고, 생성 테스트는 finding 승격·gold·final scorer에 직접 쓰지 않는다. code-path relevance·pre/post behavior·flakiness 검사를 통과한 후보만 reviewer artifact로 제공한다.",
+      "expected_effect": "숨은 입력·async interleaving·회귀 경로를 구체화할 가능성이 있으나, 같은 model blind spot을 공유하므로 독립 hidden evaluation을 대체하지 않는다.",
+      "ai_specificity": "높음. LLM이 executable test candidate를 합성한다.",
+      "minimal_change": "capability exploration arm으로 finding당 최대 1개 test와 실행 budget을 둔다. generator는 gold/hidden tests와 evaluator artifacts에 접근하지 못하고, acceptance 상태는 evaluator-owned existing/hidden tests로만 판정한다.",
+      "extra_cost": "test generation call, sandbox/reset, 최소 3회 안정성 실행, relevance 검토, flaky/timeout triage, generated artifact 보관.",
+      "risks": [
+        "구현과 같은 잘못된 가정을 test에 복제",
+        "tautological·overfit test",
+        "visible generated test에 대한 score gaming",
+        "flaky concurrency test",
+        "mutation은 잡지만 실제 사용자 영향은 못 잡는 construct gap",
+        "실행 비용이 finding 품질 개선처럼 보이는 confound"
+      ],
+      "evaluation": "retrieved existing test only 대 generated-candidate arm을 동일 B_run/tool seconds에서 비교한다. test가 pre-fix 실패·verified-fix 통과·adversarial wrong patch 거부하는지, mutation kill, code-path relevance, flaky rate, unique confirmed TP, reviewer acceptance, hidden temporal/OOD 성능을 측정한다. 생성 테스트 자체를 gold로 사용하지 않는다.",
+      "provisional_decision": "advance"
+    }
+  ],
+  "contradictions": [
+    "The Cost of Consensus는 unguided homogeneous debate를 강하게 반증하지만, 현행 구조처럼 서로 다른 입력 계약을 가진 5개 관점과 deterministic merge/gate를 평가하지 않았다. 따라서 '모든 multi-agent 구조가 해롭다'는 결론은 근거를 넘는다.",
+    "LARGER는 graph expansion 제거 시 localization이 하락했다고 보고하지만 Codebase-Memory는 graph agent의 전체 answer quality가 file explorer보다 낮았다고 보고한다. 모순이라기보다 graph가 구조 질의·localization의 보조층이지 source exploration의 완전 대체가 아니라는 trade-off다.",
+    "UCCI는 충분한 75K label과 calibration에서 routing 효율을 보고하지만 To Call은 true utility predictor가 안정적이지 않다고 보고한다. task·signal·label 규모가 다르므로 profiler에 일반화할 수 없고 project paired experiment가 필요하다.",
+    "STALE의 stale-memory 실패는 대화형 개인화 memory에 대한 것이며 commit-pinned code graph를 직접 반박하지 않는다. 위험은 free-form cross-run memory로 범위를 한정해야 한다.",
+    "REAP는 LLM classifier를 test relevance에 사용하므로 'AI-generated/AI-screened test는 모두 무효'를 지지하지 않는다. 핵심은 generator·gold·scorer의 권한 분리와 deterministic execution/stability 증거다.",
+    "LARGER의 downstream Test Writing 이득은 test 작성 점수이며, 생성 테스트가 독립 검증 oracle로 타당하다는 증거가 아니다."
+  ],
+  "unknowns": [
+    "최근 6개월 1차 자료에서 고정 5관점과 자유형 dynamic perspective generation을 Python 코드 품질·비동기·성능 진단에서 직접 비교한 근거를 찾지 못했다.",
+    "현행 5개 관점의 오류 상관, 관점별 marginal unique TP, 어떤 관점을 안전하게 skip할 수 있는지는 project pilot 전까지 불명이다.",
+    "profiler-specific beneficial/neutral/harmful base rate, 필요한 학습 표본, rule 대비 learned router의 calibration/OOD 안정성은 불명이다.",
+    "현행 versioned Code Graph·FeedbackEvent를 넘어선 persistent memory의 incremental quality-per-cost는 불명이다.",
+    "embedding이 exact/BM25보다 자연어 issue에서 추가하는 unique evidence와 false-neighbor 비용은 project data에서 불명이다.",
+    "learned graph expansion이 fixed typed 1/2-hop보다 나은지, 아니면 개발 benchmark taxonomy만 학습하는지 불명이다.",
+    "자율 생성 테스트가 Python async/performance defect에서 기존 test retrieval보다 unique confirmation을 추가하는지, 그리고 같은-model correlated blind spot을 얼마나 갖는지 불명이다."
+  ],
+  "recommended_followups": [
+    "기획 결정은 당분간 현행 fixed-5 + bounded typed expansion + deterministic profiler router + one-pass evidence gate를 기준선으로 동결하고, 이를 프로젝트 결과처럼 표현하지 않는다.",
+    "동적 관점은 운영 기능이 아니라 `fixed-5 / deterministic subset / free-form generated` 3-arm capability experiment로만 사전 등록한다. 동일 B_run, unmatched taxonomy, unique TP, temporal/OOD를 필수로 한다.",
+    "반대 검토는 debate loop로 확장하지 말고 blind independent one-pass를 유지한다. 독립 verdict를 기존 finding 노출 전에 hash해 correct-to-wrong reversal과 minority recovery를 측정한다.",
+    "learned profiler router는 paired blind utility label과 power analysis 이후 shadow policy로만 평가한다. hidden-state 접근이 없는 API model에는 To Call의 latent estimator를 구현 가능한 것처럼 쓰지 않는다.",
+    "persistent memory는 제외하고 commit/source/policy hash가 없는 과거 artifact는 retrieval 대상에서 배제한다. final split namespace와 development memory를 물리·논리적으로 분리한다.",
+    "자율 테스트 생성은 generator와 evaluator를 분리한 candidate-only arm으로 진행한다. generated tests는 gold나 status promotion 근거가 아니며 relevance, pre/post, flaky, adversarial-wrong-patch 검사를 모두 통과해야 한다.",
+    "검색 실험에서 exact/BM25, vector-only, deterministic 1-hop, typed conditional 2-hop을 먼저 완료한다. fixed variants가 Pareto상 미해결인 경우에만 learned expansion을 다시 검토한다.",
+    "모든 실험 trace에 gold/hidden artifact 접근, public solution lookup, scorer path, generated-test feedback 사용을 기록하고 HackDetect식 Expose→Exploit→Mislead 감사로 score validity를 별도 보고한다."
+  ]
+}

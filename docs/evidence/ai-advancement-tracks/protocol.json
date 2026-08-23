@@ -1,0 +1,353 @@
+{
+  "strategy_id": "protocol",
+  "scope": "Protocol/implementation track for a minimal adaptive Diagnosis Planner. Grounded in the local pre-implementation design and primary sources dated 2026-03-15 through 2026-08-19, all within the required 2026-02-23 freshness cutoff; no one-year exception was used. The design covers registered-perspective discovery, core/optional selection, evidence gates, stopping, inclusive run-budget allocation, failure fallback, provenance, and deterministic boundaries. It does not claim any measured project outcome.",
+  "claims": [
+    {
+      "id": "P1",
+      "claim": "The local design currently requires all five perspectives in the parallel first pass, permits one same-perspective context expansion, and falls back to a deterministic five-perspective plan when the planner fails; therefore selective perspective activation is a real protocol change, not an already-implemented capability.",
+      "kind": "observed",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/ai-selection-matrix/04-agent-orchestration-adr.md",
+          "title": "ADR-04: 증거 게이트가 있는 bounded DAG를 사용한다",
+          "date": "2026-08-23",
+          "locator": "§2 lines 13-21; §4 lines 35-62; §5 lines 64-78; §7 lines 104-114",
+          "source_type": "local design ADR (proposed, pre-implementation)",
+          "supports": true,
+          "notes": "Documents fixed five-perspective D1, one bounded expansion, versioned DiagnosisPlan, deterministic full-five fallback, node contracts, and inclusive B_run."
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§2 lines 23-56; §5 lines 135-150; §6 lines 160-174",
+          "source_type": "local technical design (pre-implementation)",
+          "supports": true,
+          "notes": "The expansion request requires producer, producer_node_id, and target perspective to match the first-pass analyst, so it cannot currently activate a specialist that did not run in D1."
+        }
+      ],
+      "qualifiers": [
+        "The documents are design artifacts with status proposed/pre-implementation, not evidence of operational performance.",
+        "The existing one-expansion bound is retained as a useful hard limit."
+      ]
+    },
+    {
+      "id": "P2",
+      "claim": "Recent primary research documents a viable abstraction for adaptive specialist participation: score each registered agent against task-and-budget context, filter low-relevance agents, constrain transitions with a structural mask, and expose STOP as an explicit action.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.25746v1",
+          "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+          "date": "2026-05-25",
+          "locator": "§2.2 Structural Prior Learning, especially Agent Relevance Scoring and Eq. (4); §2.3 Token-Aware Orchestration, action space A=O∪{STOP} and structural masking Eq. (11)",
+          "source_type": "primary research preprint, arXiv v1",
+          "supports": true,
+          "notes": "The method makes participation task- and budget-conditioned and prevents structurally invalid actions."
+        }
+      ],
+      "qualifiers": [
+        "The paper uses learned embeddings, an MLP, and GRPO; those mechanisms are not needed for the minimal project design.",
+        "Its benchmarks are not Python code-quality diagnosis, so it supports the control abstraction, not the proposed core/optional split or project effectiveness.",
+        "The paper's reported gains are not treated as project results."
+      ]
+    },
+    {
+      "id": "P3",
+      "claim": "A learned or prompt-based selection policy should not be promoted at cold start: recent primary results report that capability-profile prompt routing is unstable under paraphrase/distribution shift, while routing conditioned on paired solver outputs and runtime is materially more stable.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.07180v1",
+          "title": "Learning Agent Routing From Early Experience",
+          "date": "2026-05-08",
+          "locator": "§3.1 Routing Module Overview; §3.2 Learning from Early Experience; §5.4 Ablation Study, Table 3 and Prompt Routing discussion",
+          "source_type": "primary research preprint, arXiv v1",
+          "supports": true,
+          "notes": "The router uses retrieved paired LLM/agent outputs and latency; the ablation reports weak and unstable prompt-only routing."
+        }
+      ],
+      "qualifiers": [
+        "The task is binary LLM-versus-agent routing, not five-way code-diagnosis perspective selection.",
+        "The transfer-relevant lesson is evidence acquisition before learned routing, not the paper's exact router.",
+        "Evaluator-owned gold and hidden holdouts in the local benchmark must remain inaccessible to the operational planner."
+      ]
+    },
+    {
+      "id": "P4",
+      "claim": "Adaptive selection must be evaluated under the same inclusive B_run and against a strong fixed/single-agent baseline, because a recent matched-budget study reports that multi-agent variants often fail to outperform a single agent once reasoning computation is normalized.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2604.02460v2",
+          "title": "Single-Agent LLMs Outperform Multi-Agent Systems on Multi-Hop Reasoning Under Equal Thinking Token Budgets",
+          "date": "2026-04-11",
+          "locator": "§1 Introduction; §4.4 Table 1; §5.1 lines describing matched-budget results; §5.3 Context degradation; Appendix C Limitations",
+          "source_type": "primary research preprint, arXiv v2",
+          "supports": true,
+          "notes": "Across the studied text-only multi-hop tasks, SAS matched or outperformed MAS under matched requested thinking budgets; the authors identify regimes where degraded context can make MAS competitive."
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§2 lines 19-46; §8 lines 197-202; §11 lines 240-244",
+          "source_type": "local evaluation design",
+          "supports": true,
+          "notes": "Already requires common B_run, fixed-chain and single-LLM comparisons, and a non-inferiority condition for token-saving configurations."
+        }
+      ],
+      "qualifiers": [
+        "The paper controls requested thinking tokens rather than the project's full input/output/cached/retry/tool ledger.",
+        "Its text-only tasks exclude tool use, vision, and safety constraints; it is counterevidence to assuming more agents are better, not proof that the adaptive planner will win."
+      ]
+    },
+    {
+      "id": "P5",
+      "claim": "Verification-driven replanning can preserve completed results and terminate on explicit conditions, but the project's stopping rule should translate this into evidence-state and hard-resource predicates rather than adopt an LLM confidence threshold.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2603.11445v2",
+          "title": "Verified Multi-Agent Orchestration: A Plan-Execute-Verify-Replan Framework for Complex Query Resolution",
+          "date": "2026-03-15",
+          "locator": "§3.2 Planning and Execution; §3.3 Verification, Replanning, and Synthesis, especially result preservation and Table 2 stop conditions; §4 Implementation",
+          "source_type": "primary research preprint, arXiv v2",
+          "supports": true,
+          "notes": "Documents complete/partial/incomplete verification, accept/retry/escalate recommendations, preservation across retries, token/max-iteration bounds, and a model fallback."
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§4 lines 38-101, especially finding-v2 status and invariants",
+          "source_type": "local design ADR",
+          "supports": true,
+          "notes": "The local contract deliberately removes free confidence and requires evidence-linked terminal states."
+        }
+      ],
+      "qualifiers": [
+        "VMAO's empirical domain is market research and its verifier is LLM-based.",
+        "Its 80% completeness, 75% confidence, 1M-token, and three-iteration thresholds are paper-specific and must not be copied.",
+        "The design inference is to keep result preservation and hard bounds while replacing soft confidence with deterministic evidence/lifecycle predicates."
+      ]
+    },
+    {
+      "id": "P6",
+      "claim": "Current official SDK contracts support keeping orchestration, turn limits, error recovery, and provenance deterministic in code: code-driven flow is described as more predictable; max_turns raises a typed terminal error; and traces carry workflow, trace, parent-span, agent, generation, tool, guardrail, and handoff records.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://github.com/openai/openai-agents-python/blob/v0.22.0/docs/multi_agent.md",
+          "title": "Agent orchestration",
+          "date": "2026-08-19",
+          "locator": "v0.22.0, §Orchestrating via code",
+          "source_type": "official versioned SDK documentation",
+          "supports": true,
+          "notes": "States that code orchestration is more deterministic and predictable in speed, cost, and performance; lists structured routing, evaluator loops, and parallel execution."
+        },
+        {
+          "source": "https://github.com/openai/openai-agents-python/blob/v0.22.0/docs/running_agents.md",
+          "title": "Running agents",
+          "date": "2026-08-19",
+          "locator": "v0.22.0, §Runner lifecycle and configuration / The agent loop; §Errors and recovery / Error handlers",
+          "source_type": "official versioned SDK documentation",
+          "supports": true,
+          "notes": "Defines max_turns/MaxTurnsExceeded and controlled typed fallback without replaying tool side effects for invalid structured output."
+        },
+        {
+          "source": "https://github.com/openai/openai-agents-python/blob/v0.22.0/docs/tracing.md",
+          "title": "Tracing",
+          "date": "2026-08-19",
+          "locator": "v0.22.0, §Traces and spans; §Default tracing",
+          "source_type": "official versioned SDK documentation",
+          "supports": true,
+          "notes": "Defines trace_id, group_id, parent_id, metadata, and default spans for agent, generation, function tool, guardrail, and handoff operations."
+        },
+        {
+          "source": "https://github.com/openai/openai-agents-python/releases/tag/v0.22.0",
+          "title": "Release v0.22.0 · openai/openai-agents-python",
+          "date": "2026-08-19",
+          "locator": "Key Changes; Highlights",
+          "source_type": "official release",
+          "supports": true,
+          "notes": "Pins the documentation version/date and records runtime hardening, isolated usage accounting across RunState checkpoints, and graph expansion for registered handoffs."
+        }
+      ],
+      "qualifiers": [
+        "An SDK trace is an observability primitive, not sufficient finding provenance by itself; source/graph/context/policy/budget hashes still belong in project artifacts.",
+        "The recommendation is framework-independent even if this SDK is not selected."
+      ]
+    },
+    {
+      "id": "P7",
+      "claim": "The minimal adaptive protocol is a hybrid: the LLM may propose focus questions and evidence-linked optional specialists from a versioned registry, while code owns mandatory cores, admissibility, stable ranking, budget floors/caps, stop predicates, fallback, lineage, and Finding state transitions.",
+      "kind": "inferred",
+      "status": "candidate",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§1 invariants; §5 typed expansion; §6 budget; §8 merge lineage; §9 lifecycle mapping; §11 deterministic Evidence Gate; §13 failures",
+          "source_type": "local technical design",
+          "supports": true,
+          "notes": "Most deterministic ingredients already exist and can be reused rather than adding a new agent framework."
+        },
+        {
+          "source": "https://arxiv.org/html/2605.25746v1",
+          "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+          "date": "2026-05-25",
+          "locator": "§2.2-2.3",
+          "source_type": "primary research preprint, arXiv v1",
+          "supports": true,
+          "notes": "Supports task/budget-conditioned participation and constrained action spaces."
+        },
+        {
+          "source": "https://github.com/openai/openai-agents-python/blob/v0.22.0/docs/multi_agent.md",
+          "title": "Agent orchestration",
+          "date": "2026-08-19",
+          "locator": "v0.22.0, §Orchestrating via code",
+          "source_type": "official versioned SDK documentation",
+          "supports": true,
+          "notes": "Supports structured LLM classification inside a code-controlled flow."
+        }
+      ],
+      "qualifiers": [
+        "The proposed core set {structure, correctness} and optional set {performance, concurrency, test} is a project hypothesis requiring ablation; no external source validates this exact split.",
+        "No arbitrary specialist/tool/permission may be created by the LLM.",
+        "No effectiveness or savings are claimed before measurement."
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "name": "Registered core-plus-optional DiagnosisPlan v2",
+      "current_gap": "D1 always fans out to all five perspectives, so the planner does not currently save analyst calls or specialize coverage. The existing expansion request can only target the same perspective that produced it.",
+      "mechanism": "Create a versioned PerspectiveSpec registry. Initial hypothesis: core={structure, correctness}; optional={performance, concurrency, test}. Deterministic extraction emits RiskSignal records (signal_id, enumerated kind, source/static evidence IDs, affected symbols, source/graph hashes). The LLM emits only PerspectiveProposal records (candidate_id, registered perspective_id, bounded focus_questions, cited risk_signal/evidence IDs, expected_information_class enum, requested token class). A code gate marks core proposals mandatory; marks optional proposals eligible only for a valid static signal, explicit user observation/request, or a post-core escalation citing a new valid evidence gap; rejects duplicates and uncited proposals. Stable selection order: mandatory core, explicit user request/observation, Critical/High-linked signal, unresolved evidence gap, lower budget class, perspective_id. Reuse the existing one-expansion allowance as one mutually exclusive late action: either same-perspective context expansion or activation of one previously unselected registered optional specialist. Unclassified clues remain an explicit coverage gap/abstention rather than spawning a new role.",
+      "expected_effect": "Hypothesis: preserve broad code-quality coverage through two core reviews while avoiding performance/concurrency/test calls when no admissible evidence exists; late activation limits omission risk. Expected effects are lower actual analyst calls/tokens and possibly lower wall time, subject to per-perspective recall non-inferiority.",
+      "ai_specificity": "AI is useful for turning bounded graph/static clues into focus questions and causal investigation proposals. It does not create facts, roles, tools, permissions, status transitions, or budgets.",
+      "minimal_change": "Reuse the five existing analyst prompts, Finding schema, merger, Evidence Gate, and one-expansion bound. Change DiagnosisPlan and D1 fan-out to selected PerspectiveSpec slices; extend the single expansion gate with a registered-specialist activation variant and a mutual-exclusion reason code.",
+      "extra_cost": "One structured planner proposal plus deterministic validation; storage of all candidate dispositions. During calibration, shadow execution of all five is needed to measure false skips, so calibration cost will not fall.",
+      "risks": [
+        "The proposed two-core split can miss a test, concurrency, or performance defect with weak static triggers.",
+        "A core analyst may fail to request the one late specialist.",
+        "LLM proposal instability can change optional selection despite identical static signals.",
+        "Mutual exclusion between context expansion and late specialist activation can choose the wrong use of the single slot.",
+        "Per-perspective floors can erase savings on small scopes."
+      ],
+      "evaluation": "Pre-register fixed-five P4 versus adaptive variants under identical model, prompt family, context, tools, and inclusive B_run: A1 core+deterministic signals, A2 A1+LLM proposals, A3 A2+one late activation. During train/calibration, run all five but record shadow decisions to label false skips without exposing gold to the planner. Freeze triggers and budgets, then measure overall and per-perspective Critical/High Recall, Precision/unsupported rate, accepted true findings per cost, actual tokens/calls/wall time, abstention, and fallback. Require the existing token-saving non-inferiority margin (Recall one-sided CI lower bound > -2%p) before promotion.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "Deterministic PlanDecision, budget, stop, and provenance ledger",
+      "current_gap": "The local design defines DiagnosisPlan, inclusive B_run, Finding lineage, and traces, but not the adaptive planner's candidate/disposition schema, core/optional suballocation, or exact terminal predicates.",
+      "mechanism": "Add minimal contracts: PerspectiveSpec-v1(id/version, core|optional, accepted signal kinds, input schema, allowed tools, output schema, min/max token class); RiskSignal-v1; PerspectiveProposal-v1; PlanDecision-v1(candidate, disposition selected|skipped|ineligible, enumerated reason, cited IDs, stable_rank, allocated budget); DiagnosisPlan-v2(plan_id, revision, supersedes_plan_id, registry/model/prompt/context/graph/policy/budget hashes, selected slices, stop_policy_version, fallback flag/reason); BudgetLedger-v1(reserved, allocated, consumed, returned per node, including cached/retry tokens). Candidate transition: discovered -> mandatory|eligible|ineligible -> selected|skipped -> running -> completed|abstained_failed|abstained_budget. Plan transition: proposed -> validated -> dispatched -> joined -> merged -> gated -> composed; invalid -> repair_once -> validated|fallback_planned. Preserve existing Finding transitions hypothesis -> statically_supported|runtime_confirmed|rejected|abstained. Stop deterministically when all selected nodes are terminal and no valid late request exists; the single expansion/retry is consumed; no new evidence ID or contributor lineage revision is produced; remaining budget reaches the protected tail reserve; or a hard policy/timeout bound fires. An LLM 'confidence' or 'done' statement is never sufficient. Record every skipped/rejected candidate, failure, fallback, and plan revision; store structured output and hashes, not hidden chain-of-thought.",
+      "expected_effect": "Makes adaptive behavior replayable, auditable, and evaluable; distinguishes a true no-op/skip from planner failure and prevents budget savings from being inferred from missing traces.",
+      "ai_specificity": "The LLM supplies proposals and focus text only. State transitions, enum validation, stable ordering, accounting, and provenance linkage are code-owned.",
+      "minimal_change": "Extend existing versioned artifacts and trace metadata; do not add a database, graph algorithm, confidence scalar, or new orchestration framework.",
+      "extra_cost": "Small serialization/storage and deterministic validation cost; trace volume increases because rejected/skipped candidates are preserved.",
+      "risks": [
+        "Overly coarse reason enums can hide useful planner distinctions.",
+        "Trace artifacts may capture sensitive source/model data unless the existing redaction manifest is applied.",
+        "A no-new-evidence stop can be too early if an analyst reformulates a valid hypothesis without new evidence.",
+        "Schema evolution requires explicit migration/version comparison."
+      ],
+      "evaluation": "Contract/property tests should cover stable tie-breaking, hash mismatch rejection, plan supersession, budget conservation, protected tail reserve, no-delta stopping, all terminal failure states, and replay equivalence from the same manifests. In benchmark traces, require 100% candidate disposition coverage, zero unexplained spend, and zero runtime_confirmed findings without the existing RuntimeEvidence invariant.",
+      "provisional_decision": "add"
+    },
+    {
+      "name": "Fixed-five deterministic fallback and admission guard",
+      "current_gap": "The local design says planner failure or budget blocking yields a full-five fallback, but it does not state how that fallback remains feasible when B_run itself is insufficient.",
+      "mechanism": "Retain fixed-five as both benchmark baseline and deterministic planner fallback. Before invoking the planner, a code admission check verifies that B_run can cover fixed minimum slices for all five perspectives plus protected merger/Evidence-Gate/composer reserves. If not, emit a budget_blocked/abstained run without spending planner tokens. Planner transport/schema/semantic-invalid output may consume at most one budgeted repair; a second failure, max-turns, or timeout instantiates the versioned fixed-five seed-anchor plan. Specialist failure becomes a terminal abstained contributor and does not trigger an arbitrary substitute. Parser failure remains unresolved+lexical; policy mismatch remains blocked; runtime failure remains inconclusive/abstained. A model fallback is a separately versioned experimental variant, not silently mixed into a comparable run.",
+      "expected_effect": "Prevents planner defects from narrowing coverage, makes the local fallback promise executable, and preserves clean comparisons. It intentionally does not promise savings on fallback runs.",
+      "ai_specificity": "None in admission, fallback construction, or failure mapping; these are deterministic safety behavior.",
+      "minimal_change": "Formalize a fallback_min budget and admission state around the already-specified deterministic full-five plan; reuse existing retry=1 and failure enums.",
+      "extra_cost": "Reserving fallback feasibility can reject very small-budget runs and keeps the configured B_run ceiling at least as large as the fixed-five minimum, even when adaptive actual spend is lower.",
+      "risks": [
+        "The fallback floor may be too conservative for production operation.",
+        "A full-five fallback after partial planner spend can approach the B_run limit unless planner reserve is included in fallback_min.",
+        "Silent provider/model substitution would invalidate comparability if not prohibited.",
+        "Continuing after a failed core specialist can yield an incomplete report; abstention must remain visible."
+      ],
+      "evaluation": "Failure-injection matrix: malformed proposal, uncited evidence, planner timeout/max-turns, exhausted planner slice, one specialist timeout, parser partial failure, policy mismatch, and insufficient admission budget. Assert exact terminal states, no second retry, no permission escalation, budget conservation, fixed-five fallback contents, and report preservation of abstentions/failures.",
+      "provisional_decision": "keep"
+    },
+    {
+      "name": "Experience-calibrated learned selector",
+      "current_gap": "A rule/LLM hybrid may leave savings on the table, but the project has no evaluator-owned counterfactual history showing which perspective materially improves each diagnosis under equal budget.",
+      "mechanism": "Only after shadow calibration, construct versioned cases containing scope/static signals, selected and skipped perspective outputs, latency/tokens, and blind evaluator utility. Train or retrieve a small selector that predicts incremental utility per perspective under remaining budget. Its output remains advisory to the same deterministic eligibility, core, budget, and stop gate; promotion is versioned and rollback retains the rule policy.",
+      "expected_effect": "Potentially improve quality-cost routing after sufficient in-domain evidence exists; no benefit is assumed at cold start.",
+      "ai_specificity": "This is the genuinely learned component: estimating perspective-specific incremental utility from prior paired behavior rather than semantic profile alone.",
+      "minimal_change": "Defer implementation; first add shadow PlanDecision logging and evaluator-owned labels already compatible with the benchmark plan.",
+      "extra_cost": "All-five shadow runs, blind labeling, OOD calibration, model/version retraining, monitoring, and rollback infrastructure.",
+      "risks": [
+        "Gold leakage into operational routing.",
+        "Model/repository drift and paraphrase sensitivity.",
+        "Utility labels confounded by changed prompt/context/B_run.",
+        "Class imbalance for rare Critical concurrency/performance defects.",
+        "Learned complexity may not beat deterministic signals."
+      ],
+      "evaluation": "After sufficient power analysis, compare learned advice with frozen deterministic A1/A2 on calibration only, then one-shot temporal/OOD holdouts. Report calibration (ECE/Brier where meaningful), per-perspective false-skip rate, Critical/High Recall, utility per cost, and drift. Never reuse labels if model, prompt, context, or B_run changes without a new label version.",
+      "provisional_decision": "hold"
+    },
+    {
+      "name": "Free-form generated specialists or self-organizing swarm",
+      "current_gap": "Dynamic perspective generation could appear to cover unknown risks, but no current contract can validate a novel role's competence, non-overlap, tool permissions, output schema, budget, or evaluation coverage.",
+      "mechanism": "Do not let the planner synthesize executable agents, prompts, tools, or permissions. Novel observations are recorded as unclassified evidence gaps. A proposed new perspective can enter the offline PerspectiveSpec review/calibration process, not the current run.",
+      "expected_effect": "Exclusion avoids uncontrolled calls, role duplication, prompt injection surface, and unauditable coverage while still retaining unknown clues for later taxonomy updates.",
+      "ai_specificity": "Free-form agent generation is AI-specific but unnecessary for the minimal adaptive planner; bounded focus-question generation inside registered roles captures most of the useful flexibility.",
+      "minimal_change": "None; explicitly reject unknown perspective_id and preserve the proposal/disposition as unclassified_perspective.",
+      "extra_cost": "Foregoes possible same-run coverage of genuinely novel risk classes; offline taxonomy review remains manual/evaluated.",
+      "risks": [
+        "The five-role registry can encode blind spots.",
+        "Unclassified gaps may accumulate without an owner.",
+        "Overly strict rejection can reduce adaptability on OOD repositories."
+      ],
+      "evaluation": "Keep as an excluded negative-control concept. Track the prevalence and later adjudicated value of unclassified gaps; reconsider only if a material, repeatable class is missed by registered specialists and can be given a stable contract and benchmark stratum.",
+      "provisional_decision": "exclude"
+    }
+  ],
+  "contradictions": [
+    "The current ADR says all five perspectives run in D1, while the advancement goal is adaptive selection; D1 fan-out and DiagnosisPlan must be revised together.",
+    "The current typed expansion requires producer==target perspective from first pass, so it cannot activate an initially skipped specialist. Late activation requires a new registered request variant or must be omitted.",
+    "The current full-five fallback on 'budget blocked' is underspecified: if total B_run is already below the five-slice minimum, the promised fallback is impossible. Resolve with pre-admission fallback_min or change the fallback contract.",
+    "VMAO uses confidence/completeness thresholds to stop, but the local Finding contract intentionally removes uncalibrated free confidence. Use evidence/lifecycle/no-delta predicates instead.",
+    "The existing top-level 10/50/20/20 allocation is only a pilot candidate and has no core floor, optional quantum, protected-tail rule, or stable redistribution rule needed by an adaptive plan.",
+    "Recent adaptive methods use learned priors/GRPO or early-experience retrieval; introducing them now would conflict with the minimal-change requirement and the absence of in-domain counterfactual labels.",
+    "A hidden model fallback like the one documented by VMAO would break same-model/B_run comparability unless recorded as a separate variant; deterministic plan fallback is safer for this project."
+  ],
+  "unknowns": [
+    "Whether {structure, correctness} is the right core set; the exact split has no external validation.",
+    "Which static/user-observation RiskSignal kinds give acceptable false-skip rates for performance, concurrency, and test specialists.",
+    "Whether one late optional activation recovers enough missed coverage, and whether it should compete with the existing context-expansion slot.",
+    "Calibrated minimum/maximum token classes per core and optional specialist within the current analyst 50% pool.",
+    "How often planner failure, schema repair, and deterministic full-five fallback occur for the chosen model/prompt version.",
+    "Whether evidence-linked LLM proposals improve selection over deterministic signals enough to repay planner tokens and variance.",
+    "How much additional provenance storage/redaction overhead is operationally acceptable.",
+    "Whether unclassified perspective gaps form a stable new specialist category on temporal/OOD repositories."
+  ],
+  "recommended_followups": [
+    "Add a design-level DiagnosisPlan-v2/PlanDecision-v1 contract with the exact registry, signals, states, reason enums, hashes, and deterministic boundary above; keep implementation out until the protocol is reviewed.",
+    "Resolve the expansion contract explicitly: either allow one registered late-specialist activation mutually exclusive with context expansion, or limit adaptation to pre-D1 selection and measure the recall cost.",
+    "Pre-register fixed-five, core+signals, core+signals+LLM proposal, and one-late-activation variants under the same inclusive B_run; use the existing -2%p Recall non-inferiority requirement for token-saving promotion.",
+    "Run shadow selection during train/calibration while still executing all five specialists. Store every hypothetical skip and evaluator-owned marginal utility so false skips are observable without exposing gold to the planner.",
+    "Freeze the two-core hypothesis, trigger map, tie-breaks, suballocation, and stop policy after calibration; evaluate only once on final temporal and OOD holdouts.",
+    "Execute the specified failure-injection matrix before any adaptive variant is accepted, especially budget admission versus full-five fallback feasibility.",
+    "Report actual tokens, cached tokens, retries, calls, wall time, per-perspective Critical/High Recall, unsupported rate, abstention, and fallback separately; do not infer quality or savings from the selected-agent count alone.",
+    "Revisit learned routing only after versioned paired evidence exists; revisit novel specialists only when unclassified gaps form a repeatable evaluator-confirmed class."
+  ]
+}

@@ -1,7 +1,7 @@
 # AI 진단 파이프라인 기술 설계
 
 - 상태: 2026-08-23 감사 반영, 구현 전
-- 범위: Python 3.14 Code Graph, bounded context, 5관점 추론, 승인된 runtime feedback
+- 범위: Python 3.14 Code Graph, bounded context, 5관점 taxonomy·적응형 planning, 반증 가능한 가설, 승인된 runtime feedback
 
 ## 1. 목표와 불변 조건
 
@@ -10,6 +10,7 @@
 3. 모든 명령은 immutable ExecutionPolicy를 통과한다.
 4. 최종 Finding은 source와 RuntimeEvidence로 역추적된다.
 5. 모든 agent·retry·tool 비용을 포함해 구성 효과를 비교한다.
+6. 적응형 관점 선택은 fixed-five shadow와 evaluator-owned gold를 통과한 version에서만 실행한다.
 
 금지:
 
@@ -19,6 +20,8 @@
 - `null`을 0으로 해석
 - profiler 시간을 개선 benchmark로 사용
 - 승인·policy 밖 명령 실행
+- LLM의 free-form confidence로 관점 skip·도구 실행 결정
+- 실행 결과에 맞춰 같은 hypothesis ID의 root cause·oracle 변경
 
 ## 2. 전체 bounded DAG
 
@@ -29,17 +32,25 @@ flowchart LR
     I --> A[Lexical Anchor]
     KG --> A
     A --> C1[Initial Pruned Context]
-    C1 --> PL[Diagnosis Planner]
-    PL --> D1[Five-view First Pass]
+    C1 --> PL[Diagnosis Planner v2]
+    PL --> PG{Plan Gate}
+    PG -- invalid/OOD/high-risk unresolved --> F5[Fixed-five Fallback]
+    PG -- valid --> DS[Perspective Dispatcher]
+    F5 --> D1[Registered Perspective Analysts]
+    DS --> D1
     D1 --> M1[First Merger]
     M1 --> EG{Expansion Gate}
     M1 -. base artifact .-> J[Expansion Completion Join]
     EG -- no expansion disposition --> J
     EG -- selected request --> C2[Expanded Context]
-    C2 --> D2[Affected View Re-analysis]
+    C2 --> D2[Affected Perspective Re-analysis]
     D2 -->|delta or tombstone| J
     J --> M2[Final Merger]
-    M2 --> E{Runtime evidence?}
+    M2 --> HB[HypothesisContract Binder]
+    HB --> Q{Challenge trigger?}
+    Q -- yes --> CR[Evidence-cited Critic max 1]
+    Q -- no --> E{Runtime evidence?}
+    CR --> E
     E -- no --> V[Evidence Gate]
     E -- test --> T[Authorized Test Executor]
     E -- profiler --> R[Deterministic Router]
@@ -53,7 +64,7 @@ flowchart LR
     V --> Z[Report + Trace]
 ```
 
-Planner는 versioned DiagnosisPlan을 만들며 D1은 이 artifact에 의존한다. 실패·예산 차단 시 5관점과 seed anchor를 포함한 deterministic fallback plan을 만들고 상태·비용을 기록한다. Expansion Completion Join은 gate disposition을 항상 기다리고 selected request가 있으면 D2 terminal까지 기다린 후 M2를 정확히 한 번 실행한다.
+Planner는 모든 5관점의 disposition·reason·evidence·budget을 가진 `DiagnosisPlan v2`를 만든다. Plan Gate는 mandatory route와 실행 mode를 검증한다. 실패·schema 오류·OOD·extractor 불완전·unresolved High/Critical은 fixed-five fallback이다. Fixed-five와 shadow는 5관점 terminal을 모두 기다리고, 승격된 routed mode는 `run` terminal과 모든 skip/defer disposition을 기다린다. Final Merger 뒤 실행 대상 Finding은 `HypothesisContract`에 결합한다. 조건부 critic은 반박·우려·probe 요청만 만들며 상태를 승격하지 않는다.
 
 ## 3. 단계 0: Scope와 ExecutionPolicy
 
@@ -167,13 +178,44 @@ $$
 
 이는 전체 `B_run` 안의 초기 후보값이다.
 
-- `B_run`은 planner, analyst, retry, gate, composer의 input/output/cached token을 모두 포함
-- 초기 allocation 후보: 10/50/20/20%
+- `B_run`은 planner, analyst, retry, critic, gate, composer의 input/output/cached token을 모두 포함
+- fixed-five 초기 allocation 후보: 10/50/20/20%
+- routed mode는 절감한 관점 budget을 실행 관점·gate에만 재배분
+- evaluator-only shadow·gold adjudication은 운영 `B_run` 밖에 두되 비용을 별도 보고하고 system 입력으로 되돌리지 않음
 - calibration 뒤 동결
 - 초과 trial은 `non_comparable`
 - token 절감 claim은 같은 `B_run`에서만 허용
 
-## 7. 단계 3: 5관점 분석
+## 7. 단계 3: DiagnosisPlan v2와 등록 관점 분석
+
+```yaml
+diagnosis_plan:
+  schema_version: diagnosis-plan-v2
+  plan_id: UUID
+  source_commit: sha
+  graph_hash: sha256
+  planner_model_hash: sha256
+  budget_version: B-run-v1
+  mode: fixed_five | shadow | routed
+  perspectives:
+    - perspective_id: concurrency
+      disposition: run | skip | defer | shadow
+      source: deterministic_mandatory | planner_proposed | fallback
+      reason_code: async_shared_state
+      trigger_evidence_ids: [E-GRAPH-21]
+      focus_lens_ids: [resource-lifecycle]
+      allocated_tokens: 4000
+      stop_condition: evidence_gap_closed
+  fallback_reason: null | schema_invalid | ood | extractor_incomplete | unresolved_high_risk | budget_invalid
+```
+
+Plan Gate 불변 조건:
+
+- 구조·정확성·성능·동시성·테스트 모든 관점에 disposition과 reason 존재
+- evidence ID가 graph/context snapshot에 존재
+- LLM이 deterministic mandatory route를 제거하지 못함
+- final holdout 전 taxonomy, trigger, model, budget, promotion version 동결
+- fixed-five shadow 출력은 gold가 아니며 evaluator-owned defect·필요 관점 multi-label만 omission gold로 사용
 
 | 관점 | 질문 | 실행 요청 조건 |
 | --- | --- | --- |
@@ -182,6 +224,8 @@ $$
 | 성능 | 비용이 호출/입력에 따라 커지는가? | 우선순위를 바꿀 가설 |
 | 동시성 | blocking/race/deadlock 가능성인가? | concurrent test/trace |
 | 테스트 | 중요 경로가 방어되는가? | 기존 test로 확인 가능 |
+
+등록 focus lens는 `change-impact`, `resource-lifecycle`, `data-transaction-contract`, 범위 승인 시 `security-boundary`다. 미등록 요구는 parent 관점의 `supplemental_focus`로 shadow 기록하고 offline taxonomy 검토 전에는 별도 specialist로 실행하지 않는다.
 
 각 raw finding은 contributor ID를 가지며 canonical merge 후에도 삭제하지 않는다.
 
@@ -215,7 +259,34 @@ hypothesis
   -> abstained
 ```
 
-## 9. 단계 5: Runtime request와 router
+## 9. 단계 5: HypothesisContract, Runtime request와 router
+
+### HypothesisContract
+
+```yaml
+hypothesis_contract:
+  schema_version: hypothesis-v1
+  hypothesis_id: UUID
+  finding_id: F-0001
+  claim_quantifier: universal | existential | probabilistic | normative
+  root_cause_category: sync_io_in_async
+  primary_location: package.module:Class.method
+  preconditions: []
+  action: "동시 요청 N개 실행"
+  predicted_observations:
+    supports: []
+    refutes: []
+  oracle:
+    kind: user_observation | doc_contract | evaluator_spec | existing_test | benchmark
+    evidence_id: E-ORACLE-01
+  workload_hash: sha256 | null
+  execution_policy_id: UUID
+```
+
+- universal 주장은 하나의 유효 counterexample로 반박할 수 있다.
+- existential·race·확률적 주장은 probe 미재현으로 반박하지 않는다.
+- independent oracle이 없으면 실행 결과는 `inconclusive` 또는 사람 검토용 artifact다.
+- claim, root cause, 위치, precondition, oracle을 바꾸면 새 hypothesis ID를 발급한다.
 
 ### Focused test
 
@@ -223,13 +294,13 @@ hypothesis
 test_execution_request:
   request_id: UUID
   finding_id: F-0001
+  hypothesis_contract_id: H-0001
   execution_policy_id: UUID
   command_id: CMD-001
   expected_state_change_class: ephemeral
 ```
 
-Executor는 command manifest exact match, reset, timeout, capability를 확인한다.
-Router는 lifecycle 전 모든 deduplicated High/Critical Finding에 `runtime_eligibility.state`, enumerated reason code, verification kind를 기록하고 run/report artifact에 보존한다. Opt-in decline은 eligibility를 변경하지 않는다.
+Executor는 command manifest exact match, contract ID, reset, timeout, capability를 확인한다. Router는 lifecycle 전 모든 deduplicated High/Critical Finding에 `runtime_eligibility.state`, enumerated reason code, verification kind를 기록하고 run/report artifact에 보존한다. Opt-in decline은 eligibility를 변경하지 않는다.
 
 ### Profiler
 
@@ -256,6 +327,8 @@ ADR-03 결정론적 rule을 그대로 적용한다.
 | `declined / not_started / not_applicable` | `abstained` |
 | `candidate / blocked / not_applicable` | `abstained` |
 | `approved / blocked·failed·inconclusive / not_applicable` | `abstained` |
+
+`completed/refutes`는 연결된 hypothesis를 `rejected`로 만든다. LLM이 같은 ID에서 root cause를 바꿔 반박을 회피할 수 없다. 새 설명은 새 Finding/Hypothesis로 시작하며 이전 RuntimeEvidence를 지지 증거로 상속하지 않는다.
 
 ## 10. RuntimeEvidence와 profiler 정규화
 
@@ -298,6 +371,8 @@ CPU 누적 80%, 항목 5%, 최대 20행, 3회, CV 20%는 pilot 후보이며 검�
 
 - location/source hash가 snapshot과 일치
 - evidence ID와 RuntimeEvidence envelope 존재
+- 실행 대상 Finding이 versioned HypothesisContract와 연결
+- runtime outcome이 contract의 support/refute observation·oracle과 일치
 - runtime_confirmed가 completed/supports와 raw hash 참조
 - severity가 ADR-01 rubric v1과 판정 이유를 가짐
 - profiler 미지원 필드를 주장하지 않음
@@ -332,9 +407,11 @@ CPU 누적 80%, 항목 5%, 최대 20행, 3회, CV 20%는 pilot 후보이며 검�
 | --- | --- | --- | --- |
 | graph tier/hop | evidence Recall | tokens | project calibration |
 | node cap | localization | tokens | project calibration |
-| perspectives | 관점 Recall | LLM calls | same B_run |
-| profiler policy | performance Recall | profiler sec | P3/P4 |
-| evidence gate | grounding | judge cost | P4/P4-NG |
+| perspective disposition | omission Recall | LLM calls | fixed-five/shadow/routed same B_run |
+| focus lens | residual Recall | tokens·duplicate | registry promotion |
+| semantic critic | counterevidence | critic tokens | gate/self-review comparator |
+| profiler policy | performance Recall | profiler sec | P3/P4-F5 |
+| evidence gate | grounding | judge cost | P4-F5/P4-NG |
 | retry | consistency | tokens | max 1 |
 
 실패:
@@ -342,6 +419,9 @@ CPU 누적 80%, 항목 5%, 최대 20행, 3회, CV 20%는 pilot 후보이며 검�
 - parser 일부 실패 → unresolved + lexical source
 - graph path 없음 → evidence gap
 - schema 위반 → retry 1회 후 node failure
+- plan schema/OOD/high-risk unresolved → fixed-five fallback
+- routed terminal 누락 → run 실패, fixed-five 결과로 조용히 대체 금지
+- hypothesis/oracle 변경 → 새 ID; 기존 confirmation 상속 금지
 - policy mismatch → blocked, 자동 권한 상승 금지
 - environment failure → 결함 확인으로 사용 금지
 - profile instability → inconclusive/abstained
@@ -351,10 +431,13 @@ CPU 누적 80%, 항목 5%, 최대 20행, 3회, CV 20%는 pilot 후보이며 검�
 
 - ExecutionPolicy exact-match 거부 경로 작동
 - initial + optional expansion DAG 작동
+- DiagnosisPlan v2가 5관점 disposition·evidence·budget·fallback을 보존
+- fixed-five와 planner shadow가 동일 Finding 결과를 내고 shadow 출력이 gold로 유입되지 않음
 - canonical Finding merge가 contributor를 보존
-- test/profile raw→RuntimeEvidence→HotspotRow 재현
+- executable Finding→HypothesisContract→test/profile raw→RuntimeEvidence→HotspotRow 재현
+- refutes 결과의 같은 hypothesis ID 재해석 차단
 - 모든 lifecycle terminal이 report/KPI에 매핑
-- same-B_run B2~P4/C1/C2 실행 가능
+- same-B_run B2~P4-F5/S1/S2/C1/C2 실행 가능
 - final holdout artifact 접근 차단
 
 ## 15. 관련 ADR
@@ -363,4 +446,5 @@ CPU 누적 80%, 항목 5%, 최대 20행, 3회, CV 20%는 pilot 후보이며 검�
 - [`../ai-selection-matrix/02-code-context-retrieval-adr.md`](../ai-selection-matrix/02-code-context-retrieval-adr.md)
 - [`../ai-selection-matrix/03-profiler-in-the-loop-adr.md`](../ai-selection-matrix/03-profiler-in-the-loop-adr.md)
 - [`../ai-selection-matrix/04-agent-orchestration-adr.md`](../ai-selection-matrix/04-agent-orchestration-adr.md)
+- [`07-ai-technology-advancement-research.md`](07-ai-technology-advancement-research.md)
 

@@ -1,0 +1,2577 @@
+{
+  "schema_version": "ai-advancement-review-artifacts-v4",
+  "as_of": "2026-08-23",
+  "method": {
+    "tracks": 8,
+    "track_ids": [
+      "primary-frontier",
+      "artifact-gap",
+      "ecosystem",
+      "protocol",
+      "experiment",
+      "adversarial",
+      "systems",
+      "action"
+    ],
+    "judge_lenses": [
+      "impact-lv3: actual Python diagnosis-quality impact and AI Professional Lv3 depth, discounting feature count without causal value",
+      "simplicity-risk: architecture fit, smallest clean change, bounded failure isolation, safety, and maintenance/overengineering exposure",
+      "evidence-evaluation: primary-source entailment and freshness, transfer to this proposed Python 3.14 diagnosis pipeline, decisiveness under the same inclusive B_run, and leakage-resistant measurement; no unmeasured project outcome is treated as a result."
+    ],
+    "score_scale": "1-5; risk 5 is worst",
+    "weights": {
+      "quality_value": 0.25,
+      "ai_depth": 0.15,
+      "evidence_strength": 0.2,
+      "simplicity": 0.15,
+      "measurability": 0.15,
+      "inverse_risk": 0.1
+    },
+    "weighted_formula": "0.25*quality + 0.15*ai_depth + 0.20*evidence + 0.15*simplicity + 0.15*measurability + 0.10*(6-risk)",
+    "score_meaning": "research prioritization only; not a project KPI or measured outcome"
+  },
+  "canonical_candidates": [
+    {
+      "id": "A1",
+      "name": "Registered adaptive perspective scheduler",
+      "mechanism": "Keep five perspectives as a versioned multi-label taxonomy and all-five fallback; deterministic tags plus an LLM planner select a protected core and zero-or-more registered optional specialists, record run/skip/defer reasons, then optionally revise once after partial/runtime evidence."
+    },
+    {
+      "id": "A2",
+      "name": "Contract-bound supplemental diagnostic lens",
+      "mechanism": "When registered perspectives leave a typed evidence gap, generate one ephemeral lens/checklist mapped to an existing root-cause taxonomy and Finding schema; no autonomous role creation."
+    },
+    {
+      "id": "A3",
+      "name": "Evidence-cited semantic critic",
+      "mechanism": "Trigger one independent challenge pass only for High/Critical, cross-perspective disagreement, or weak evidence; critic must cite code/evidence and may reject, abstain, or request a probe, never confirm."
+    },
+    {
+      "id": "A4",
+      "name": "Hypothesis-discriminating ephemeral probe",
+      "mechanism": "For a specific finding, LLM proposes precondition, minimal input/action, expected support/refute observations, independent oracle, cleanup, and leak checks; sandbox executor validates candidate evidence; generated tests never become gold automatically."
+    },
+    {
+      "id": "A5",
+      "name": "RuntimeEvidence-conditioned one-time revision",
+      "mechanism": "After a focused test/profile completes, rerun only the affected perspective once to revise root cause, severity, or disposition using immutable evidence."
+    },
+    {
+      "id": "A6",
+      "name": "Offline feedback failure localizer",
+      "mechanism": "Periodically cluster evaluator-confirmed misses/false positives and attribute likely failure to retrieval, graph resolution, planner, specialist, merge, router, or gate; propose versioned changes behind frozen regression and human promotion."
+    },
+    {
+      "id": "A7",
+      "name": "Adaptive evidence aperture",
+      "mechanism": "Use partial trajectory/evidence gaps to choose relation types, code granularity, bounded 1/2-hop expansion, and optional history/trace retrieval; no unrestricted long-term memory."
+    },
+    {
+      "id": "A8",
+      "name": "Read-only trace/log reasoning adapter",
+      "mechanism": "If project telemetry exists, retrieve bounded redacted OpenTelemetry/log spans and let an affected specialist compare runtime path with Code Graph hypotheses; immutable provenance required."
+    },
+    {
+      "id": "A9",
+      "name": "Learned model/specialist router",
+      "mechanism": "Train or calibrate a router from project utility labels to choose specialist/model per case; shadow mode and rollback required."
+    },
+    {
+      "id": "A10",
+      "name": "Unrestricted debate/reflection swarm",
+      "mechanism": "Multiple homogeneous agents repeatedly debate/refine until consensus or confidence threshold."
+    },
+    {
+      "id": "A11",
+      "name": "Free-form persistent agent memory",
+      "mechanism": "Store prior analyses as unconstrained semantic memory and retrieve them automatically in later cases."
+    },
+    {
+      "id": "A12",
+      "name": "Semgrep/static corroboration adapter",
+      "mechanism": "LLM selects a narrow diff/rule scope; deterministic Semgrep output becomes additional static evidence. Supporting engineering, not a new AI reasoning layer."
+    }
+  ],
+  "track_candidate_map": {
+    "A1": [
+      "primary-frontier:보수적 multi-label dynamic perspective router",
+      "artifact-gap:Bounded dynamic subset planner",
+      "protocol:Registered core-plus-optional DiagnosisPlan v2",
+      "experiment:P1 — Routed core plus optional existing perspectives",
+      "systems:Rule-first dynamic specialist routing with bounded LLM override",
+      "action:A1. Evidence-conditioned Perspective Scheduler"
+    ],
+    "A2": [
+      "artifact-gap:Constrained supplemental perspective synthesis",
+      "protocol:Free-form generated specialists or self-organizing swarm",
+      "experiment:P2 — Contract-bound generated diagnostic lens"
+    ],
+    "A3": [
+      "primary-frontier:분쟁·고위험 finding에만 evidence-cited critic",
+      "experiment:P3 — Independent challenge-only verifier/critic",
+      "adversarial:단일 독립 반증 패스(토론·반복 reflection 대체)",
+      "systems:Asymmetric deterministic Evidence Gate plus optional semantic critic"
+    ],
+    "A4": [
+      "artifact-gap:Sandboxed reproduction-test proposal",
+      "experiment:P5 — Ephemeral focused test generation",
+      "adversarial:격리된 자율 테스트 생성—oracle이 아닌 candidate producer",
+      "action:A2. Hypothesis-Discriminating Ephemeral Probe"
+    ],
+    "A5": [
+      "primary-frontier:RuntimeEvidence 후 affected-perspective 1회 재분석",
+      "systems:Bounded hypothesis-test-revision loop"
+    ],
+    "A6": [
+      "artifact-gap:Offline feedback failure-localization diagnoser",
+      "systems:Learned routing and feedback-conditioned adaptation"
+    ],
+    "A7": [
+      "experiment:P4 — Bounded ancestry-safe history retrieval",
+      "action:A3. Adaptive Evidence Aperture over Existing Retrieval"
+    ],
+    "A8": [
+      "ecosystem:Read-only Grafana log/trace evidence adapter"
+    ],
+    "A9": [
+      "primary-frontier:검증된 competence 기반 specialist/model router",
+      "protocol:Experience-calibrated learned selector",
+      "systems:Learned routing and feedback-conditioned adaptation"
+    ],
+    "A10": [
+      "adversarial:자유형 동적 관점 생성",
+      "protocol:Free-form generated specialists or self-organizing swarm"
+    ],
+    "A11": [
+      "adversarial:자유형 persistent agent memory"
+    ],
+    "A12": [
+      "ecosystem:Bounded Semgrep static-evidence adapter"
+    ]
+  },
+  "track_summaries": [
+    {
+      "strategy_id": "primary-frontier",
+      "scope": "2026-02-23 이후 1차 자료만 사용해 고정 5관점 Diagnosis Planner를 동적·효율적으로 바꿀 수 있는 adaptive planning, specialist routing, verifier/critic, test-time scaling, uncertainty-aware tool use 메커니즘을 검토했다. 현행 로컬 설계도 관찰했으며 프로젝트 성과는 주장하지 않는다. 1년 예외는 사용하지 않았다.",
+      "raw_result_sha256": "dbca5c369bd2619c7ff4e703637e56db9416e2dc90ef8b7d7d47db480fbb7d95",
+      "claim_count": 7,
+      "claim_ids": [
+        "PF-C1",
+        "PF-C2",
+        "PF-C3",
+        "PF-C4",
+        "PF-C5",
+        "PF-C6",
+        "PF-C7"
+      ],
+      "candidates": [
+        {
+          "name": "현행 all-five first pass를 fallback·대조군으로 유지",
+          "provisional_decision": "keep"
+        },
+        {
+          "name": "보수적 multi-label dynamic perspective router",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "RuntimeEvidence 후 affected-perspective 1회 재분석",
+          "provisional_decision": "add"
+        },
+        {
+          "name": "분쟁·고위험 finding에만 evidence-cited critic",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "Compact-summary 기반 선택적 distill-refine",
+          "provisional_decision": "hold"
+        },
+        {
+          "name": "검증된 competence 기반 specialist/model router",
+          "provisional_decision": "hold"
+        }
+      ],
+      "contradiction_count": 6,
+      "unknown_count": 8,
+      "source_index": [
+        {
+          "source": "docs/ai-selection-matrix/04-agent-orchestration-adr.md",
+          "title": "ADR-04: 증거 게이트가 있는 bounded DAG를 사용한다",
+          "date": "2026-08-23",
+          "locator": "§2 lines 13-19; §4 lines 33-62; §7 lines 104-114",
+          "source_type": "local project design"
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§2 lines 23-56; §7 lines 176-186; §9 lines 218-244",
+          "source_type": "local project design"
+        },
+        {
+          "source": "https://arxiv.org/html/2603.15401v1",
+          "title": "SWE-Skills-Bench: Do Agent Skills Actually Help in Real-World Software Engineering?",
+          "date": "2026-03-16",
+          "locator": "Abstract; §1 Contributions; §3.3 Requirement-driven Verification; §4 Results",
+          "source_type": "arXiv primary preprint v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2602.19672v1",
+          "title": "SkillOrchestra: Learning to Route Agents via Skill Transfer",
+          "date": "2026-02-23",
+          "locator": "§3 Agent Orchestration; §4.1 Agent Orchestration via Skill Handbook; §5.2 SkillOrchestra on Agent Orchestration",
+          "source_type": "arXiv primary preprint v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2606.22902v1",
+          "title": "Agent-as-a-Router: Agentic Model Routing for Coding Tasks",
+          "date": "2026-06-22",
+          "locator": "§3.1 Performance Gap Diagnosis; §3.2 C-A-F Loop; §3.3 ACRouter Instantiation; §4.1 Real-World Test: Agentic Programming; §5; Limitations",
+          "source_type": "arXiv primary preprint v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2603.01327v1",
+          "title": "SWE-Adept: An LLM-Based Agentic Framework for Deep Codebase Analysis and Structured Issue Resolution",
+          "date": "2026-03-01",
+          "locator": "§3.2 Issue Localization; §3.3 Issue Resolution; §4.2 Main Results; §5.2 Ablation Study; Limitations",
+          "source_type": "arXiv primary preprint v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2607.19653v1",
+          "title": "PerfAgent: Profiler-Guided Iterative Refinement for Repository-Level Code Optimization",
+          "date": "2026-07-22",
+          "locator": "§I and Fig.1; §III-A–D; §IV-B–E, especially Table VI; §VI Threats to Validity",
+          "source_type": "arXiv primary preprint v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2608.18167v1",
+          "title": "Adversarial Review: Structured Disagreement for Grounded Agentic Code Review",
+          "date": "2026-08-16",
+          "locator": "§3.5 AR; §4.2–4.4 Review Quality and Text Constraint; §5.2 Result; §6 Cost-quality; §7 Discussion and Limitations",
+          "source_type": "arXiv primary preprint v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2607.01793v1",
+          "title": "Safety Testing LLM Agents at Scale: From Risk Discovery to Evidence-Grounded Verification",
+          "date": "2026-07-02",
+          "locator": "§III Preliminaries, equations (1)–(2); §IV-C Adaptive Execution and Evidence-Grounded Verification",
+          "source_type": "arXiv primary preprint v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2604.16529v1",
+          "title": "Scaling Test-Time Compute for Agentic Coding",
+          "date": "2026-04-16",
+          "locator": "§2.2 Rollout Summaries; §2.3 Recursive Tournament Voting; §2.4 Parallel-Distill-Refine; §3.2.1–3.2.2 Ablations; §3.3 Main Results",
+          "source_type": "arXiv primary preprint v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2607.10059v1",
+          "title": "AgentAbstain: Do LLM Agents Know When Not to Act?",
+          "date": "2026-07-11",
+          "locator": "Abstract; §1; §2.1 Abstention Taxonomy; §2.2 Task Model and Paired Design",
+          "source_type": "arXiv primary preprint v1"
+        }
+      ],
+      "raw_result_uri": "ai-advancement-tracks/primary-frontier.json",
+      "raw_result_status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "artifact-gap",
+      "scope": "2026-08-23 기준, 공유 브리프가 지정한 9개 로컬 설계 문서와 references/*.md 4개를 전부 읽어 비교했다. 외부 조사는 하지 않았다. 여기서 '구현됨'은 코드 구현이 아니라 설계 산출물에 이미 명시된 capability를 뜻한다. 기술 설계 자체가 '구현 전'이며 모든 KPI·비교값은 미측정이다.",
+      "raw_result_sha256": "27d25e43cf34a4a23d5dd3fd542d33be368f1a6a7913ef2351e6a9a2400f6a16",
+      "claim_count": 6,
+      "claim_ids": [
+        "AG-C1",
+        "AG-C2",
+        "AG-C3",
+        "AG-C4",
+        "AG-C5",
+        "AG-C6"
+      ],
+      "candidates": [
+        {
+          "name": "Bounded dynamic subset planner",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "Evidence-gap adaptive stopping",
+          "provisional_decision": "hold"
+        },
+        {
+          "name": "Constrained supplemental perspective synthesis",
+          "provisional_decision": "hold"
+        },
+        {
+          "name": "Sandboxed reproduction-test proposal",
+          "provisional_decision": "add"
+        },
+        {
+          "name": "Offline feedback failure-localization diagnoser",
+          "provisional_decision": "add"
+        },
+        {
+          "name": "CRAP/mutation/dependency checks as an 'AI feature'",
+          "provisional_decision": "exclude"
+        }
+      ],
+      "contradiction_count": 5,
+      "unknown_count": 8,
+      "source_index": [
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "lines 3-12 (§상태/범위, §1 목표와 불변 조건), 23-56 (§2 전체 bounded DAG), 102-174 (§4-6 구조 추출·Retrieval·B_run), 188-216 (§8 Finding 병합), 260-313 (§10-11 RuntimeEvidence·Evidence Gate)",
+          "source_type": "local design artifact"
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "lines 12-23 (§2 결정), 38-101 (§4 Finding 계약·불변 조건), 121-141 (§6-7 관점 책임·초기 설정)",
+          "source_type": "local ADR, status=제안"
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "lines 18-47 (§2 비교 구성·공정성), 61-99 (§3.2 final holdout), 191-207 (§7 Ablation), 250-289 (§11 Feedback와 promotion)",
+          "source_type": "local evaluation design, project results unmeasured"
+        },
+        {
+          "source": "references/loop-to-graph-agent-design-transcript.md",
+          "title": "[한영자막] 왜 이제 '루프'가 아니라 '그래프'를 설계해야 할까?",
+          "date": "2026-08-11",
+          "locator": "lines 127-145 (§Claude at the Center of Every Workflow, 00:07:49-00:10:07), 254-298 (§Scaling from One Agent to Thousands, 00:19:34-00:23:31), 352-364 (§Evaluation, Benchmarks, and Product Intuition, 00:27:55-00:29:42)",
+          "source_type": "local secondary inspiration transcript"
+        },
+        {
+          "source": "docs/ai-selection-matrix/04-agent-orchestration-adr.md",
+          "title": "ADR-04: 증거 게이트가 있는 bounded DAG를 사용한다",
+          "date": "2026-08-23",
+          "locator": "lines 7-21 (§1-2 맥락·결정), 33-62 (§4 실행 그래프), 64-78 (§5 노드 계약), 특히 lines 39-40, 62, 70-71",
+          "source_type": "local ADR, status=제안"
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "lines 23-56 (§2 전체 bounded DAG), 176-186 (§7 단계 3: 5관점 분석), 329-338 (§13 최적화와 실패 처리)",
+          "source_type": "local design artifact"
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "lines 131-141 (§7 초기 설정), 143-151 (§8 비용과 위험), 153-168 (§9-10 채택 검증·근거 한계)",
+          "source_type": "local ADR, status=제안"
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "lines 22-36 (§2 비교 구성), 191-207 (§7 Ablation)",
+          "source_type": "local evaluation design"
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "lines 12-23 (§2 결정)",
+          "source_type": "local ADR, status=제안"
+        },
+        {
+          "source": "docs/ai-selection-matrix/03-profiler-in-the-loop-adr.md",
+          "title": "ADR-03: 결정론적 정책으로 profiler를 선택 실행한다",
+          "date": "2026-08-23",
+          "locator": "lines 12-16 (§2 결정), 61-109 (§4-5 승인·router·tool 선택), 111-119 (§6 학습 router 전환 조건)",
+          "source_type": "local ADR, status=제안"
+        },
+        {
+          "source": "references/unlazy-claude-skill-transcript.md",
+          "title": "[한영자막] GitHub 1위 개발자가 만든 새로운 Claude 스킬이 대단한 이유입니다",
+          "date": "2026-08-22",
+          "locator": "lines 50-76 (§에이전트가 게을러지는 이유, 00:01:47-00:04:24), 79-111 (§트리 구조와 게이트 검증 시스템, 00:04:24-00:08:06)",
+          "source_type": "local secondary inspiration transcript"
+        },
+        {
+          "source": "references/ai-software-fundamentals-uncle-bob-transcript.md",
+          "title": "[한영자막] AI 시대에 소프트웨어 기본기가 중요한 이유를 엉클 밥에게 물었습니다",
+          "date": "2026-08-21",
+          "locator": "lines 105-159 (§Building a Deterministic Agent Harness / Context Windows, 00:09:00-00:18:01)",
+          "source_type": "local secondary inspiration transcript"
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "lines 218-249 (§9 Runtime request와 router), 특히 lines 220-231 Focused test request",
+          "source_type": "local design artifact"
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "lines 22-38 (§2 P2 focused test), 122-134 (§4 실행 절차), 191-205 (§7 A6/A9)",
+          "source_type": "local evaluation design"
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "lines 143-151 (§8 비용과 위험), 특히 line 151",
+          "source_type": "local ADR, status=제안"
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "lines 250-289 (§11 Feedback와 promotion), 290-303 (§12 오류 분류와 보존)",
+          "source_type": "local evaluation design"
+        },
+        {
+          "source": "docs/project-context/ai-professional-project-proposal.md",
+          "title": "(AI인증) AI Professional 과제심사형 지원서",
+          "date": "undated",
+          "locator": "lines 120-140 (§4.2 최적화 계획), 특히 lines 134-136 피드백 기반 개선",
+          "source_type": "local project proposal"
+        },
+        {
+          "source": "references/uber-multimodal-ai-agent-evaluation-transcript.md",
+          "title": "[한영자막] 우버가 멀티모달 AI 에이전트를 대규모 실전에 배포하며 깨달은 핵심 평가 전략",
+          "date": "2026-08-20",
+          "locator": "lines 118-136 (§자가 진단 및 프롬프트 자동 튜닝, 00:10:25-00:12:49), 196-208 (§사내 도그푸딩 및 다중 피드백 통합, 00:18:21-00:20:01)",
+          "source_type": "local secondary inspiration transcript"
+        },
+        {
+          "source": "references/ai-software-fundamentals-uncle-bob-transcript.md",
+          "title": "[한영자막] AI 시대에 소프트웨어 기본기가 중요한 이유를 엉클 밥에게 물었습니다",
+          "date": "2026-08-21",
+          "locator": "lines 89-103 (§First Experiments, CRAP·mutation testing, 00:05:31-00:09:02), 205-223 (§Hallucinations, Deep Modules, and Interfaces, 00:26:06-00:29:15), 253-269 (§CRAP, Mutation Testing, and Thresholds, 00:32:24-00:35:23)",
+          "source_type": "local secondary inspiration transcript"
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "lines 102-123 (§4 구조 지식 추출), 295-313 (§11 Evidence Gate)",
+          "source_type": "local design artifact"
+        },
+        {
+          "source": "docs/project-context/ai-professional-evaluation-criteria.md",
+          "title": "AI Professional 과제 평가 기준",
+          "date": "undated",
+          "locator": "lines 102-129 (§2.2-2.4 결과물 평가 기준·제한 사항)",
+          "source_type": "local evaluation criteria"
+        }
+      ],
+      "raw_result_uri": "ai-advancement-tracks/artifact-gap.json",
+      "raw_result_status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "ecosystem",
+      "scope": "2026-08-23 기준 public-ecosystem track. 2026-02-23 이후의 공식 release 또는 commit-pinned 공식 repository 문서만 근거로 삼아, 현재 Python 3.14 코드 품질·성능 진단 파이프라인에 최소 변경으로 연결 가능한 정적 분석, 변경 영향, 테스트 생성, trace/log 추론, PR 검증, specification/context inference 후보를 조사했다. 제품 성능 수치나 본 프로젝트 결과는 주장하지 않았다.",
+      "raw_result_sha256": "4ed6f008162609a4e73482a979e8e39511655bc79c5432f525c9dd8bedefac11",
+      "claim_count": 7,
+      "claim_ids": [
+        "ECO-01",
+        "ECO-02",
+        "ECO-03",
+        "ECO-04",
+        "ECO-05",
+        "ECO-06",
+        "ECO-07"
+      ],
+      "candidates": [
+        {
+          "name": "Bounded Semgrep static-evidence adapter",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "Existing-Sonar-only MCP corroboration",
+          "provisional_decision": "hold"
+        },
+        {
+          "name": "Read-only Grafana log/trace evidence adapter",
+          "provisional_decision": "hold"
+        },
+        {
+          "name": "Sandboxed CoverUp generated-test experiment",
+          "provisional_decision": "hold"
+        },
+        {
+          "name": "PR-Agent v0.43 evaluator-only comparator",
+          "provisional_decision": "add"
+        },
+        {
+          "name": "AgentRC specification/context inference in runtime",
+          "provisional_decision": "exclude"
+        }
+      ],
+      "contradiction_count": 6,
+      "unknown_count": 6,
+      "source_index": [
+        {
+          "source": "https://github.com/semgrep/semgrep/releases/tag/v1.174.0",
+          "title": "Release v1.174.0",
+          "date": "2026-08-20",
+          "locator": "Added — “Diff scans now report which dependency source files were added or modified relative to the merge base”; Changed — partial-scan dependency resolution",
+          "source_type": "official release"
+        },
+        {
+          "source": "https://github.com/semgrep/semgrep/blob/v1.174.0/cli/src/semgrep/mcp/README.md",
+          "title": "Semgrep Guardian / Semgrep MCP README at v1.174.0",
+          "date": "2026-08-20",
+          "locator": "introductory paragraphs; Usage; Standard Input/Output; Custom clients",
+          "source_type": "official version-pinned repository documentation"
+        },
+        {
+          "source": "https://github.com/semgrep/semgrep/releases/tag/v1.173.0",
+          "title": "Release v1.173.0",
+          "date": "2026-08-13",
+          "locator": "Fixed — MCP mode UTF-8 multibyte scan failure under non-UTF-8 locales",
+          "source_type": "official release"
+        },
+        {
+          "source": "https://github.com/semgrep/semgrep/blob/v1.174.0/README.md",
+          "title": "Semgrep README at v1.174.0",
+          "date": "2026-08-20",
+          "locator": "paragraph beginning “Note that in security contexts…”; Semgrep Ecosystem > Semgrep Community Edition",
+          "source_type": "official version-pinned repository documentation"
+        },
+        {
+          "source": "https://github.com/SonarSource/sonarqube-mcp-server/releases/tag/1.24.0.3152",
+          "title": "SonarQube MCP Server v1.24.0",
+          "date": "2026-08-04",
+          "locator": "introductory paragraph; Bug Fixes — `analyze_file_list` now returns the rule key",
+          "source_type": "official release"
+        },
+        {
+          "source": "https://github.com/SonarSource/sonarqube-mcp-server/releases/tag/1.25.0.3221",
+          "title": "SonarQube MCP Server v1.25.0",
+          "date": "2026-08-18",
+          "locator": "Features — `vortex` toolset, `ide` toolset, deprecation of `analyze_code_snippet`",
+          "source_type": "official release"
+        },
+        {
+          "source": "https://github.com/grafana/mcp-grafana/blob/v1.1.0/README.md",
+          "title": "Grafana MCP server README at v1.1.0",
+          "date": "2026-08-10",
+          "locator": "Requirements; Features > Loki Querying; Grafana Assistant; Sift Investigations; paragraph beginning “The list of tools is configurable”; RBAC Permissions",
+          "source_type": "official version-pinned repository documentation"
+        },
+        {
+          "source": "https://github.com/grafana/mcp-grafana/releases/tag/v1.1.0",
+          "title": "mcp-grafana v1.1.0",
+          "date": "2026-08-10",
+          "locator": "Added — optional bearer-token caller authentication; `ask_assistant` opt-in/write-gated tool",
+          "source_type": "official release"
+        },
+        {
+          "source": "https://github.com/plasma-umass/coverup/blob/d9ca25b9282621d2779560f2be397ab0683a6733/README.md",
+          "title": "CoverUp: Automatically Generating Higher-Coverage Test Suites with AI",
+          "date": "2026-04-05",
+          "locator": "About CoverUp; Avoiding flaky tests; Test pollution and isolation; Running CoverUp with Docker; Work In Progress",
+          "source_type": "official commit-pinned repository documentation"
+        },
+        {
+          "source": "https://github.com/The-PR-Agent/pr-agent/releases/tag/v0.43.0",
+          "title": "PR-Agent v0.43.0",
+          "date": "2026-08-22",
+          "locator": "release note; PyPI `pr-agent 0.43.0` availability; What’s Changed",
+          "source_type": "official release"
+        },
+        {
+          "source": "https://github.com/The-PR-Agent/pr-agent/blob/v0.43.0/docs/docs/tools/review.md",
+          "title": "PR-Agent Review Tool documentation at v0.43.0",
+          "date": "2026-08-22",
+          "locator": "Overview; Configuration options > `require_tests_review`, `require_security_review`, `require_ticket_analysis_review`; Auto-blocking PRs",
+          "source_type": "official version-pinned repository documentation"
+        },
+        {
+          "source": "https://github.com/microsoft/agentrc/blob/9d376734c531fb6ee788bb7a2cb29d9239ba9d79/README.md",
+          "title": "AgentRC README at commit 9d376734",
+          "date": "2026-03-31",
+          "locator": "Warning; introductory paragraphs; What it does > Measure/Generate/Maintain; What gets generated",
+          "source_type": "official commit-pinned repository documentation"
+        },
+        {
+          "source": "https://github.com/microsoft/agentrc/commit/9d376734c531fb6ee788bb7a2cb29d9239ba9d79",
+          "title": "docs: add APM ecosystem section to README (#95)",
+          "date": "2026-03-31",
+          "locator": "commit metadata for pinned README",
+          "source_type": "official repository commit"
+        }
+      ],
+      "raw_result_uri": "ai-advancement-tracks/ecosystem.json",
+      "raw_result_status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "protocol",
+      "scope": "Protocol/implementation track for a minimal adaptive Diagnosis Planner. Grounded in the local pre-implementation design and primary sources dated 2026-03-15 through 2026-08-19, all within the required 2026-02-23 freshness cutoff; no one-year exception was used. The design covers registered-perspective discovery, core/optional selection, evidence gates, stopping, inclusive run-budget allocation, failure fallback, provenance, and deterministic boundaries. It does not claim any measured project outcome.",
+      "raw_result_sha256": "b284666b1a87af09f607cd2eb8a4ac4547f03308f9d512607aec11bdc96a44a4",
+      "claim_count": 7,
+      "claim_ids": [
+        "P1",
+        "P2",
+        "P3",
+        "P4",
+        "P5",
+        "P6",
+        "P7"
+      ],
+      "candidates": [
+        {
+          "name": "Registered core-plus-optional DiagnosisPlan v2",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "Deterministic PlanDecision, budget, stop, and provenance ledger",
+          "provisional_decision": "add"
+        },
+        {
+          "name": "Fixed-five deterministic fallback and admission guard",
+          "provisional_decision": "keep"
+        },
+        {
+          "name": "Experience-calibrated learned selector",
+          "provisional_decision": "hold"
+        },
+        {
+          "name": "Free-form generated specialists or self-organizing swarm",
+          "provisional_decision": "exclude"
+        }
+      ],
+      "contradiction_count": 7,
+      "unknown_count": 8,
+      "source_index": [
+        {
+          "source": "docs/ai-selection-matrix/04-agent-orchestration-adr.md",
+          "title": "ADR-04: 증거 게이트가 있는 bounded DAG를 사용한다",
+          "date": "2026-08-23",
+          "locator": "§2 lines 13-21; §4 lines 35-62; §5 lines 64-78; §7 lines 104-114",
+          "source_type": "local design ADR (proposed, pre-implementation)"
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§2 lines 23-56; §5 lines 135-150; §6 lines 160-174",
+          "source_type": "local technical design (pre-implementation)"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.25746v1",
+          "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+          "date": "2026-05-25",
+          "locator": "§2.2 Structural Prior Learning, especially Agent Relevance Scoring and Eq. (4); §2.3 Token-Aware Orchestration, action space A=O∪{STOP} and structural masking Eq. (11)",
+          "source_type": "primary research preprint, arXiv v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.07180v1",
+          "title": "Learning Agent Routing From Early Experience",
+          "date": "2026-05-08",
+          "locator": "§3.1 Routing Module Overview; §3.2 Learning from Early Experience; §5.4 Ablation Study, Table 3 and Prompt Routing discussion",
+          "source_type": "primary research preprint, arXiv v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2604.02460v2",
+          "title": "Single-Agent LLMs Outperform Multi-Agent Systems on Multi-Hop Reasoning Under Equal Thinking Token Budgets",
+          "date": "2026-04-11",
+          "locator": "§1 Introduction; §4.4 Table 1; §5.1 lines describing matched-budget results; §5.3 Context degradation; Appendix C Limitations",
+          "source_type": "primary research preprint, arXiv v2"
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§2 lines 19-46; §8 lines 197-202; §11 lines 240-244",
+          "source_type": "local evaluation design"
+        },
+        {
+          "source": "https://arxiv.org/html/2603.11445v2",
+          "title": "Verified Multi-Agent Orchestration: A Plan-Execute-Verify-Replan Framework for Complex Query Resolution",
+          "date": "2026-03-15",
+          "locator": "§3.2 Planning and Execution; §3.3 Verification, Replanning, and Synthesis, especially result preservation and Table 2 stop conditions; §4 Implementation",
+          "source_type": "primary research preprint, arXiv v2"
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§4 lines 38-101, especially finding-v2 status and invariants",
+          "source_type": "local design ADR"
+        },
+        {
+          "source": "https://github.com/openai/openai-agents-python/blob/v0.22.0/docs/multi_agent.md",
+          "title": "Agent orchestration",
+          "date": "2026-08-19",
+          "locator": "v0.22.0, §Orchestrating via code",
+          "source_type": "official versioned SDK documentation"
+        },
+        {
+          "source": "https://github.com/openai/openai-agents-python/blob/v0.22.0/docs/running_agents.md",
+          "title": "Running agents",
+          "date": "2026-08-19",
+          "locator": "v0.22.0, §Runner lifecycle and configuration / The agent loop; §Errors and recovery / Error handlers",
+          "source_type": "official versioned SDK documentation"
+        },
+        {
+          "source": "https://github.com/openai/openai-agents-python/blob/v0.22.0/docs/tracing.md",
+          "title": "Tracing",
+          "date": "2026-08-19",
+          "locator": "v0.22.0, §Traces and spans; §Default tracing",
+          "source_type": "official versioned SDK documentation"
+        },
+        {
+          "source": "https://github.com/openai/openai-agents-python/releases/tag/v0.22.0",
+          "title": "Release v0.22.0 · openai/openai-agents-python",
+          "date": "2026-08-19",
+          "locator": "Key Changes; Highlights",
+          "source_type": "official release"
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§1 invariants; §5 typed expansion; §6 budget; §8 merge lineage; §9 lifecycle mapping; §11 deterministic Evidence Gate; §13 failures",
+          "source_type": "local technical design"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.25746v1",
+          "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+          "date": "2026-05-25",
+          "locator": "§2.2-2.3",
+          "source_type": "primary research preprint, arXiv v1"
+        }
+      ],
+      "raw_result_uri": "ai-advancement-tracks/protocol.json",
+      "raw_result_status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "experiment",
+      "scope": "Experimental track only. These are preregistered pilot designs, not project results. Common contract for every arm: use only the existing pilot/train/calibration/regression assets; never inspect or tune on final-temporal/final-OOD manifests or labels. Pair variants on the same commit, task, exact model/prompt/policy/tool versions and evidence snapshot; randomize variant/case order; blind the existing two-expert plus tie-break adjudication; treat case as the statistical sample and repeated trials as nested observations, not independent samples. Every added planner, lens, critic, retrieval summary, test-generation, retry, gate and composer call consumes the same inclusive B_run; tool seconds also stay under the frozen arm cap. Preserve failures, timeouts, abstentions and budget overruns; mark overruns non_comparable rather than deleting them. Tune thresholds on train/calibration, select versions on regression, and only a finally frozen winner may be run once on each final holdout under the existing one_run_record contract.",
+      "raw_result_sha256": "7a09b6c904b9013824847cdbfede6460418241d7a0e1564b3fd2a88555000a47",
+      "claim_count": 7,
+      "claim_ids": [
+        "EXP-C1",
+        "EXP-C2",
+        "EXP-C3",
+        "EXP-C4",
+        "EXP-C5",
+        "EXP-C6",
+        "EXP-C7"
+      ],
+      "candidates": [
+        {
+          "name": "P1 — Routed core plus optional existing perspectives",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "P2 — Contract-bound generated diagnostic lens",
+          "provisional_decision": "hold"
+        },
+        {
+          "name": "P3 — Independent challenge-only verifier/critic",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "P4 — Bounded ancestry-safe history retrieval",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "P5 — Ephemeral focused test generation",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "P6 — Calibrated uncertainty-driven execution shadow policy",
+          "provisional_decision": "hold"
+        }
+      ],
+      "contradiction_count": 4,
+      "unknown_count": 7,
+      "source_index": [
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§2 공정성 계약 및 Run budget, lines 18-47; §3.2 개발 split과 최종 holdout, lines 61-99; §4 실행 절차, lines 122-134; §11 Feedback와 promotion, lines 250-288",
+          "source_type": "local project design"
+        },
+        {
+          "source": "docs/evidence/01-kpi-measurement-framework.md",
+          "title": "KPI 측정 프레임워크",
+          "date": "2026-08-23",
+          "locator": "§3 표본·split, lines 57-76; §10 AI 파이프라인 방어 지표, especially repeated-trial treatment; §11 통계 원칙, lines 218-223",
+          "source_type": "local project design"
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§2 pipeline and fallback, lines 26-56; §6 budget, lines 168-174; §7 5관점 분석, lines 176-205; §14 실험 설정, lines 333-358",
+          "source_type": "local project design"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.28433v1",
+          "title": "Roles with Rails: Contract-Preserving Role Evolution in Multi-Agent Structured Reasoning",
+          "date": "2026-05-27",
+          "locator": "Abstract; §1 Introduction; §3 Methodology; §4 Benchmarks and Metrics; Limitations",
+          "source_type": "primary preprint, arXiv:2605.28433v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.28433v1",
+          "title": "Roles with Rails: Contract-Preserving Role Evolution in Multi-Agent Structured Reasoning",
+          "date": "2026-05-27",
+          "locator": "Abstract; §1, paragraphs defining the five structural contracts; §3.1 Role Cards; §5 Limitations",
+          "source_type": "primary preprint, arXiv:2605.28433v1"
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§4 Finding contract, lines 38-93; §6 관점별 책임, lines 121-132; §7 초기 설정, lines 134-139",
+          "source_type": "local project design"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.18284v1",
+          "title": "CommitDistill: A Lightweight Knowledge-Centric Memory Layer for Software Repositories",
+          "date": "2026-05-18",
+          "locator": "Abstract; §I Introduction, Contributions items 4-5 and Scope; §VI-G RQ5 downstream LLM-as-Judge utility",
+          "source_type": "primary preprint, arXiv:2605.18284v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2607.24882v1",
+          "title": "Agent Retrieval Bench: Evaluating Repository Context Retrieval for Coding Agents",
+          "date": "2026-07-27",
+          "locator": "Abstract; §1 Introduction; §3 Problem Definition",
+          "source_type": "primary preprint, arXiv:2607.24882v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2603.23448v1",
+          "title": "Code Review Agent Benchmark",
+          "date": "2026-03-24",
+          "locator": "Abstract; §1 Introduction; §3.3 Our benchmark: c-CRAB; §4.1 Overview; §4.2 Benchmark Curation",
+          "source_type": "primary preprint, arXiv:2603.23448v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2607.12068v1",
+          "title": "Beyond Test Presence: Assessing the Quality and Robustness of Agent-Generated Tests in Open-Source Projects",
+          "date": "2026-07-13",
+          "locator": "Abstract; §II Phase 3; §III flakiness metrics/results; §IV-B Threats to Construct Validity",
+          "source_type": "primary preprint, arXiv:2607.12068v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2606.26300v1",
+          "title": "The Verification Horizon: No Silver Bullet for Coding Agent Rewards",
+          "date": "2026-06-24",
+          "locator": "Abstract; §1 Introduction; §2 Test-driven Rewards, especially §2.1-2.3",
+          "source_type": "primary preprint, arXiv:2606.26300v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.00737v3",
+          "title": "To Call or Not to Call: A Framework to Assess and Optimize LLM Tool Calling",
+          "date": "2026-08-06",
+          "locator": "Abstract; §1 Introduction; §3 Operating Frameworks; §4.1 Need and Utility",
+          "source_type": "primary preprint, arXiv:2605.00737v3"
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§6 Profiler router experiment, lines 157-189",
+          "source_type": "local project design"
+        },
+        {
+          "source": "https://arxiv.org/html/2606.26300v1",
+          "title": "The Verification Horizon: No Silver Bullet for Coding Agent Rewards",
+          "date": "2026-06-24",
+          "locator": "Abstract; §1 Introduction, scalability-faithfulness-robustness framework; §2.2 Agentic Quality Judge; §2.3 trajectory monitoring",
+          "source_type": "primary preprint, arXiv:2606.26300v1"
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§1 invariants, lines 6-12; §2 pipeline, lines 26-56; §9 runtime request/router, lines 218-244; §10 RuntimeEvidence and Evidence Gate",
+          "source_type": "local project design"
+        }
+      ],
+      "raw_result_uri": "ai-advancement-tracks/experiment.json",
+      "raw_result_status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "adversarial",
+      "scope": "2026-08-23 기준 adversarial track. 동적 관점 생성, LLM/학습 router, debate·reflection loop, 장기 agent memory, 자율 테스트 생성, embedding, learned graph expansion, learned profiler routing을 현행 Python 3.14 진단 설계와 비교해 반증 가능성·과잉 설계·상관 오류·평가 leakage·비용 confound·직접 근거 공백 관점에서 검토했다. 모든 외부 근거는 기본 6개월 창(2026-02-23 이후)의 1차 자료이며 1년 예외는 사용하지 않았다. 프로젝트 성과는 주장하지 않는다.",
+      "raw_result_sha256": "d630bb4ee2fcbc0f20d2e88b1efcdb84e0c1b343eb8cb0f3645b76b1a04cfafe",
+      "claim_count": 6,
+      "claim_ids": [
+        "ADV-01",
+        "ADV-02",
+        "ADV-03",
+        "ADV-04",
+        "ADV-05",
+        "ADV-06"
+      ],
+      "candidates": [
+        {
+          "name": "자유형 동적 관점 생성",
+          "provisional_decision": "hold"
+        },
+        {
+          "name": "단일 독립 반증 패스(토론·반복 reflection 대체)",
+          "provisional_decision": "keep"
+        },
+        {
+          "name": "학습 LLM·profiler router",
+          "provisional_decision": "hold"
+        },
+        {
+          "name": "자유형 persistent agent memory",
+          "provisional_decision": "exclude"
+        },
+        {
+          "name": "현행 lexical/BM25 + 보조 vector + bounded typed graph",
+          "provisional_decision": "keep"
+        },
+        {
+          "name": "격리된 자율 테스트 생성—oracle이 아닌 candidate producer",
+          "provisional_decision": "advance"
+        }
+      ],
+      "contradiction_count": 6,
+      "unknown_count": 7,
+      "source_index": [
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§7 초기 설정, lines 131-141; §9 채택 검증, lines 153-159; §10 최신 근거, lines 161-168",
+          "source_type": "local ADR"
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§2 공정성 계약, lines 16-47; §3.2, lines 61-76; §10, lines 237-246",
+          "source_type": "local evaluation plan"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.00914v1",
+          "title": "The Cost of Consensus: Isolated Self-Correction Prevails Over Unguided Homogeneous Multi-Agent Debate",
+          "date": "2026-04-29",
+          "locator": "Abstract; §1 Introduction, contributions 1-3; §3.3 Architectural Baselines and Controls; §3.5 and Table 1",
+          "source_type": "preprint / controlled empirical study"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.00737v3",
+          "title": "To Call or Not to Call: A Framework to Assess and Optimize LLM Tool Calling",
+          "date": "2026-08-06",
+          "locator": "Abstract; §1 Introduction and Table 1; §3 Prescriptive lens; §4.1 Need and Utility",
+          "source_type": "preprint / empirical tool-use study"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.18796v1",
+          "title": "UCCI: Calibrated Uncertainty for Cost-Optimal LLM Cascade Routing",
+          "date": "2026-05-11",
+          "locator": "Abstract; §1 Introduction; §4.2-4.3; §5 Theorem 1 and assumptions",
+          "source_type": "preprint / production NER case study"
+        },
+        {
+          "source": "docs/ai-selection-matrix/03-profiler-in-the-loop-adr.md",
+          "title": "ADR-03: 결정론적 정책으로 profiler를 선택 실행한다",
+          "date": "2026-08-23",
+          "locator": "§2, lines 12-16; §6, lines 111-119; §9-10, lines 170-190",
+          "source_type": "local ADR"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.06527v1",
+          "title": "STALE: Can LLM Agents Know When Their Memories Are No Longer Valid?",
+          "date": "2026-05-07",
+          "locator": "Abstract; §1 Introduction, especially the retrieval-versus-action gap and Table 1; §3 benchmark definition",
+          "source_type": "preprint / memory benchmark"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.16352v1",
+          "title": "LARGER: Lexically Anchored Repository Graph Exploration and Retrieval",
+          "date": "2026-05-08",
+          "locator": "§5.1 Experimental Setup; §5.2 Table 1 and efficiency paragraph; §5.3 Ablation Study and Table 3; Appendix B Table 7",
+          "source_type": "preprint / code localization study"
+        },
+        {
+          "source": "https://arxiv.org/html/2603.27277v1",
+          "title": "Codebase-Memory: Tree-Sitter-Based Knowledge Graphs for LLM Code Exploration via MCP",
+          "date": "2026-03-28",
+          "locator": "Abstract; §4 evaluation summary; §5.2 Structural Retrieval; §5.4 Threats to Validity",
+          "source_type": "preprint / code exploration study"
+        },
+        {
+          "source": "https://arxiv.org/html/2604.01527v4",
+          "title": "REAP: Automatic Curation of Coding Agent Benchmarks from Interactive Production Usage",
+          "date": "2026-07-28",
+          "locator": "Abstract; §3 overview; §3.2 Candidate Test Retrieval; §3.3 Verification — Solution Diff Leakage, Test Relevance Filtering, Test Validation",
+          "source_type": "ASE 2026 Industry Showcase / production methodology"
+        },
+        {
+          "source": "https://arxiv.org/html/2607.22368v1",
+          "title": "Do Agent Benchmarks Measure Capability? Protocol Validity in the Age of Agentic AI",
+          "date": "2026-07-24",
+          "locator": "Abstract; §1 Introduction; §3.1 Benchmarks as Evolving Protocols; §3.2 From Exposure to Mislead",
+          "source_type": "preprint / post-hoc benchmark audit"
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§4 실행 절차, lines 122-134",
+          "source_type": "local evaluation plan"
+        }
+      ],
+      "raw_result_uri": "ai-advancement-tracks/adversarial.json",
+      "raw_result_status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "systems",
+      "scope": "Systems-track recommendation for the proposed Python 3.14 code-quality/performance diagnosis agent. All external evidence used is dated 2026-03-01 through 2026-08-06, inside the required six-month window; no one-year exception is used. Minimum recommended causal architecture: versioned static fact plane (AST/symbol/CFG/Code Graph) -> deterministic RiskEnvelope and mandatory-route rules -> existing Diagnosis Planner may add at most one optional route -> 1-3 selected LLM hypothesis analysts, with fixed-five fallback only for incomplete/unclassified high-risk cases -> need/utility/affordability arbiter -> authorized focused test/profiler -> RuntimeEvidence normalizer -> deterministic hard Evidence Gate, with an optional semantic critic that may only reject/abstain/request evidence -> report. The five existing perspectives remain coverage facets and a benchmark/fallback, not five mandatory calls. Feedback is provenance-locked and promoted offline; no live self-modification.",
+      "raw_result_sha256": "3da5b59c08b908a0ad8d8cae5a279be41091604130747982bcd64656ba097da1",
+      "claim_count": 7,
+      "claim_ids": [
+        "SYS-C1",
+        "SYS-C2",
+        "SYS-C3",
+        "SYS-C4",
+        "SYS-C5",
+        "SYS-C6",
+        "SYS-C7"
+      ],
+      "candidates": [
+        {
+          "name": "Fixed five-perspective parallel first pass",
+          "provisional_decision": "keep"
+        },
+        {
+          "name": "Rule-first dynamic specialist routing with bounded LLM override",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "Versioned hierarchical root-cause taxonomy with multi-label perspective facets",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "Bounded hypothesis-test-revision loop",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "Asymmetric deterministic Evidence Gate plus optional semantic critic",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "Learned routing and feedback-conditioned adaptation",
+          "provisional_decision": "hold"
+        }
+      ],
+      "contradiction_count": 6,
+      "unknown_count": 10,
+      "source_index": [
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§1 lines 3-21; §2 lines 23-56; §7 lines 176-184; §11 lines 295-313",
+          "source_type": "local technical design"
+        },
+        {
+          "source": "docs/ai-selection-matrix/04-agent-orchestration-adr.md",
+          "title": "ADR-04: 증거 게이트가 있는 bounded DAG를 사용한다",
+          "date": "2026-08-23",
+          "locator": "§2 lines 11-21; §7 lines 104-114; §8 lines 116-125",
+          "source_type": "local ADR"
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§13 lines 305-307",
+          "source_type": "local evaluation plan"
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§7 lines 131-141; §9 lines 153-159; §10 lines 161-168",
+          "source_type": "local ADR"
+        },
+        {
+          "source": "https://arxiv.org/html/2606.20629v1",
+          "title": "Specialize Roles, Mix Deployments: Pushing the Cost–Accuracy Frontier of LLM Agent Teams",
+          "date": "2026-05-28",
+          "locator": "Abstract; §4; §6; §7; Appendix D Limitations",
+          "source_type": "primary preprint"
+        },
+        {
+          "source": "https://arxiv.org/html/2606.22902v1",
+          "title": "Agent-as-a-Router: Agentic Model Routing for Coding Tasks",
+          "date": "2026-06-22",
+          "locator": "Abstract; §3.1 Table 1; §3.3; §5 Table 3; §5.3 Limitations",
+          "source_type": "primary preprint"
+        },
+        {
+          "source": "https://arxiv.org/html/2603.01131v1",
+          "title": "MedCollab: Causal-Driven Multi-Agent Collaboration for Full-Cycle Clinical Diagnosis via IBIS-Structured Argumentation",
+          "date": "2026-03-01",
+          "locator": "§2.1 dynamic recruitment; §2.2 structured argumentation; §3.2 Table 2",
+          "source_type": "primary preprint"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.00737v3",
+          "title": "To Call or Not to Call: A Framework to Assess and Optimize LLM Tool Calling",
+          "date": "2026-08-06",
+          "locator": "Abstract; §1 Table 1; §3 normative/descriptive/prescriptive framework; §4.1 Need and Utility",
+          "source_type": "primary preprint v3"
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§9 lines 218-244",
+          "source_type": "local technical design"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.29910v1",
+          "title": "Agora: Toward Autonomous Bug Detection in Production-Level Consensus Protocols with LLM Agents",
+          "date": "2026-05-28",
+          "locator": "§2.1 Hypothesis-Driven Testing; Algorithm 1; §3.2 Architecture; Table 2; §4.2; §4.3; §5 Limitations",
+          "source_type": "primary preprint"
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§2 lines 14-23; Finding contract lines 40-83; invariants lines 95-101",
+          "source_type": "local ADR"
+        },
+        {
+          "source": "https://arxiv.org/html/2606.26300v1",
+          "title": "The Verification Horizon: No Silver Bullet for Coding Agent Rewards",
+          "date": "2026-06-24",
+          "locator": "Abstract; §1; §2.2 Agentic Quality Judge; §2.3 Behavior Monitoring; Table 3",
+          "source_type": "primary technical report/preprint"
+        },
+        {
+          "source": "https://arxiv.org/html/2604.01527v4",
+          "title": "REAP: Automatic Curation of Coding Agent Benchmarks from Interactive Production Usage",
+          "date": "2026-07-28",
+          "locator": "Abstract; §3.3 Test Relevance Filtering and Test Validation",
+          "source_type": "primary paper/preprint, ASE 2026 Industry Showcase"
+        },
+        {
+          "source": "https://arxiv.org/html/2606.20629v1",
+          "title": "Specialize Roles, Mix Deployments: Pushing the Cost–Accuracy Frontier of LLM Agent Teams",
+          "date": "2026-05-28",
+          "locator": "§7 Table 1 and discussion",
+          "source_type": "primary preprint"
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§11 lines 295-313",
+          "source_type": "local technical design"
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "Finding contract lines 40-83; merge rules lines 85-101; perspective responsibilities lines 121-129",
+          "source_type": "local ADR"
+        },
+        {
+          "source": "https://arxiv.org/html/2608.04682v1",
+          "title": "Active-SWE: Benchmarking Coding Agents for Proactive Bug Fixing without Issue Reports",
+          "date": "2026-08-05",
+          "locator": "Abstract; §3.2 Taxonomy-driven Data Curation",
+          "source_type": "primary preprint"
+        },
+        {
+          "source": "https://arxiv.org/html/2605.29910v1",
+          "title": "Agora: Toward Autonomous Bug Detection in Production-Level Consensus Protocols with LLM Agents",
+          "date": "2026-05-28",
+          "locator": "§2.2 five protocol bug classes; §3.3 Knowledge Library; §4.3 constraints-analyzer ablation",
+          "source_type": "primary preprint"
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§3.2 lines 61-76; §11 lines 250-288; §12 lines 290-303",
+          "source_type": "local evaluation plan"
+        },
+        {
+          "source": "https://arxiv.org/html/2606.22902v1",
+          "title": "Agent-as-a-Router: Agentic Model Routing for Coding Tasks",
+          "date": "2026-06-22",
+          "locator": "§3.1; §3.2 C-A-F loop; §3.3 Memory; §5 Table 3; §5.3 Limitations",
+          "source_type": "primary preprint"
+        },
+        {
+          "source": "https://arxiv.org/html/2606.26300v1",
+          "title": "The Verification Horizon: No Silver Bullet for Coding Agent Rewards",
+          "date": "2026-06-24",
+          "locator": "Abstract; §1; §2.3 closed-loop behavior monitoring",
+          "source_type": "primary technical report/preprint"
+        }
+      ],
+      "raw_result_uri": "ai-advancement-tracks/systems.json",
+      "raw_result_status": "raw research input; source claims remain provisional unless promoted to E-08"
+    },
+    {
+      "strategy_id": "action",
+      "scope": "Equivalent/action track only. 현행 Python 3.14 진단 파이프라인을 전면 교체하지 않고, 고정 5관점 Planner를 실제 증거에 반응하는 bounded action policy로 재설계할 수 있는지 검토했다. 최근 6개월(2026-02-23 이후) 1차 자료와 로컬 설계 계약만 사용했으며, 아래 수치들은 외부 연구의 reported result 또는 제안된 채택 기준이지 프로젝트 성과가 아니다.",
+      "raw_result_sha256": "8911c894289339647d069bf5c07fc4a8581230506ebde7579b19ac3c78684906",
+      "claim_count": 6,
+      "claim_ids": [
+        "ACT-C1",
+        "ACT-C2",
+        "ACT-C3",
+        "ACT-C4",
+        "ACT-C5",
+        "ACT-C6"
+      ],
+      "candidates": [
+        {
+          "name": "A1. Evidence-conditioned Perspective Scheduler",
+          "provisional_decision": "advance"
+        },
+        {
+          "name": "A2. Hypothesis-Discriminating Ephemeral Probe",
+          "provisional_decision": "add"
+        },
+        {
+          "name": "A3. Adaptive Evidence Aperture over Existing Retrieval",
+          "provisional_decision": "hold"
+        }
+      ],
+      "contradiction_count": 5,
+      "unknown_count": 6,
+      "source_index": [
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§2, flow lines 26-56; §7 lines 176-186",
+          "source_type": "local primary design"
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§7 lines 131-141; §8 lines 143-151",
+          "source_type": "local primary design"
+        },
+        {
+          "source": "https://arxiv.org/html/2607.00053v1",
+          "title": "SWE-Router: Routing in Multi-turn Agentic Software Engineering Tasks",
+          "date": "2026-06-30",
+          "locator": "Abstract; §1; §3; §5.3, Figure 2",
+          "source_type": "primary preprint v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2604.05481v1",
+          "title": "On the Role of Fault Localization Context for LLM-Based Program Repair",
+          "date": "2026-04-07",
+          "locator": "Abstract; §1.1 Findings; §6.0.5 Ensemble and Adaptive Strategies; §8 Threats to Validity",
+          "source_type": "primary preprint v1"
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§9 Focused test lines 218-232; §10 RuntimeEvidence; §11 Evidence Gate lines 295-303",
+          "source_type": "local primary design"
+        },
+        {
+          "source": "https://arxiv.org/html/2604.10761v1",
+          "title": "Improving Dynamic Specification Inference with LLM-Generated Counterexamples",
+          "date": "2026-04-12",
+          "locator": "Abstract; §I; §V-C LLM-based Counterexample Generation; §V-D Counterexample Validation; §VII-A/RQ1; §IX Threats to Validity",
+          "source_type": "primary preprint v1"
+        },
+        {
+          "source": "https://arxiv.org/html/2604.01527v4",
+          "title": "REAP: Automatic Curation of Coding Agent Benchmarks from Interactive Production Usage",
+          "date": "2026-07-28",
+          "locator": "Abstract; §3.3 Verification, especially Test Relevance Filtering and Test Validation",
+          "source_type": "primary paper/preprint v4, ASE 2026 Industry Showcase"
+        },
+        {
+          "source": "https://arxiv.org/html/2606.28430v1",
+          "title": "Building to the Test: Coding Agents Deliver What You Check, Not What You Requested",
+          "date": "2026-06-26",
+          "locator": "Abstract; §1; §3 Library audit methodology; §4 Table 1; §6 Threats to validity",
+          "source_type": "primary preprint v1"
+        }
+      ],
+      "raw_result_uri": "ai-advancement-tracks/action.json",
+      "raw_result_status": "raw research input; source claims remain provisional unless promoted to E-08"
+    }
+  ],
+  "judge_results": [
+    {
+      "lens": "impact-lv3: actual Python diagnosis-quality impact and AI Professional Lv3 depth, discounting feature count without causal value",
+      "scores": [
+        {
+          "candidate_id": "A1",
+          "quality_value": 3,
+          "ai_depth": 5,
+          "evidence_strength": 3,
+          "simplicity": 4,
+          "measurability": 5,
+          "risk": 3,
+          "verdict": "pilot",
+          "reason": "Local design evidence (docs/evidence/03-ai-pipeline-technical-design.md §§2,7; AG-C2/ACT-C1) confirms that the planner always dispatches five first-pass views and lacks run/skip/defer contracts. SWE-Router (2026-06-30) supports partial-trajectory routing as a cost-quality mechanism, but it routes models on SWE tasks, not Python diagnostic perspectives. This is strong Lv3 orchestration, yet its expected diagnosis result is mainly recall preservation while saving calls, not a demonstrated quality gain.",
+          "evidence_gap": "No paired Python defect-diagnosis result yet shows that skipping perspectives preserves per-perspective and Critical/High recall, especially for rare concurrency/performance defects."
+        },
+        {
+          "candidate_id": "A2",
+          "quality_value": 2,
+          "ai_depth": 4,
+          "evidence_strength": 2,
+          "simplicity": 3,
+          "measurability": 4,
+          "risk": 4,
+          "verdict": "hold",
+          "reason": "EXP-C2/C3 and the artifact-gap track find no recent direct code-diagnosis evidence for generated lenses and recommend routing registered perspectives first; they also identify duplicate findings, taxonomy drift, and schema mismatch as the likely outcomes. A contract-bound lens is more disciplined than free-form role creation, but novelty of wording is not causal diagnostic value.",
+          "evidence_gap": "Needs an evaluator-owned taxonomy-tail cohort showing unique accepted true findings per token over a budget-matched replay of an existing perspective, with low duplication and grounding errors."
+        },
+        {
+          "candidate_id": "A3",
+          "quality_value": 4,
+          "ai_depth": 4,
+          "evidence_strength": 4,
+          "simplicity": 4,
+          "measurability": 5,
+          "risk": 3,
+          "verdict": "pilot",
+          "reason": "Adversarial Review (2026-08-16; PF-C5) reports SWE-PRBench F1 rising from 0.457 to 0.533 when disagreement is evidence-constrained, while naive critic/reviewer interaction can create false consensus; its SWE-bench arm also cost about 4.5x tokens. A single challenge-only pass that can reject, abstain, or request a probe therefore has plausible precision/severity value and clear Lv3 evidence discipline without adding another voting agent.",
+          "evidence_gap": "Must show incremental value over the existing merger/Evidence Gate under the same B_run, including TP false-retraction and Critical/High recall; same-family error correlation remains unmeasured."
+        },
+        {
+          "candidate_id": "A4",
+          "quality_value": 5,
+          "ai_depth": 5,
+          "evidence_strength": 4,
+          "simplicity": 3,
+          "measurability": 5,
+          "risk": 4,
+          "verdict": "pilot",
+          "reason": "ACT-C4/AG-C4 show a concrete local gap: focused-test requests record commands but not the hypothesis, predicted support/refute observations, or independent oracle. The 2026 LLM counterexample study (ACT-C5) improved Java assertion precision from 67.83% to 74.17% only by accepting compiling/executed witnesses, while REAP requires relevance and multi-run stability. Translating a Python diagnosis into one falsifiable, sandboxed probe is the clearest causal quality improvement and strongest Lv3 demonstration.",
+          "evidence_gap": "No project data yet establishes pytest probe relevance, independent-oracle rate, differential validity, flakiness, or safe execution on Python 3.14 repositories; the strongest outcome evidence is from Java specification inference, not Python diagnosis."
+        },
+        {
+          "candidate_id": "A5",
+          "quality_value": 4,
+          "ai_depth": 4,
+          "evidence_strength": 3,
+          "simplicity": 5,
+          "measurability": 5,
+          "risk": 3,
+          "verdict": "pilot",
+          "reason": "PF-C4 cites SWE-Adept and PerfAgent as recent evidence that test/profile feedback should update the next analysis rather than drive blind repetition; PerfAgent reports better optimization metrics than blind best-of-five at lower cost, although in patch/optimization workflows. Reusing the existing specialist exactly once with immutable RuntimeEvidence is a small, causally coherent way to correct root cause, severity, or disposition.",
+          "evidence_gap": "Needs a diagnosis-only paired test proving that revision improves gold status transitions and causal accuracy beyond what the deterministic Evidence Gate already achieves, without overfitting to an unrepresentative workload."
+        },
+        {
+          "candidate_id": "A6",
+          "quality_value": 3,
+          "ai_depth": 5,
+          "evidence_strength": 2,
+          "simplicity": 2,
+          "measurability": 4,
+          "risk": 4,
+          "verdict": "hold",
+          "reason": "AG-C5 documents a real lifecycle gap between versioned FeedbackEvents/regression promotion and attribution of failures to retrieval, graph resolution, planner, specialist, merge, router, or gate. That is meaningful Lv3 meta-diagnosis, but its only non-local inspiration is a secondary Uber transcript; there is no primary evidence that an LLM localizer improves Python findings, and its benefit is indirect and delayed.",
+          "evidence_gap": "Requires a hidden attribution set with known subsystem causes and evidence that promoted, versioned changes improve frozen regressions without new Critical/High regressions or holdout leakage."
+        },
+        {
+          "candidate_id": "A7",
+          "quality_value": 3,
+          "ai_depth": 4,
+          "evidence_strength": 3,
+          "simplicity": 3,
+          "measurability": 5,
+          "risk": 3,
+          "verdict": "hold",
+          "reason": "The 500-instance Python SWE-bench localization study in ACT-C3 found file context important and expanded line context often noisy, supporting adaptive granularity. However, it used ground-truth buggy locations and measured repair success, while the current exact/BM25/vector plus bounded 1/2-hop design already supplies a conservative aperture. The incremental diagnosis gain is plausible but not isolated from A1 routing.",
+          "evidence_gap": "Needs noisy-anchor, diagnosis-only ablation showing localization Recall and Critical/High recall non-inferiority plus lower evidence tokens, especially on cross-file and dynamic-dispatch cases; test only after A1 is frozen."
+        },
+        {
+          "candidate_id": "A8",
+          "quality_value": 4,
+          "ai_depth": 3,
+          "evidence_strength": 2,
+          "simplicity": 2,
+          "measurability": 4,
+          "risk": 5,
+          "verdict": "hold",
+          "reason": "ECO-04 verifies that Grafana MCP v1.1.0 exposes bounded Loki/Tempo/Sift log and slow-request evidence, which could materially improve async/performance root-cause localization when representative telemetry already exists. But this is capability evidence, not diagnosis-quality evidence; local RuntimeEvidence currently accepts only profile/test, so provenance, redaction, RBAC, schema, and workload representativeness add substantial risk and engineering.",
+          "evidence_gap": "No eligible telemetry inventory or incident cohort shows unique accepted Python findings, root-cause localization lift, abstention quality, or safe redaction versus the current profiler/test path."
+        },
+        {
+          "candidate_id": "A9",
+          "quality_value": 3,
+          "ai_depth": 5,
+          "evidence_strength": 3,
+          "simplicity": 1,
+          "measurability": 4,
+          "risk": 5,
+          "verdict": "hold",
+          "reason": "Agent-as-a-Router (SYS-C2/PF-C3) reports an execution-grounded coding router outperforming a static dimension-best router (49.98% versus 47.50% ID and 62.50% on 176 OOD tasks), so learned routing is genuine advanced AI. It nevertheless routes models, not diagnosis perspectives, and the project has neither a proven complementary model/specialist pool nor enough frozen project utility labels; selective-label feedback and version drift can lower actual diagnosis quality.",
+          "evidence_gap": "First collect paired outcomes for at least two stable model/specialist choices and demonstrate a material oracle gap, calibration, rare-risk coverage, and temporal/OOD robustness in shadow mode."
+        },
+        {
+          "candidate_id": "A10",
+          "quality_value": 1,
+          "ai_depth": 1,
+          "evidence_strength": 4,
+          "simplicity": 1,
+          "measurability": 3,
+          "risk": 5,
+          "verdict": "exclude",
+          "reason": "ADV-02 cites a 2026 controlled study in which unguided homogeneous debate used 2.1-3.4x the tokens of isolated self-correction while matching or reducing accuracy and exhibited conformity and minority-answer collapse. Repeating similar agents until consensus adds visible AI feature count but no evidence-grounded causal mechanism for better Python diagnosis, and it weakens the bounded DAG.",
+          "evidence_gap": "No direct Python diagnosis evidence shows a same-budget Pareto gain over one independent challenge pass; without such evidence there is no reason to implement it."
+        },
+        {
+          "candidate_id": "A11",
+          "quality_value": 1,
+          "ai_depth": 2,
+          "evidence_strength": 4,
+          "simplicity": 1,
+          "measurability": 3,
+          "risk": 5,
+          "verdict": "exclude",
+          "reason": "STALE (2026-05-07; ADV-04) reports that agents may act on obsolete beliefs even after retrieving updated evidence, with the best evaluated system reaching only 55.2% overall. Unconstrained cross-run semantic memory would replace the project’s commit/version/hash provenance with stale findings, poisoning and evaluator-split leakage; that is complexity without trustworthy diagnostic causality.",
+          "evidence_gap": "Only reconsider against versioned exact artifact retrieval on commit-update, revert, conflict, and leakage scenarios with near-zero stale-use; no such evidence exists here."
+        },
+        {
+          "candidate_id": "A12",
+          "quality_value": 3,
+          "ai_depth": 1,
+          "evidence_strength": 4,
+          "simplicity": 5,
+          "measurability": 5,
+          "risk": 2,
+          "verdict": "supporting-only",
+          "reason": "Official Semgrep v1.174.0/v1.173.0 evidence (ECO-01) confirms local Python/diff scans and a maintained MCP/CLI surface, making narrow deterministic corroboration easy to measure. Semgrep’s own v1.174.0 README (ECO-02) warns that Community Edition can miss cross-file true positives and tolerates false positives, so it can strengthen or contradict a finding but cannot replace the Code Graph or count as Lv3 AI reasoning.",
+          "evidence_gap": "Needs a frozen-rule, Python 3.14 paired ablation measuring unique valid evidence, duplicate/false-positive rate, parse failures, latency, and downstream finding changes."
+        }
+      ],
+      "top_three": [
+        "A4",
+        "A3",
+        "A5"
+      ],
+      "reject": [
+        "A10",
+        "A11"
+      ]
+    },
+    {
+      "lens": "simplicity-risk: architecture fit, smallest clean change, bounded failure isolation, safety, and maintenance/overengineering exposure",
+      "scores": [
+        {
+          "candidate_id": "A1",
+          "quality_value": 4,
+          "ai_depth": 4,
+          "evidence_strength": 4,
+          "simplicity": 4,
+          "measurability": 5,
+          "risk": 3,
+          "verdict": "pilot",
+          "reason": "Best-fit planner change: DiagnosisPlan gains typed run/skip/defer dispositions and dispatches only registered views, while the existing all-five fallback, Finding schema, merge, ExecutionPolicy, and Evidence Gate remain intact. The local gap is explicit in docs/ai-selection-matrix/04-agent-orchestration-adr.md (§2, §4, §7), and code-driven orchestration is documented as more predictable in OpenAI Agents Python v0.22.0 (https://github.com/openai/openai-agents-python/blob/v0.22.0/docs/multi_agent.md).",
+          "evidence_gap": "No direct project result shows that routing these five Python-diagnosis perspectives preserves rare Critical/High recall; false-skip and fallback rates must be measured on temporal/OOD cases."
+        },
+        {
+          "candidate_id": "A2",
+          "quality_value": 3,
+          "ai_depth": 4,
+          "evidence_strength": 2,
+          "simplicity": 2,
+          "measurability": 3,
+          "risk": 4,
+          "verdict": "hold",
+          "reason": "A single owner-bound checklist is safer than autonomous role creation, but it still adds novelty gating, residual-root-cause adjudication, and taxonomy-drift maintenance while partly duplicating the existing one-perspective expansion. Roles with Rails supports contract preservation in principle (https://arxiv.org/html/2605.28433v1), while 09-ai-advancement-review-artifacts.json#/track_summaries EXP-C3 explicitly notes coverage, handoff, aggregation, and schema-drift failure modes.",
+          "evidence_gap": "There is no recent direct evidence that generated lenses improve Python code diagnosis over a budget-matched replay of the best registered perspective."
+        },
+        {
+          "candidate_id": "A3",
+          "quality_value": 4,
+          "ai_depth": 4,
+          "evidence_strength": 4,
+          "simplicity": 4,
+          "measurability": 5,
+          "risk": 2,
+          "verdict": "pilot",
+          "reason": "The non-promotive, one-pass critic fits the existing Evidence Gate and isolates failure: it can only reject, abstain, or request a probe, so it cannot manufacture confirmation. Structured evidence disagreement improved SWE-PRBench F1 from 0.457 to 0.533, whereas naive critic interaction produced false consensus (https://arxiv.org/html/2608.18167v1); the shortlist design avoids an unbounded review loop.",
+          "evidence_gap": "Project-specific trigger precision, correlated analyst/critic errors, recall loss from over-rejection, and same-budget value versus merger self-review are unmeasured."
+        },
+        {
+          "candidate_id": "A4",
+          "quality_value": 4,
+          "ai_depth": 5,
+          "evidence_strength": 4,
+          "simplicity": 2,
+          "measurability": 5,
+          "risk": 4,
+          "verdict": "pilot",
+          "reason": "This fills a real local gap before the existing focused-test executor (docs/evidence/03-ai-pipeline-technical-design.md §9), but safely doing so requires a probe schema, independent-oracle/relevance validator, sandbox, cleanup/leak checks, and stability runs. c-CRAB accepts generated review tests only when they fail on the candidate and pass after resolution (https://arxiv.org/html/2603.23448v1), and REAP separately gates relevance and repeated stability (https://arxiv.org/html/2604.01527v4).",
+          "evidence_gap": "Valid independent-oracle yield, flaky/inconclusive rate, Python 3.14 sandbox surface, and false runtime-confirmation rate are unknown for this project."
+        },
+        {
+          "candidate_id": "A5",
+          "quality_value": 4,
+          "ai_depth": 4,
+          "evidence_strength": 3,
+          "simplicity": 4,
+          "measurability": 5,
+          "risk": 2,
+          "verdict": "pilot",
+          "reason": "This is a small, well-isolated D3 step: reuse immutable RuntimeEvidence and existing lineage to rerun only the affected perspective once, with no new test/profiler execution or recursive loop. The missing assimilation step is documented by the current M2→runtime→Evidence Gate flow in docs/evidence/03-ai-pipeline-technical-design.md, while PerfAgent reports value from profiler/test feedback and re-profiling (https://arxiv.org/html/2607.19653v1).",
+          "evidence_gap": "No direct evidence shows that one post-runtime reinterpretation improves this diagnosis pipeline rather than overfitting an unrepresentative workload; status-transition accuracy and stale-canonical ordering need measurement."
+        },
+        {
+          "candidate_id": "A6",
+          "quality_value": 3,
+          "ai_depth": 4,
+          "evidence_strength": 3,
+          "simplicity": 3,
+          "measurability": 4,
+          "risk": 3,
+          "verdict": "hold",
+          "reason": "Offline-only analysis, immutable FeedbackEvent IDs, human promotion, and frozen regression isolate operational failure well, and docs/evidence/02-benchmark-and-ablation-plan.md (§11–§12) confirms the attribution step is currently missing. However, maintaining subsystem labels and reviewing proposed config diffs adds governance before there is enough confirmed failure data to justify it.",
+          "evidence_gap": "The project has no measured corpus or hidden gold for retrieval/planner/specialist/merge/router/gate attribution, and no direct primary result establishes reliable automated subsystem localization here."
+        },
+        {
+          "candidate_id": "A7",
+          "quality_value": 3,
+          "ai_depth": 4,
+          "evidence_strength": 3,
+          "simplicity": 3,
+          "measurability": 5,
+          "risk": 3,
+          "verdict": "hold",
+          "reason": "It reuses exact/BM25/vector anchors and bounded graph hops rather than adding a store or learned graph, but overlaps the existing typed one-time expansion and couples retrieval behavior to partial trajectories. A Python SWE-bench study found file context useful, line expansion often noisy, and adaptive granularity promising (https://arxiv.org/html/2604.05481v1), which supports a later isolated ablation rather than simultaneous rollout with A1.",
+          "evidence_gap": "The cited study used ground-truth localization; benefit under this project’s noisy anchors, history/trace options, and equal B_run is unproven."
+        },
+        {
+          "candidate_id": "A8",
+          "quality_value": 3,
+          "ai_depth": 3,
+          "evidence_strength": 3,
+          "simplicity": 2,
+          "measurability": 4,
+          "risk": 4,
+          "verdict": "hold",
+          "reason": "Read-only, bounded, provenance-locked traces fit RuntimeEvidence conceptually, and Grafana MCP v1.1.0 exposes Loki/Tempo/Sift queries with configurable tool categories (https://github.com/grafana/mcp-grafana/blob/v1.1.0/README.md). In practice this is not a small generic adapter: it requires existing telemetry, RBAC, time-window/datasource policy, redaction, retention, and Evidence Gate extensions, with secrets/PII and workload-representativeness risks.",
+          "evidence_gap": "Telemetry availability, incident gold, redaction adequacy, and incremental root-cause lift over focused profiling are unknown locally."
+        },
+        {
+          "candidate_id": "A9",
+          "quality_value": 3,
+          "ai_depth": 5,
+          "evidence_strength": 3,
+          "simplicity": 1,
+          "measurability": 4,
+          "risk": 4,
+          "verdict": "hold",
+          "reason": "A learned model/specialist router is architecturally pluggable behind the same route interface, but it requires multiple genuinely complementary models, counterfactual outcome labels, calibration, shadowing, rollback, drift monitoring, and revalidation after provider/version changes. Routing research exists (https://arxiv.org/html/2602.19672v1), yet prompt routing is reported unstable under paraphrase/distribution shift (https://arxiv.org/html/2605.07180v1), and docs/evidence/02-benchmark-and-ablation-plan.md has no project outcome matrix yet.",
+          "evidence_gap": "No project evidence establishes model complementarity, sufficient rare-risk labels, stable cost profiles, or superiority over the rule-first A1 scheduler."
+        },
+        {
+          "candidate_id": "A10",
+          "quality_value": 1,
+          "ai_depth": 4,
+          "evidence_strength": 5,
+          "simplicity": 1,
+          "measurability": 4,
+          "risk": 5,
+          "verdict": "exclude",
+          "reason": "This conflicts with the bounded DAG and failure-isolation goals: repeated homogeneous debate multiplies calls, shares correlated errors, and has no deterministic stop or evidence authority. A controlled study found unguided debate equal or worse in accuracy than isolated self-correction while using 2.1–3.4× tokens and sometimes discarding the correct minority path (https://arxiv.org/html/2605.00914v1).",
+          "evidence_gap": "No evidence supplied shows a project-specific benefit that could offset the direct cost, consensus, and maintenance risks; A3 is the bounded alternative."
+        },
+        {
+          "candidate_id": "A11",
+          "quality_value": 1,
+          "ai_depth": 4,
+          "evidence_strength": 4,
+          "simplicity": 1,
+          "measurability": 3,
+          "risk": 5,
+          "verdict": "exclude",
+          "reason": "Free-form persistent memory duplicates the project’s versioned Code Graph and immutable, hash-bound artifacts while adding stale-state, poisoning, privacy, deletion, and train/final leakage surfaces. STALE reports a retrieval-to-action failure and only 55.2% overall accuracy for the best evaluated system (https://arxiv.org/html/2605.06527v1); that evidence argues for bounded versioned artifacts, not unconstrained semantic memory.",
+          "evidence_gap": "No measured incremental utility over exact versioned artifact retrieval exists, and safe invalidation, namespace isolation, and deletion governance are unspecified."
+        },
+        {
+          "candidate_id": "A12",
+          "quality_value": 4,
+          "ai_depth": 2,
+          "evidence_strength": 5,
+          "simplicity": 5,
+          "measurability": 5,
+          "risk": 2,
+          "verdict": "supporting-only",
+          "reason": "This is the smallest clean corroboration change: run one version-pinned, narrow Semgrep CLI command through the existing executor and normalize rule/version/path/hash as static evidence; it adds no agent, store, or DAG layer. Semgrep v1.174.0 documents current diff scanning (https://github.com/semgrep/semgrep/releases/tag/v1.174.0), while its pinned README warns Community Edition may miss cross-function/file security truths (https://github.com/semgrep/semgrep/blob/v1.174.0/README.md), so it must not replace the Code Graph or Evidence Gate.",
+          "evidence_gap": "Python 3.14 parse compatibility, repository-specific rule precision/duplication, and incremental accepted findings are unmeasured."
+        }
+      ],
+      "top_three": [
+        "A1",
+        "A5",
+        "A12"
+      ],
+      "reject": [
+        "A10",
+        "A11"
+      ]
+    },
+    {
+      "lens": "evidence-evaluation: primary-source entailment and freshness, transfer to this proposed Python 3.14 diagnosis pipeline, decisiveness under the same inclusive B_run, and leakage-resistant measurement; no unmeasured project outcome is treated as a result.",
+      "scores": [
+        {
+          "candidate_id": "A1",
+          "quality_value": 4,
+          "ai_depth": 4,
+          "evidence_strength": 4,
+          "simplicity": 4,
+          "measurability": 5,
+          "risk": 3,
+          "verdict": "pilot",
+          "reason": "The local design directly establishes the gap—every case currently runs all five first-pass perspectives (docs/evidence/03-ai-pipeline-technical-design.md, 2026-08-23, §§2,7)—and recent primary work supports registered-agent relevance scoring, structural masks, and explicit STOP (arXiv:2605.25746v1, 2026-05-25, §§2.2–2.3). A fixed-five versus guarded scheduler paired pilot is unusually decisive: identical cases, snapshots, models, tools, and inclusive B_run; evaluator-owned missed-gold audits for every skip; frozen triggers before temporal/OOD evaluation.",
+          "evidence_gap": "No primary study tests routing among structure/correctness/performance/concurrency/test perspectives in Python diagnosis, and the proposed protected-core split has no external validation. Pilot must establish rare-perspective false-skip rates rather than infer savings or recall."
+        },
+        {
+          "candidate_id": "A2",
+          "quality_value": 3,
+          "ai_depth": 4,
+          "evidence_strength": 2,
+          "simplicity": 3,
+          "measurability": 3,
+          "risk": 4,
+          "verdict": "hold",
+          "reason": "Roles with Rails supplies a fresh primary abstraction for contract-preserving role evolution (arXiv:2605.28433v1, 2026-05-27, §§1,3.1), while the local Finding contract can constrain an ephemeral lens (docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md, 2026-08-23, §4). But the cited study uses text-only structured-reasoning tasks, not code diagnosis, and even the research synthesis states there is no recent direct evidence for generated diagnostic lenses. A same-B_run three-arm test is possible, yet evaluator-selected taxonomy-tail cases can themselves leak the intended capability.",
+          "evidence_gap": "No fresh primary source demonstrates unique, grounded defect discovery by a generated lens in repository-level Python diagnosis. The project also lacks a preregistered, evaluator-owned residual-root-cause cohort showing that registered perspectives leave a repeatable gap."
+        },
+        {
+          "candidate_id": "A3",
+          "quality_value": 4,
+          "ai_depth": 4,
+          "evidence_strength": 4,
+          "simplicity": 4,
+          "measurability": 5,
+          "risk": 3,
+          "verdict": "pilot",
+          "reason": "This has the closest positive primary evidence: Adversarial Review reports that a typed, code-evidence-constrained disagreement protocol improved SWE-PRBench F1 from 0.457 to 0.533 while naive reviewer–critic interaction produced false consensus (arXiv:2608.18167v1, 2026-08-16, §§3.5,4–7). The candidate preserves the local deterministic Evidence Gate and only challenges selected findings. Base versus budget-matched self-review versus fresh-context challenge can be paired at identical B_run, with blinded case-level adjudication of unsupported findings, false retractions, severity corrections, and recall.",
+          "evidence_gap": "The positive result is one recent preprint centered on Claude Sonnet 4.5; its evidence-constrained prompt was not back-ported to the SWE-bench run. Correlated errors within the same model family and trigger recall on subtle High findings remain project-specific unknowns."
+        },
+        {
+          "candidate_id": "A4",
+          "quality_value": 5,
+          "ai_depth": 5,
+          "evidence_strength": 3,
+          "simplicity": 2,
+          "measurability": 5,
+          "risk": 5,
+          "verdict": "pilot",
+          "reason": "Fresh primary work shows an LLM generating executable counterexamples and accepting them only after execution can directly eliminate invalid hypotheses (arXiv:2604.10761v1, 2026-04-12, §§V-C–V-D, VII-A), while REAP supplies strong leakage controls—solution-diff removal, code-path relevance, and repeated stability (arXiv:2604.01527v4, 2026-07-28, §3.3). The local focused-test contract lacks predeclared support/refute observations and an independent oracle (docs/evidence/03-ai-pipeline-technical-design.md, 2026-08-23, §§9–11). A differential buggy/fixed, three-clean-run, evaluator-blinded P4 versus P4+PROBE pilot can therefore be decisive without treating generated tests as gold.",
+          "evidence_gap": "The counterexample evidence is Java postcondition inference, not Python diagnosis; the paper reports only 55% precision for the LLM invalid verdict. Python 3.14 compatibility, oracle-independence yield, and safe/hermetic execution rates are unmeasured, making this a high-risk pilot rather than an adoption claim."
+        },
+        {
+          "candidate_id": "A5",
+          "quality_value": 4,
+          "ai_depth": 4,
+          "evidence_strength": 4,
+          "simplicity": 5,
+          "measurability": 5,
+          "risk": 2,
+          "verdict": "pilot",
+          "reason": "Recent repository-level primary studies support updating analysis from execution feedback rather than repeating fixed reasoning: SWE-Adept expands work from test feedback (arXiv:2603.01327v1, 2026-03-01, §§3.2–3.3), and PerfAgent combines profiler summaries, selected tests, and re-profiling feedback (arXiv:2607.19653v1, 2026-07-22, §§III–IV). Transfer is especially clean because the project already has immutable RuntimeEvidence and Finding revision/tombstone semantics. Holding tool outputs and inclusive B_run fixed lets a one-call affected-perspective revision be tested on status-transition accuracy, unsupported causal claims, and Critical/High recall with little leakage surface.",
+          "evidence_gap": "Both studies concern patching/optimization loops, not a single post-evidence diagnosis revision, and neither isolates this exact mechanism. The project must measure whether revision adds value beyond the existing composer/Evidence Gate and must stratify profiler versus test evidence."
+        },
+        {
+          "candidate_id": "A6",
+          "quality_value": 3,
+          "ai_depth": 4,
+          "evidence_strength": 2,
+          "simplicity": 2,
+          "measurability": 3,
+          "risk": 4,
+          "verdict": "hold",
+          "reason": "The local artifacts clearly entail the missing step: feedback, regression, and promotion are designed, but no component attributes confirmed failures to retrieval, graph resolution, planner, specialist, merge, router, or gate (docs/evidence/02-benchmark-and-ablation-plan.md, 2026-08-23, §§11–12). That proves a gap, not the efficacy of an AI localizer. A hidden attribution set and frozen-regression promotion gate can resist leakage, but constructing independent causal subsystem labels is harder than scoring final findings and is not naturally a same-B_run online pilot.",
+          "evidence_gap": "No fresh primary code-diagnosis study supports reliable subsystem attribution or change synthesis. The available Uber material is a secondary inspiration transcript, and the volume, class balance, and adjudicability of evaluator-confirmed project failures are unknown."
+        },
+        {
+          "candidate_id": "A7",
+          "quality_value": 4,
+          "ai_depth": 4,
+          "evidence_strength": 3,
+          "simplicity": 3,
+          "measurability": 5,
+          "risk": 3,
+          "verdict": "hold",
+          "reason": "A fresh Python SWE-bench study finds file-level context important, line expansion often noisy, and adaptive granularity promising (arXiv:2604.05481v1, 2026-04-07, §§1.1,6.0.5). The proposal reuses the existing exact/BM25/vector plus bounded typed graph rather than replacing it, and a same-B_run retrieval ablation can directly measure localization Recall, gold evidence per token, unsupported findings, and downstream Critical/High recall on evaluator-hidden strata.",
+          "evidence_gap": "The cited experiment uses developer-patch ground-truth localization—an optimistic condition—and measures repair, not diagnosis. No source validates choosing relation types or 1/2-hop expansion from noisy partial trajectories, and the incremental benefit over the existing one bounded expansion is unknown; evaluate only after A1 to avoid confounding."
+        },
+        {
+          "candidate_id": "A8",
+          "quality_value": 4,
+          "ai_depth": 3,
+          "evidence_strength": 2,
+          "simplicity": 2,
+          "measurability": 3,
+          "risk": 4,
+          "verdict": "hold",
+          "reason": "Fresh official documentation proves the tool surface: Grafana MCP v1.1.0 exposes bounded Loki, Prometheus, Sift, and Tempo queries and permits tool-category restriction (official README/release, 2026-08-10). It does not prove that LLM trace/log reasoning improves this diagnosis system. Transfer also requires expanding RuntimeEvidence beyond profile/test and depends on pre-existing telemetry. A blinded retrospective incident comparison could be credible only with evaluator-owned time ranges and root causes, immutable provenance, redaction, read-only permissions, and the same inclusive B_run.",
+          "evidence_gap": "No project telemetry inventory or incident-gold cohort is established, and no cited primary outcome study measures code-diagnosis lift from this adapter. Without existing Loki/Tempo/Grafana data, the candidate is not a runnable minimal pilot and infrastructure cost dominates the evidence question."
+        },
+        {
+          "candidate_id": "A9",
+          "quality_value": 3,
+          "ai_depth": 5,
+          "evidence_strength": 2,
+          "simplicity": 1,
+          "measurability": 2,
+          "risk": 5,
+          "verdict": "hold",
+          "reason": "Routing is technically plausible, but current evidence argues against cold-start promotion. Learning Agent Routing From Early Experience reports capability-profile prompt routing instability under paraphrase/distribution shift and greater stability only after paired outcome/runtime evidence (arXiv:2605.07180v1, 2026-05-08, §§3.1–3.2,5.4); Agent-as-a-Router concerns model routing, not project specialists (arXiv:2606.22902v1, 2026-06-22, §§3–5). Shadow mode with frozen calibration and temporal/OOD evaluation is leakage-aware, but a decisive pilot first requires a multi-model/specialist outcome matrix and counterfactual labels from routes that would otherwise be skipped.",
+          "evidence_gap": "The project has no demonstrated specialist/model complementarity, sufficient rare-risk labels, calibration power, or stable verifier target. Existing sources do not transfer utility scores to Python perspective routing, and selective-label bias prevents a clean same-B_run learned-router trial today."
+        },
+        {
+          "candidate_id": "A10",
+          "quality_value": 1,
+          "ai_depth": 2,
+          "evidence_strength": 1,
+          "simplicity": 1,
+          "measurability": 3,
+          "risk": 5,
+          "verdict": "exclude",
+          "reason": "Fresh controlled counterevidence directly undermines the claimed mechanism: unguided homogeneous debate consumed 2.1–3.4× the tokens while matching or underperforming isolated self-correction and exhibited majority conformity and loss of correct minority paths (arXiv:2605.00914v1, 2026-04-29, §§3.3,3.5/Table 1). Unrestricted repeated rounds also conflict with the local bounded DAG and inclusive B_run. A matched-budget negative control is measurable, but there is no evidence-grounded stopping criterion worth operationalizing.",
+          "evidence_gap": "The negative study uses 7–8B open models on math/knowledge reasoning rather than Python diagnosis, so it does not reject structured heterogeneous roles or one challenge pass. It does leave the unrestricted homogeneous swarm with no fresh, transferable positive evidence."
+        },
+        {
+          "candidate_id": "A11",
+          "quality_value": 1,
+          "ai_depth": 3,
+          "evidence_strength": 1,
+          "simplicity": 1,
+          "measurability": 2,
+          "risk": 5,
+          "verdict": "exclude",
+          "reason": "The most relevant fresh primary evidence is adverse: even when fresh information was retrieved, agents often failed to apply it, and the best system reached only 55.2% overall accuracy on STALE (arXiv:2605.06527v1, 2026-05-07, Abstract, §1/Table 1, §3). Unconstrained cross-run memory would discard the project's stronger commit/version/hash provenance and introduces final-holdout leakage, stale findings, persistent poisoning, deletion, and audit burdens. Exact versioned artifact retrieval remains the defensible control.",
+          "evidence_gap": "STALE is a conversational personalization benchmark, not repository diagnosis, but there is also no fresh primary project-transfer evidence showing that free-form memory improves downstream accepted findings. A leakage-resistant same-B_run evaluation would require versioned writes, ancestry bounds, and provenance—thereby ceasing to be the unrestricted candidate."
+        },
+        {
+          "candidate_id": "A12",
+          "quality_value": 3,
+          "ai_depth": 1,
+          "evidence_strength": 4,
+          "simplicity": 5,
+          "measurability": 5,
+          "risk": 2,
+          "verdict": "supporting-only",
+          "reason": "Fresh official sources strongly entail deployability: Semgrep v1.174.0 supports Python local/diff scans, and its versioned MCP/CLI documentation exposes machine-readable local execution (official release and repository docs, 2026-08-20). The same official README warns Community Edition can miss cross-file security positives, so it must corroborate rather than replace the Code Graph or Evidence Gate. A frozen-rule, narrow-scope CLI adapter supports a decisive same-B_run blinded ablation on unique accepted evidence, duplicate rate, counterevidence rejections, parse failures, and latency.",
+          "evidence_gap": "Official sources establish features, not defect-quality lift; Python 3.14 syntax coverage is not specifically guaranteed. Incremental evidence over the existing AST/CFG/Code Graph is unmeasured, and deterministic Semgrep is supporting engineering rather than a new AI reasoning layer."
+        }
+      ],
+      "top_three": [
+        "A3",
+        "A1",
+        "A5"
+      ],
+      "reject": [
+        "A10",
+        "A11"
+      ]
+    }
+  ],
+  "aggregated_scores": [
+    {
+      "id": "A3",
+      "name": "Evidence-cited semantic critic",
+      "score": 4.08,
+      "means": {
+        "quality_value": 4.0,
+        "ai_depth": 4.0,
+        "evidence_strength": 4.0,
+        "simplicity": 4.0,
+        "measurability": 5.0,
+        "risk": 2.67
+      },
+      "verdicts": {
+        "pilot": 3
+      }
+    },
+    {
+      "id": "A5",
+      "name": "RuntimeEvidence-conditioned one-time revision",
+      "score": 4.08,
+      "means": {
+        "quality_value": 4.0,
+        "ai_depth": 4.0,
+        "evidence_strength": 3.33,
+        "simplicity": 4.67,
+        "measurability": 5.0,
+        "risk": 2.33
+      },
+      "verdicts": {
+        "pilot": 3
+      }
+    },
+    {
+      "id": "A1",
+      "name": "Registered adaptive perspective scheduler",
+      "score": 3.95,
+      "means": {
+        "quality_value": 3.67,
+        "ai_depth": 4.33,
+        "evidence_strength": 3.67,
+        "simplicity": 4.0,
+        "measurability": 5.0,
+        "risk": 3.0
+      },
+      "verdicts": {
+        "pilot": 3
+      }
+    },
+    {
+      "id": "A4",
+      "name": "Hypothesis-discriminating ephemeral probe",
+      "score": 3.92,
+      "means": {
+        "quality_value": 4.67,
+        "ai_depth": 5.0,
+        "evidence_strength": 3.67,
+        "simplicity": 2.33,
+        "measurability": 5.0,
+        "risk": 4.33
+      },
+      "verdicts": {
+        "pilot": 3
+      }
+    },
+    {
+      "id": "A12",
+      "name": "Semgrep/static corroboration adapter",
+      "score": 3.8,
+      "means": {
+        "quality_value": 3.33,
+        "ai_depth": 1.33,
+        "evidence_strength": 4.33,
+        "simplicity": 5.0,
+        "measurability": 5.0,
+        "risk": 2.0
+      },
+      "verdicts": {
+        "supporting-only": 3
+      }
+    },
+    {
+      "id": "A7",
+      "name": "Adaptive evidence aperture",
+      "score": 3.53,
+      "means": {
+        "quality_value": 3.33,
+        "ai_depth": 4.0,
+        "evidence_strength": 3.0,
+        "simplicity": 3.0,
+        "measurability": 5.0,
+        "risk": 3.0
+      },
+      "verdicts": {
+        "hold": 3
+      }
+    },
+    {
+      "id": "A6",
+      "name": "Offline feedback failure localizer",
+      "score": 3.0,
+      "means": {
+        "quality_value": 3.0,
+        "ai_depth": 4.33,
+        "evidence_strength": 2.33,
+        "simplicity": 2.33,
+        "measurability": 3.67,
+        "risk": 3.67
+      },
+      "verdicts": {
+        "hold": 3
+      }
+    },
+    {
+      "id": "A8",
+      "name": "Read-only trace/log reasoning adapter",
+      "score": 2.85,
+      "means": {
+        "quality_value": 3.67,
+        "ai_depth": 3.0,
+        "evidence_strength": 2.33,
+        "simplicity": 2.0,
+        "measurability": 3.67,
+        "risk": 4.33
+      },
+      "verdicts": {
+        "hold": 3
+      }
+    },
+    {
+      "id": "A9",
+      "name": "Learned model/specialist router",
+      "score": 2.82,
+      "means": {
+        "quality_value": 3.0,
+        "ai_depth": 5.0,
+        "evidence_strength": 2.67,
+        "simplicity": 1.0,
+        "measurability": 3.33,
+        "risk": 4.67
+      },
+      "verdicts": {
+        "hold": 3
+      }
+    },
+    {
+      "id": "A2",
+      "name": "Contract-bound supplemental diagnostic lens",
+      "score": 2.77,
+      "means": {
+        "quality_value": 2.67,
+        "ai_depth": 4.0,
+        "evidence_strength": 2.0,
+        "simplicity": 2.67,
+        "measurability": 3.33,
+        "risk": 4.0
+      },
+      "verdicts": {
+        "hold": 3
+      }
+    },
+    {
+      "id": "A10",
+      "name": "Unrestricted debate/reflection swarm",
+      "score": 2.02,
+      "means": {
+        "quality_value": 1.0,
+        "ai_depth": 2.33,
+        "evidence_strength": 3.33,
+        "simplicity": 1.0,
+        "measurability": 3.33,
+        "risk": 5.0
+      },
+      "verdicts": {
+        "exclude": 3
+      }
+    },
+    {
+      "id": "A11",
+      "name": "Free-form persistent agent memory",
+      "score": 1.95,
+      "means": {
+        "quality_value": 1.0,
+        "ai_depth": 3.0,
+        "evidence_strength": 3.0,
+        "simplicity": 1.0,
+        "measurability": 2.67,
+        "risk": 5.0
+      },
+      "verdicts": {
+        "exclude": 3
+      }
+    }
+  ],
+  "adversarial_verifications": [
+    {
+      "candidate_id": "A1",
+      "verdict": "downgrade-hold",
+      "claim_supported": false,
+      "strongest_evidence": [
+        "SWE-Router (arXiv:2607.00053v1, Abstract, §§1–3, §5.3) learns a binary weak-versus-strong model escalation rule from K-step partial patch-solving trajectories on SWE-Bench; it does not choose diagnosis perspectives, measure perspective recall, or test fixed-five versus selective diagnosis under this project's inclusive B_run. Its Bayes theorem concerns an ideal Bayes-optimal decision rule, not the accuracy of a transferred scheduler.",
+        "MACA (arXiv:2605.25746v1, §§2.1–2.3, §3.1, Limitations) genuinely can filter agents and adapt interactions under a token-aware policy, so it supports generic selective orchestration. However, its six benchmarks are HumanEval, MBPP, MMLU-Pro, ARC-C, SVAMP, and GSM-Hard; it reports accuracy/average cost rather than repository-diagnosis Critical/High recall under the same inclusive B_run, and explicitly says open-ended/domain-specific generalization is unestablished and that results depend on a predefined, manually described agent pool.",
+        "AgentAbstain (arXiv:2607.10059v1, Abstract, §§1–2.2) is not a routing study. Its best agent achieves only 59.5% paired act/abstain accuracy across 263 paired tool tasks, with abstention largely independent of task-solving ability. It therefore weakens reliance on an LLM's skip/defer judgment and supports paired calibration plus deterministic guards, but does not show that perspective scheduling improves diagnosis.",
+        "The local design fixes five parallel first-pass perspectives and charges planner, analyst, gate, retries, and composer to one inclusive B_run (docs/ai-selection-matrix/04-agent-orchestration-adr.md §§2,4,7; docs/evidence/03-ai-pipeline-technical-design.md §§2,7,9). This establishes a valid control and budget contract, not inefficiency or quality lift from omitting perspectives."
+      ],
+      "source_entailment": "The sources entail only three component-level propositions: partial execution history can improve binary model routing, a learned multi-agent system can select a subset of predefined agents, and uncalibrated act/abstain decisions are unreliable. None entails that the five project perspectives are safely omissible, that registered labels make omission observable, or that a selective scheduler improves accepted diagnosis quality at equal B_run. Registration improves auditability, not recall. Therefore A1 remains a testable hypothesis, not an evidence-backed advancement, and should be held rather than advanced as the default topology.",
+      "concrete_falsification": "Kill A1 if a frozen temporal/OOD paired evaluation produces even one evaluator-adjudicated Critical/High finding that fixed-five recovers but A1 misses because it skipped or deferred the contributing perspective; also kill it if the pre-registered one-sided paired non-inferiority bound for Critical/High recall crosses the allowed margin, regardless of token savings.",
+      "transfer_limits": [
+        "SWE-Router routes between model strengths for issue resolution; perspectives are multi-label causal lenses whose omission loss is not represented by its binary success reward.",
+        "SWE-Router's value head needs trajectory/reward labels; this project currently lacks counterfactual utility labels for perspectives that were not run.",
+        "MACA's HumanEval/MBPP code generation is short-form generation, not fixed-snapshot repository diagnosis, and its reported cost frontier is not a same-inclusive-B_run comparison against this five-view DAG.",
+        "MACA learns participation and interaction from accuracy rewards; the project needs rare, asymmetric Critical/High recall and unsupported-finding penalties, for which no transferred reward or calibration is supplied.",
+        "AgentAbstain concerns whether to execute a task/tool action, often with irreversible commits. It does not validate specialist omission, while its low paired accuracy is adverse evidence against free-form LLM skip decisions.",
+        "Five perspectives are non-exclusive: one defect can require performance plus concurrency or correctness plus test evidence. A one-deferred-perspective cap can miss multiple latent contributors.",
+        "Parallel fixed-five execution means fewer calls may reduce tokens/cost without materially reducing wall time; under equal B_run, any benefit depends on proving that reallocated depth beats lost breadth."
+      ],
+      "required_constraints": [
+        "Keep fixed-five as the control and immediate fallback; never infer safety from low fallback frequency.",
+        "Correctness must remain protected, and deterministic signals may add mandatory perspectives; the LLM may add but must not remove mandatory routes.",
+        "Record a versioned disposition for all five registered perspectives with evidence IDs and enumerated run/skip/defer reasons; freeze taxonomy, triggers, thresholds, model, and planner before final holdout.",
+        "Fallback must cover schema/planner failure, incomplete extractor or graph coverage, OOD/unclassified inputs, and unresolved High/Critical evidence, while explicitly recognizing that fallback cannot detect a semantically wrong but schema-valid skip.",
+        "Use evaluator-owned multi-label perspective gold and evaluation-only counterfactual all-five runs on a controlled sample to expose selective-label bias and attribute route-caused false negatives.",
+        "Compare variants with the identical inclusive B_run accounting for planner, all analyst inputs/outputs, retries, merge, gate, and composer; report natural-cost separately and do not convert token savings into an unmeasured quality claim.",
+        "No online adaptation or final-holdout feedback; promote only after frozen regression, temporal/OOD evaluation, shadowing, rollback, and zero route-attributable Critical/High misses."
+      ],
+      "decisive_experiment": "Pre-register a paired F5-versus-A1 experiment on the same Python cases, commit snapshots, model/version, context, tools, and inclusive B_run. Stratify for localized correctness, structure, performance, concurrency, test gaps, multi-label cross-cutting defects, framework-magic/reflection cases, and temporal/OOD repositories; include trigger-present/trigger-absent minimal pairs. Freeze A1 before final evaluation. For attribution, run all five perspectives evaluation-only in shadow for each A1 case, without feeding omitted outputs to A1, and have blinded evaluators adjudicate gold findings and contributing perspectives. Primary endpoint: paired Critical/High recall with a pre-registered non-inferiority margin; secondary endpoints: route-attributable false negatives, per-perspective omission confusion matrix, accepted true findings per inclusive B_run, analyst tokens/calls, fallback rate, and wall time. A single route-caused Critical/High miss on final temporal/OOD, failed recall non-inferiority, or immaterial token reduction kills the proposal and retains F5.",
+      "critical_gap": "There is no project-specific counterfactual evidence for what skipped perspectives would have found, especially for rare concurrency/performance and cross-perspective Critical/High defects. A valid-looking schedule can omit the only useful lens without triggering any schema, OOD, or fallback condition, so the proposed safeguards do not close the core omission-risk loop."
+    },
+    {
+      "candidate_id": "A3",
+      "verdict": "downgrade-hold",
+      "claim_supported": false,
+      "strongest_evidence": [
+        "The current project already includes a semantic counter-review inside the Evidence Gate: reachability, guard/cache/lock/test counterexamples, hotspot-vs-caller causality, workload representativeness, and simpler explanations; failures become rejected or abstained (docs/evidence/03-ai-pipeline-technical-design.md §11, lines 295-313). A3 therefore largely duplicates existing judging rather than adding a demonstrated capability.",
+        "Adversarial Review's naive reviewer–critic was the worst reviewed method on SWE-PRBench: F1 0.457 versus 0.495 single reviewer, 0.501 MARS, and 0.503 two reviewers. Its case studies show speculative-finding amplification and a critic yielding to an unsupported rebuttal—direct evidence that another judge can create false consensus rather than independent validation (arXiv:2608.18167v1 §4.2-4.3).",
+        "The paper's evidence-constrained prompt improved SWE-PRBench F1 to 0.533 on N=100, but this was one prompt iteration, judged by GPT-5.2, with no reported confidence interval/significance test, and no comparison against a deterministic provenance/status gate plus an existing counter-review. It supports typed disagreement as a protocol hypothesis, not superiority over this project's Evidence Gate (§4.1, §4.4-4.5, §7).",
+        "All agent/subagent calls in Adversarial Review used Claude Sonnet 4.5 Medium Reasoning. The paper does not measure reviewer–critic error correlation; its false-consensus examples and same-model self-correction discussion undermine any assumption that a fresh role prompt is an independent error source (§3.1, §4.3, §7).",
+        "AR reached 75.2% versus 71.6% zero-shot on SWE-bench Verified but used about 4.5× the tokens, and the evidence-constrained prompt was not back-ported to that run. The authors also show a scope-creep case where the loop amplified a speculative concern and failed hidden tests (§5.2-5.3, §6-7). A3's narrower conditional cost is unmeasured; under the project's inclusive B_run, its call displaces analysis budget."
+      ],
+      "source_entailment": "The primary source entails only that, on one 100-PR review benchmark, changing a reviewer–critic interaction from naive agreement/disagreement to explicit AGREE / DISAGREE_EVIDENCE / DISAGREE_CONCERN improved comment-matching F1. It does not entail that a semantic critic improves Python risk diagnosis, beats this project's already semantic Evidence Gate, contributes information beyond the merger/counter-review, has acceptably low correlated error, or is cost-effective under the same inclusive B_run. The repository-repair result evaluates a different, unconstrained skills-form AR protocol and cannot validate A3's evidence-cited conditional critic.",
+      "concrete_falsification": "The superiority claim is presently falsified as an evidence claim: the closest naive critic result is worse than a single reviewer, while the structured result lacks the relevant baseline—existing Evidence Gate plus counter-review—and the project has no measured marginal-utility or error-correlation data. A3 should therefore not be advanced as a better verifier; at most, its typed evidence/concern dispositions can be tested as contract hardening within the existing gate.",
+      "transfer_limits": [
+        "SWE-PRBench measures overlap with human PR comments through an LLM judge, not correctness of canonical risk findings, severity, provenance, or runtime-confirmed state transitions.",
+        "SWE-bench Verified measures final patch test passage; this project stops before automatic patching and already separates hypotheses, deterministic facts, RuntimeEvidence, and state promotion.",
+        "The structured evidence constraint was tested only on SWE-PRBench, not on the 500-case SWE-bench Verified run cited for pass-rate and token cost.",
+        "The paper uses one backbone and does not estimate correlated error, conditional independence, critic calibration, false-retraction rate, or unique-counterevidence yield.",
+        "The reported approximately 4.5× token multiplier belongs to full AR versus zero-shot, not to one selective critic call; selective trigger prevalence and reviewer-response cost remain unknown.",
+        "The local system is still a design with unmeasured project outcomes, so neither the current gate nor A3 has demonstrated operating performance."
+      ],
+      "required_constraints": [
+        "Keep deterministic Evidence Gate checks and state promotion as final authority; the critic must never create a finding, raise severity, or set runtime_confirmed.",
+        "Implement typed disagreement inside the existing gate rather than introducing a second generic verifier: reject/abstain/request-probe only, with finding/contributor IDs plus exact evidence IDs and source locators.",
+        "Run at most one fresh-context challenge only for pre-registered High/Critical conflict, unresolved counterevidence, runtime/static disagreement, test-intent mismatch, or profiler-causality ambiguity; no iterative agreement loop.",
+        "Require a frozen independent verdict before exposing the existing finding when the task permits, and explicitly test same-backbone versus different-backbone error overlap before claiming independence.",
+        "Charge every critic/reviewer-response token to inclusive B_run and compare against an equal-token merger self-review; report natural cost separately.",
+        "Preserve challenged findings and critic dispositions in lineage history, and have blind evaluator adjudication label valid counterevidence, false retractions, duplicate concerns, and critic-caused misses."
+      ],
+      "decisive_experiment": "Run one pre-registered, case-clustered, same-B_run paired verifier experiment on evaluator-adjudicated High/Critical/conflict cases plus matched non-trigger controls: (1) current Evidence Gate with its existing counter-review, (2) gate plus equal-token merger self-review, (3) gate plus selective typed fresh-context critic using the same backbone, and (4) the same critic using a genuinely different backbone if available. Freeze evidence snapshots, model/prompt versions, triggers, and critic budget. Primary endpoint is unique valid counterevidence or severity correction not already produced by the gate, accompanied by lower unsupported/wrong-severity findings; safety endpoints are Critical/High Recall and critic-caused false retractions; efficiency is accepted true findings per token. Measure gate-miss/critic-miss overlap and phi/error correlation. Kill A3 if it fails to improve over both gate-only and equal-token self-review (clustered CI includes no benefit), produces any critic-attributable Critical miss or exceeds the pre-registered 2-point Recall margin, or has no accepted-TP-per-token Pareto gain. A win would justify only a selective pilot, not proof.",
+      "critical_gap": "No evidence currently measures A3's incremental information over the exact existing Evidence Gate. In particular, there are no paired project labels for unique counterevidence, duplicate concerns, gate/critic joint-error cells, false retractions, trigger prevalence, or budget displacement. Without that matrix, 'independent semantic critic' is a role description, not demonstrated independent verification."
+    },
+    {
+      "candidate_id": "A4",
+      "verdict": "downgrade-hold",
+      "claim_supported": false,
+      "strongest_evidence": [
+        "The closest positive primary study, Balestra et al., “Improving Dynamic Specification Inference with LLM-Generated Counterexamples” (2026-04-12, https://arxiv.org/html/2604.10761v1), evaluated 43 Java methods and formal SpecFuzzer postconditions. GPT-5.1 counterexamples raised mean specification precision from 67.83% to 74.17%, but the model’s own invalid-postcondition verdict had only 55% precision; recall stayed unchanged only because the workflow could remove assertions but never add them. This supports execution-certified falsification of universal assertions, not general confirmation/refutation of Python code-review findings.",
+        "c-CRAB (2026-03-24, https://arxiv.org/html/2603.23448v1) is closer to code review, but its oracle originates in human review and a known before/after change. Tests are retained only after fail-before/pass-after execution, up to three execution-guided generation attempts, environment construction, and coding-agent validation. Its funnel falls from 410 PRs/595 comments at environment construction to 184 PRs/234 tests after validation. It demonstrates expensive benchmark curation, not that a review agent can author an independent operational oracle for its own finding.",
+        "REAP v4 (2026-07-28, https://arxiv.org/html/2604.01527v4) does not generate probes: it retrieves production tests, removes solution-diff leakage, applies code-path relevance filtering, then performs repeated pre-change execution and transient-failure filtering. Its safeguards support treating generated probes as untrusted candidates and show the required policy cost; they do not establish probe effectiveness or oracle independence.",
+        "“Beyond Test Presence” (2026-07-13, https://arxiv.org/html/2607.12068v1) reports a higher flakiness-candidate rate for agent-generated Python test files than human files (0.41 vs 0.30), but this headline is based primarily on static smell proxies and the paper acknowledges construct limits. It is a warning, not a transferable project threshold.",
+        "The local pipeline currently exact-matches an approved command manifest and records RuntimeEvidence; it has no generated-code, oracle, relevance, leak-check, or overlay-validation contract (docs/evidence/03-ai-pipeline-technical-design.md §9–11). A4 therefore adds a material executable-code security and evaluation surface rather than merely extending one schema."
+      ],
+      "source_entailment": "Primary evidence entails a narrow proposition: an LLM can sometimes synthesize an executable witness that falsifies a formal, universally quantified assertion, and such a witness can be accepted after deterministic execution. It does not entail that the same-model probe supplies an independent expected result, that a passing probe refutes an existential/probabilistic concurrency or performance claim, or that probe outcomes safely confirm arbitrary Python 3.14 code-review findings. c-CRAB’s transfer additionally depends on human intent plus known pre/post states; REAP depends on pre-existing production tests. Thus A4’s broad confirm/refute claim fails entailment, while a candidate-only falsification pilot remains plausible.",
+      "concrete_falsification": "Use the finding “there exists an interleaving in which two concurrent calls emit the side effect twice.” An LLM creates a pytest that exercises one benign fixed schedule three times, observes one emission each time, and declares `refutes_if=all runs pass`. Target-path relevance, clean execution, and stability can all pass, yet the result cannot refute an existential race because the bad interleaving was never explored. This is a concrete logically invalid rejection that the current A4 schema permits unless claim quantifier and scheduler coverage are explicit.",
+      "transfer_limits": [
+        "The strongest counterexample result is Java method-level dynamic specification inference over formal postconditions, not repository-level Python 3.14 quality, async, concurrency, or performance diagnosis.",
+        "Specification inference accepts a concrete violating execution as a sound falsifier of a universal assertion; arbitrary review findings have existential, universal, probabilistic, normative, and severity claims with different evidence semantics.",
+        "c-CRAB derives intent from human reviews and validates against known before/after repository states. At live review time A4 normally has neither a trusted fixed commit nor an authoritative human oracle.",
+        "REAP validates retrieved tests from one proprietary monorepo; it neither generates tests nor shows that generator and oracle can be safely combined.",
+        "The reported agent-test flakiness difference is a static candidate/smell measure, not dynamically confirmed flakiness transferable as an acceptance threshold.",
+        "A passing generated test establishes only one observed execution. It cannot generally confirm intended correctness or refute an existential race, workload-dependent performance regression, or unvisited error path.",
+        "Test generation is in the research brief and adjacent to the proposal’s focused-test objective, so it is not categorical product-scope expansion. However, generated executable source, overlay lifecycle, import/fixture controls, leak auditing, and oracle adjudication materially expand the current exact-command executor and make the “minimal change” characterization untenable."
+      ],
+      "required_constraints": [
+        "Downgrade A4 from general confirm/refute evidence to an offline, feature-flagged, candidate-only falsification pilot; a surviving result is pilot-worthiness only.",
+        "Require a typed claim quantifier and evidence rule before generation. A witness may falsify a universal behavioral assertion or support an existential behavior claim; absence of a witness must never refute an existential/probabilistic claim.",
+        "The expected result must come from versioned `user_observation`, authoritative `doc_contract`, evaluator-owned specification/test, or another generator-independent oracle. The finding text, current implementation, and generator’s own expectation are not independent oracles.",
+        "With no independent oracle, a probe may only produce a concrete execution artifact for human review, retract a claim when logically sound, or leave it abstained/inconclusive; it must never create `runtime_confirmed`.",
+        "Generator, executor, reviewer, and evaluator/gold namespaces must be separated. Generated probes must never become repository tests, gold, hidden scorer input, or final-holdout feedback automatically.",
+        "Use a read-only source snapshot plus disposable overlay/container, exact allowlisted pytest command, no network/secrets/evaluator paths, import and fixture allowlists, resource/time limits, reset, raw logs, and complete policy/source/probe/model/prompt hashes.",
+        "Require target-path causal relevance, collection success, repeated clean-run stability, side-effect cleanup, and leak audit. Any instability, timeout, policy violation, or hidden-artifact access is inconclusive and disables promotion.",
+        "For offline validation, require fail on the frozen buggy state, pass on the evaluator-known fixed state, and reject at least one adversarial wrong patch; the generator must not see the fixed diff, hidden tests, or labels.",
+        "Limit eligibility to one High/Critical, testable correctness/concurrency claim lacking a relevant existing test; one file, one test, one bounded repair. Exclude performance claims unless a separate representative workload/oracle contract exists.",
+        "Charge generation, sandbox startup/reset, repeated runs, validation, and human oracle adjudication to the same inclusive B_run/tool-second budget; compare against existing-test-only and abstain, not against a cheaper baseline with omitted safety costs."
+      ],
+      "decisive_experiment": "Pre-register one paired, evaluator-owned `P4` versus `P4+A4` experiment on Python buggy/fixed/adversarial-wrong-patch triples, restricted to High/Critical findings with no relevant existing test. The generator sees only the buggy snapshot, typed finding, and allowed authoritative oracle provenance; it never sees labels, fixes, hidden tests, or final/OOD artifacts. Blind experts label claim quantifier, oracle independence, relevance, and final disposition. Run every admitted probe in fresh sandboxes repeatedly, including controlled async schedule perturbations, and measure unique correct confirmation/retraction, false confirmation/rejection, stability, policy/leak violations, total tool seconds, and accepted true findings per cost under identical inclusive B_run. Kill A4—not merely tune it—if there is any false `runtime_confirmed`, logically invalid rejection, independent-oracle or hidden-access violation, unstable admitted probe, Critical/High regression, or if the paired precision/false-positive improvement CI includes zero after full safety and adjudication cost.",
+      "critical_gap": "No admissible source reports the joint quantity A4 needs on this project distribution: the fraction of Python 3.14 review findings that have a genuinely independent oracle and valid claim quantifier, multiplied by generated-probe relevance/collection/stability yield, minus false confirmation/rejection and full sandbox/human-adjudication cost. External results mostly concern formal specification filtering, benchmark curation, repair, or static test-quality proxies; none establishes diagnosis-only Precision/Recall transfer for Python async/performance review."
+    },
+    {
+      "candidate_id": "A5",
+      "verdict": "downgrade-hold",
+      "claim_supported": false,
+      "strongest_evidence": [
+        "PerfAgent (arXiv:2607.19653v1, §§III-A–D, IV-C, VI) shows that profiler/test feedback can improve an iterative patch optimizer, but its treatment repeatedly edits, rebuilds, tests, and re-profiles for up to five turns. Its component ablation compares LLM optimization loops; it never compares a diagnosis-only post-runtime LLM call with deterministic RuntimeEvidence normalization, lifecycle mapping, Evidence Gate, and composition. The authors also limit transfer because results use single workloads, about a dozen Python-centric repositories, two models, one harness, and single runs: https://arxiv.org/html/2607.19653v1",
+        "SWE-Adept (arXiv:2603.01327v1, §§3.3, 5.2) lets a repair agent expand plans after test feedback, but this is embedded in code-edit/checkpoint/branch workflows. Its ablation removes the entire specialized resolution module, not the marginal feedback-conditioned re-analysis call; token use is also far above this project's bounded diagnosis setting: https://arxiv.org/html/2603.01327v1",
+        "The local design already deterministically maps `completed/supports` to `runtime_confirmed` and `completed/refutes` to `rejected`, then performs causal/counterexample checks—including whether a hotspot is root cause or merely an upstream caller and whether the workload is representative—and finally composes impact, limitations, and action (`docs/evidence/03-ai-pipeline-technical-design.md`, §§9–12; `docs/ai-selection-matrix/04-agent-orchestration-adr.md`, §§4–7). D3 therefore overlaps the state mapper, existing Evidence Gate, and composer for many cases.",
+        "The shortlist evidence itself labels A5's expected effect `[INFERENCE]` (`09-ai-advancement-review-artifacts.json#/track_summaries`, primary-frontier candidate `RuntimeEvidence 후 affected-perspective 1회 재분석`), and the systems track explicitly lists as unknown whether post-runtime LLM re-analysis beats deterministic state mapping plus human-readable composition (systems track unknowns).",
+        "The current test request binds only `finding_id`, policy, command, and state-change class; it does not freeze the tested hypothesis, predicted supporting/refuting observations, oracle basis, or target path (`docs/evidence/03-ai-pipeline-technical-design.md`, lines 220–232; confirmed again as ACT-C4 at track-results lines 2659–2677). That missing entailment binding makes a post-result rewrite unsafe."
+      ],
+      "source_entailment": "The cited primary sources support the broad proposition that runtime feedback can help an LLM continue an autonomous patching/optimization trajectory. They do not entail A5's narrower mechanism or its marginal value in this project: neither source evaluates one affected-perspective diagnosis revision over an otherwise identical deterministic normalizer/lifecycle gate/composer. PerfAgent's gains combine profiler summarization, repeated patch generation, selective tests, re-profiling, and best-patch selection; SWE-Adept combines adaptive planning with editing and checkpointed version control. Transfer to an immutable-evidence, diagnosis-only successor/tombstone update is therefore an unsupported extrapolation.",
+      "concrete_falsification": "Suppose a focused concurrent test for a High `sync_io_in_async` finding completes with an independent oracle and `result=refutes` because a reachable guard prevents the alleged synchronous call. The deterministic baseline must reject that hypothesis. If D3 changes the same lineage to `cache_lock_contention`, retains High/active status, or cites the old refuting RuntimeEvidence as support for the rewritten claim, it has reinterpreted away a contradiction. The current schema cannot reliably prevent this because the executed request did not hash-lock the original claim, preconditions, predicted observations, oracle, root-cause category, and target location.",
+      "transfer_limits": [
+        "Source tasks are autonomous code repair/optimization, whereas this project stops before patching and must report diagnostic truth.",
+        "PerfAgent's useful feedback is entangled with up to five edit–measure iterations and best-patch selection; A5 permits one immutable-source re-analysis and cannot inherit that causal result.",
+        "Neither study includes the relevant control: deterministic normalized evidence plus fixed lifecycle mapping, existing semantic gate, and composer without the extra analyst call.",
+        "PerfAgent measures single supplied workloads and reports single-run results on one base harness; the paper expressly warns that workload-specific speedups may not generalize.",
+        "SWE-Adept's ablation is module-level and cannot attribute gains to feedback-conditioned reinterpretation; its large repair trajectories do not establish cost-effectiveness inside inclusive `B_run`.",
+        "Binary focused-test support/refutation is already consumed deterministically; profiler causal ambiguity is already examined by the Evidence Gate. Calling D3 for every completed runtime result duplicates work unless a narrower ambiguity trigger is demonstrated."
+      ],
+      "required_constraints": [
+        "Before execution, freeze a `HypothesisContract` containing claim/root-cause/location, preconditions, action, expected support and refute observations, independent oracle basis, workload, and hashes; RuntimeEvidence must bind to that exact contract.",
+        "Apply deterministic lifecycle mapping first. A `completed/refutes` result irreversibly rejects the tested hypothesis; D3 may not promote it, preserve it as active, raise severity, or relabel the result.",
+        "Any change to claim, root-cause category, primary location, preconditions, or oracle creates a new hypothesis/finding ID. It cannot inherit the predecessor's runtime-confirmed status or use its RuntimeEvidence as support.",
+        "Make D3 asymmetric and non-promotive: it may retract, downgrade, add a limitation/counterevidence, or abstain. A new causal explanation remains a hypothesis requiring new evidence.",
+        "Do not invoke D3 for deterministic test outcomes. If retained at all, trigger only on an enumerated completed-profiler ambiguity that normalization and the existing gate cannot resolve; blocked/failed/inconclusive outcomes remain deterministic abstentions.",
+        "Require citations to immutable normalized rows and counterevidence, plus an entailment check between each revised sentence and the frozen hypothesis/evidence IDs. Preserve the original contributor and contradiction in the final report history.",
+        "Charge the call to the same inclusive `B_run`, expose tokens/latency/call count, and compare against an equal-budget baseline; do not treat the existing runtime tool's value as evidence for the extra LLM call."
+      ],
+      "decisive_experiment": "Run a preregistered paired `P4-Normalized` versus `P4-Normalized+D3` ablation using identical frozen code, identical test/profile raw outputs, identical normalized RuntimeEvidence, the same model, and the same inclusive `B_run`; stratify blinded gold cases into clear test support/refute, ambiguous multi-hotspot profiles, and misleading/non-representative workloads. Blind evaluators score exact root-cause leaf, severity, disposition, unsupported causal claims, contradiction-laundering, accepted true findings per 1k tokens, and reviewer decision time. Kill A5 if the one-sided 95% CI upper bound for improvement in joint root-cause-plus-severity accuracy is below a preregistered +5 percentage-point minimum, if accepted true findings per cost does not improve, or if even one revision overrides a frozen refutation/status invariant.",
+      "critical_gap": "There is no direct marginal-utility evidence for the extra call, and the current request/evidence schema does not bind RuntimeEvidence to a frozen falsifiable hypothesis strongly enough to distinguish legitimate explanation refinement from post-hoc contradiction laundering."
+    }
+  ],
+  "review_source_snapshots": [
+    {
+      "source": "https://arxiv.org/html/2602.19672v1",
+      "title": "SkillOrchestra: Learning to Route Agents via Skill Transfer",
+      "date": "23 Feb 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "253a5b86dac51701592c96cbc492e016672f4a802c9001cc2c269988922a1ab6",
+      "canonical_candidate_ids": [
+        "A9"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A9]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2603.01327v1",
+      "title": "SWE-Adept: An LLM-Based Agentic Framework for Deep Codebase Analysis and Structured Issue Resolution",
+      "date": "01 Mar 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "1b73500d82c601c776def077e7a03d4903f10d61fa9a3bd438f9f873ea46a7e1",
+      "canonical_candidate_ids": [
+        "A5"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A5]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2603.23448v1",
+      "title": "Code Review Agent Benchmark",
+      "date": "24 Mar 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "86d189995b0387ace2b623ee70757fcda9ff1c99c5357d623edfd8731b227d61",
+      "canonical_candidate_ids": [
+        "A4"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A4]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2604.01527v4",
+      "title": "REAP: Automatic Curation of Coding Agent Benchmarks from Interactive Production Usage",
+      "date": "28 Jul 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "0224743a7047ba0b13f350cca4d20bcb7e4f7eeb9ad9b102577b4bc667e1a357",
+      "canonical_candidate_ids": [
+        "A4"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A4]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2604.05481v1",
+      "title": "On the Role of Fault Localization Context for LLM-Based Program Repair",
+      "date": "07 Apr 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "fa22e1889029b93d6f674c007472d67c353f2edafc5b960bb53fb9c2364c4560",
+      "canonical_candidate_ids": [
+        "A7"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A7]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2604.10761v1",
+      "title": "Improving Dynamic Specification Inference with LLM-Generated Counterexamples",
+      "date": "12 Apr 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "5471636d343f78437b08e3fc8f406902f814614088f9c33b4f41c06596d36b68",
+      "canonical_candidate_ids": [
+        "A4"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A4]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2605.00914v1",
+      "title": "The Cost of Consensus: Isolated Self-Correction Prevails Over Unguided Homogeneous Multi-Agent Debate",
+      "date": "29 Apr 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "61b970e2188b8094fc73f2edb29edcd778fcde4329b92252b8f95b18c5cb731d",
+      "canonical_candidate_ids": [
+        "A10"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A10]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2605.06527v1",
+      "title": "STALE: Can LLM Agents Know When Their Memories Are No Longer Valid?",
+      "date": "07 May 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "d4539b76fee1e877b7f5b32430bc017f9c63bbe2d810e2056ae120e1fc0dea6c",
+      "canonical_candidate_ids": [
+        "A11"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A11]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2605.07180v1",
+      "title": "Learning Agent Routing From Early Experience",
+      "date": "08 May 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "bb06a3d30b80b9916229749751744c5ef259103a706f38dbd39f32fcaf91fb9a",
+      "canonical_candidate_ids": [
+        "A9"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A9]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2605.25746v1",
+      "title": "Multi-Agent Coordination Adaptation via Structure-Guided Orchestration",
+      "date": "25 May 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "1f95daeb3b2a34b740757d96afd9d0d1857f49b87f6a918a3aa6f91b02dbeebf",
+      "canonical_candidate_ids": [
+        "A1"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A1]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2605.28433v1",
+      "title": "Roles with Rails: Contract-Preserving Role Evolution in Multi-Agent Structured Reasoning",
+      "date": "27 May 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "1a0bd1ff3bf69e4189727b9685c1c994bb0ecf7d2d302b49913f87faa6a5f104",
+      "canonical_candidate_ids": [
+        "A2"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A2]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2606.22902v1",
+      "title": "Agent-as-a-Router: Agentic Model Routing for Coding Tasks",
+      "date": "22 Jun 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "89de7f35255abe5881017b5333c022d2741b1054d48d36d52375213f914da88a",
+      "canonical_candidate_ids": [
+        "A9"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A9]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2607.00053v1",
+      "title": "SWE-Router: Routing in Multi-turn Agentic Software Engineering Tasks",
+      "date": "30 Jun 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "6ca54d622dfff70f451cfe9cca93221066f822716d74d4069aa18c5ff5b43a89",
+      "canonical_candidate_ids": [
+        "A1"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A1]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2607.10059v1",
+      "title": "AgentAbstain: Do LLM Agents Know When Not to Act?",
+      "date": "11 Jul 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "1e5ab446aaba0c186c5ae710e652030485cea7d8c0959ffcc302377c4debadb0",
+      "canonical_candidate_ids": [
+        "A1"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A1]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2607.12068v1",
+      "title": "Beyond Test Presence: Assessing the Quality and Robustness of Agent-Generated Tests in Open-Source Projects",
+      "date": "13 Jul 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "efe365ea6462cba669cf73f2e010d32dd2863e0b4a174b766316ee22c6e66093",
+      "canonical_candidate_ids": [
+        "A4"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A4]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2607.19653v1",
+      "title": "PerfAgent: Profiler-Guided Iterative Refinement for Repository-Level Code Optimization",
+      "date": "22 Jul 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "1aa83aa978ed68f21e09dcfc982f5fd07fcec574f29341b348975ae85b84e4b0",
+      "canonical_candidate_ids": [
+        "A5"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A5]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    },
+    {
+      "source": "https://arxiv.org/html/2608.18167v1",
+      "title": "Adversarial Review: Structured Disagreement for Grounded Agentic Code Review",
+      "date": "16 Aug 2026",
+      "source_type": "primary-preprint",
+      "accessed_at": "2026-08-23",
+      "content_sha256": "d8a068e9fa3ea1986763e759597d9792f176b2f5334b978cca7e588a157380ed",
+      "canonical_candidate_ids": [
+        "A3"
+      ],
+      "artifact_locators": [
+        "09.judge/adversarial[A3]"
+      ],
+      "entailment_scope": "review rationale only; does not override final pilot/hold disposition or claim project results"
+    }
+  ],
+  "final_decisions": {
+    "A1": {
+      "decision": "shadow-pilot",
+      "reason": "관점 omission gold가 없으므로 fixed-five를 대체하지 않고 evaluator-only shadow로 평가"
+    },
+    "A2": {
+      "decision": "exclude-freeform; focus-lens-only",
+      "reason": "자유형 role 생성은 계약 drift 위험이 커 registered parent 관점의 focus question으로 축소"
+    },
+    "A3": {
+      "decision": "conditional-pilot",
+      "reason": "현행 Evidence Gate 대비 고유 counterevidence와 false retraction을 같은 B_run에서 평가"
+    },
+    "A4": {
+      "decision": "phase-2-pilot",
+      "reason": "HypothesisContract와 독립 oracle이 있는 falsification 후보에만 제한"
+    },
+    "A5": {
+      "decision": "hold",
+      "reason": "직접 marginal-utility 근거가 없고 contradiction laundering 방지 계약이 선행돼야 함"
+    },
+    "A6": {
+      "decision": "hold-until-labels",
+      "reason": "evaluator-confirmed 실패가 축적된 뒤 offline으로만 평가"
+    },
+    "A7": {
+      "decision": "hold",
+      "reason": "retrieval hit 이득이 downstream 진단 이득을 보장하지 않음"
+    },
+    "A8": {
+      "decision": "hold-unless-telemetry-exists",
+      "reason": "telemetry·redaction·retention 비용이 먼저 존재해야 함"
+    },
+    "A9": {
+      "decision": "hold",
+      "reason": "cold-start project utility label과 안정 verifier가 없음"
+    },
+    "A10": {
+      "decision": "exclude",
+      "reason": "반복 homogeneous debate의 비용·false consensus 위험"
+    },
+    "A11": {
+      "decision": "exclude",
+      "reason": "stale memory·오염·holdout leakage 위험"
+    },
+    "A12": {
+      "decision": "supporting-only",
+      "reason": "결정론적 정적 corroboration이며 AI 추론 고도화는 아님"
+    }
+  },
+  "disposition_change_rule": "Raw track decisions are leads preserved at each track_summaries[].raw_result_uri. Final disposition follows E-08 decision-changing claims, source entailment, transfer risk, same-B_run measurability, and candidate-specific adversarial verification; disagreements remain in raw track artifacts.",
+  "artifact_note": "Track summaries preserve strategy, candidate dispositions, source locators, and raw-result hashes. Decision-changing claims are normalized in E-08; raw track prose is intentionally omitted so unverified leads are not mistaken for adopted claims.",
+  "research_brief": {
+    "uri": "10-ai-advancement-research-brief.json",
+    "sha256": "1d78f8219d03b511c3a2480b7fb05776e4fa737e28e3b34f4b74395bcc392658"
+  },
+  "research_report": {
+    "uri": "07-ai-technology-advancement-research.md",
+    "sha256": "231167a1efb4101117de7124eedfe14894b47cbd742ec5abdf2ea678ab1e52a3"
+  },
+  "canonical_preregistration": {
+    "schema_version": "ai-advancement-preregistration-v1",
+    "A1": {
+      "unit": "case, clustered by repository",
+      "gold": "frozen evaluator-owned defects and necessary-perspective multi-labels; fixed-five output is candidate only",
+      "arms": [
+        "F5 fixed-five",
+        "S1 planner shadow with fixed-five execution",
+        "S2 deterministic mandatory plus planner optional routing"
+      ],
+      "operational_budget": "F5 and S2 use identical inclusive B_run; evaluator-only shadow cost is separate and never fed back",
+      "gates": [
+        "Critical/High Recall non-inferiority -2pp, one-sided 95% CI",
+        "zero route-attributable Critical/High miss",
+        "overall Recall non-inferiority -2pp",
+        "unsupported finding <=5%",
+        "analyst calls or I/O tokens reduced >=20%"
+      ],
+      "failure_decision": "keep fixed-five and do not promote S2"
+    },
+    "A3": {
+      "unit": "High/Critical, conflict, or unresolved-counterevidence finding batch with matched non-trigger controls, clustered by case/repository",
+      "gold_packet_schema": [
+        "case_id",
+        "finding_id",
+        "trigger_eligibility",
+        "original_finding_truth",
+        "gold_root_cause",
+        "gold_severity",
+        "evidence_snapshot",
+        "allowed_counterevidence_types",
+        "counterevidence_and_severity_rubric"
+      ],
+      "blind_access": "all arms hidden from gold labels; evaluator adjudicates shuffled outputs; no independently lockable gold -> excluded or inconclusive",
+      "arms": [
+        "gate-only",
+        "equal-token merger self-review",
+        "same-backbone fresh critic",
+        "different-model-family fresh critic when available"
+      ],
+      "operational_budget": "same evidence snapshot and inclusive B_run; evaluator gold/adjudication cost separate and not fed back",
+      "incremental_valid_counterevidence": "valid counterevidence in critic arm absent from gate-only arm",
+      "gates": [
+        "incremental valid counterevidence and valid severity corrections exceed both gate-only and equal-token self-review with repository-cluster 95% CI lower bound >0",
+        "Critical/High Recall non-inferiority -2pp",
+        "unsupported finding <=5%",
+        "zero critic-created confirmation",
+        "zero critic-caused false retraction"
+      ],
+      "failure_decision": "remove separate critic; retain typed disagreement only inside current Evidence Gate"
+    },
+    "A4": {
+      "unit": "evaluator-owned finding-level buggy/fixed/adversarial-wrong-patch triple, clustered by case/repository",
+      "gold": [
+        "root_cause",
+        "claim_quantifier",
+        "independent_oracle",
+        "expected_support_observation",
+        "expected_refute_observation"
+      ],
+      "blind_access": "generator sees buggy snapshot and allowed oracle provenance only; no fixed diff, hidden test, labels, or final holdout",
+      "operational_budget": "generation, sandbox startup/reset, execution/repeat, automated validation in same B_run and tool-second budget; human gold/oracle adjudication separate and not fed back",
+      "gates": [
+        "confirmation coverage +5pp versus P4-F5",
+        "accepted finding precision improvement or false-positive reduction versus P4-F5 with repository-cluster 95% CI excluding 0 in favorable direction",
+        "differential validity >=80%",
+        "hermetic validity >=80%",
+        "accepted probe repeated stability 100%",
+        "zero unsafe/hidden-artifact/gold-auto-inclusion",
+        "zero Critical/High Recall loss and false confirmation/rejection"
+      ],
+      "failure_decision": "do not promote A4; retain existing-test-only P4-F5 or abstain"
+    },
+    "common_statistics": [
+      "sample size from pilot power analysis",
+      "one primary hypothesis per experiment; Holm if multiple primary claims",
+      "one-sided 95% CI for non-inferiority; repository-cluster bootstrap 95% CI otherwise",
+      "gate thresholds are project pilot candidates, not external results"
+    ]
+  },
+  "design_reflection": {
+    "status": "reflected-in-active-design; implementation and results unmeasured",
+    "artifacts": [
+      {
+        "uri": "project-context/ai-professional-project-proposal.md",
+        "sha256": "05b07577f5b1e5f831a82fd8447cc7a41e0f1ace84d2ed8b6226cf3a701f1a40"
+      },
+      {
+        "uri": "eval-rubric-analysis.md",
+        "sha256": "86bcb958f38de302dbcd3da6f6fb8ce816a20680188feb3e2a77eaae1004e297"
+      },
+      {
+        "uri": "ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+        "sha256": "581bcc2d044a3a8b6ff416df87cc02cb316af789b2ccf6ce208bb0494d59ec25"
+      },
+      {
+        "uri": "ai-selection-matrix/04-agent-orchestration-adr.md",
+        "sha256": "35d238a646ddd2a7205f2a8d88601e5765511d445fb55c64f2516725109a7f22"
+      },
+      {
+        "uri": "evidence/01-kpi-measurement-framework.md",
+        "sha256": "cbc14170cb2d0bfb34b04f1bd337c484bd18d7a30dcf5f0f9c7819dd3bdadf48"
+      },
+      {
+        "uri": "evidence/02-benchmark-and-ablation-plan.md",
+        "sha256": "1eef42cae0b7628020a4f5cba0ab7316a4e97cee497d20e36ee0a13f679b2b44"
+      },
+      {
+        "uri": "evidence/03-ai-pipeline-technical-design.md",
+        "sha256": "52a9733c664e549d3468a5587bead5269aeeeb6f7b4bf4fa171f053cc1b7df9b"
+      },
+      {
+        "uri": "evidence/04-external-technical-evidence.md",
+        "sha256": "7c29ef0bb9334f7de362fbbb948c4d09aa95c9a5942a47a3a89b3bbe76e383e9"
+      },
+      {
+        "uri": "evidence/05-evidence-traceability-index.md",
+        "sha256": "cc87b8040ca9a1a0faeecdfbee649aa35d36f47482c8c55c5851dfc54e1dbaa2"
+      },
+      {
+        "uri": "evidence/06-design-audit-report.md",
+        "sha256": "8555c4d39af27875e8a09dac4ae402037f627b47e9127556cae1f5eb74de3d29"
+      },
+      {
+        "uri": "evidence/07-ai-technology-advancement-research.md",
+        "sha256": "231167a1efb4101117de7124eedfe14894b47cbd742ec5abdf2ea678ab1e52a3"
+      },
+      {
+        "uri": "evidence/ai-diagnosis-pipeline.puml",
+        "sha256": "afdc644c0cabcff24bba149f5381fcbd8dabfdbbd7ade91e0f1776c654fe4f03"
+      },
+      {
+        "uri": "evidence/ai-diagnosis-pipeline.svg",
+        "sha256": "09f8bacf308dfc496054f701cd77e92344d7e4c5320e637706d02437f342a11f"
+      }
+    ]
+  }
+}

@@ -1,0 +1,330 @@
+{
+  "strategy_id": "primary-frontier",
+  "scope": "2026-02-23 이후 1차 자료만 사용해 고정 5관점 Diagnosis Planner를 동적·효율적으로 바꿀 수 있는 adaptive planning, specialist routing, verifier/critic, test-time scaling, uncertainty-aware tool use 메커니즘을 검토했다. 현행 로컬 설계도 관찰했으며 프로젝트 성과는 주장하지 않는다. 1년 예외는 사용하지 않았다.",
+  "claims": [
+    {
+      "id": "PF-C1",
+      "claim": "현행 설계는 Diagnosis Planner 뒤 구조·정확성·성능·동시성·테스트 5관점을 모두 1차 병렬 실행하고, 이후 최대 한 관점만 확장한다. 즉 first-pass 관점 선택·생략·조기중단은 아직 없다.",
+      "kind": "observed",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/ai-selection-matrix/04-agent-orchestration-adr.md",
+          "title": "ADR-04: 증거 게이트가 있는 bounded DAG를 사용한다",
+          "date": "2026-08-23",
+          "locator": "§2 lines 13-19; §4 lines 33-62; §7 lines 104-114",
+          "source_type": "local project design",
+          "supports": true,
+          "notes": "5개 관점의 1차 병렬 실행, typed graph expansion 최대 1단계, inclusive B_run을 명시한다."
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 진단 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§2 lines 23-56; §7 lines 176-186; §9 lines 218-244",
+          "source_type": "local project design",
+          "supports": true,
+          "notes": "Planner→Five-view First Pass→optional affected-view re-analysis이며 runtime test/profiler는 final merger 뒤에 위치한다."
+        }
+      ],
+      "qualifiers": [
+        "이는 구현 성과가 아니라 문서에 관찰된 topology다.",
+        "현재 all-five fallback은 planner 실패 시에도 사용되므로 안전 기준선으로 가치가 있다."
+      ]
+    },
+    {
+      "id": "PF-C2",
+      "claim": "SWE 절차 지식을 무조건 주입하는 방식은 비용 대비 효용이 약할 수 있다. SWE-Skills-Bench v1에서는 49개 중 39개 skill이 pass-rate 개선 0, 평균 +1.2%였고, 효용 0인 경우에도 token overhead가 -78%에서 +451%까지였으며 3개는 최대 -10% 악화됐다.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2603.15401v1",
+          "title": "SWE-Skills-Bench: Do Agent Skills Actually Help in Real-World Software Engineering?",
+          "date": "2026-03-16",
+          "locator": "Abstract; §1 Contributions; §3.3 Requirement-driven Verification; §4 Results",
+          "source_type": "arXiv primary preprint v1",
+          "supports": true,
+          "notes": "565개 내외 fixed-commit SWE task에서 with-skill/without-skill paired evaluation과 deterministic execution verifier를 사용했다."
+        }
+      ],
+      "qualifiers": [
+        "저자 스스로 'pre-print with preliminary results, work in progress'라고 표시한다.",
+        "skill 문서 주입과 관점 agent 실행은 동일하지 않으므로, 이 결과는 '더 많은 고정 관점이 나쁘다'는 직접 증거가 아니라 blanket augmentation을 반드시 ablation하라는 근거다.",
+        "해당 결과는 이 프로젝트 결과가 아니다."
+      ]
+    },
+    {
+      "id": "PF-C3",
+      "claim": "상태별 요구 capability와 agent/model별 검증된 성능·비용을 분리해 라우팅하는 메커니즘은 존재한다. SkillOrchestra는 mode→active skills→competence/cost profile로 매 turn 선택하고, Agent-as-a-Router는 coding task에서 Context→Action→verified Feedback→Context 루프로 실행 경험을 누적한다.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2602.19672v1",
+          "title": "SkillOrchestra: Learning to Route Agents via Skill Transfer",
+          "date": "2026-02-23",
+          "locator": "§3 Agent Orchestration; §4.1 Agent Orchestration via Skill Handbook; §5.2 SkillOrchestra on Agent Orchestration",
+          "source_type": "arXiv primary preprint v1",
+          "supports": true,
+          "notes": "state-conditioned mode selection과 skill-conditioned competence/cost routing을 분리한다. FRAMES에서 SkillOrchestra 84.3%/$72.7, ToolOrchestra 76.3%/$92.7을 보고한다."
+        },
+        {
+          "source": "https://arxiv.org/html/2606.22902v1",
+          "title": "Agent-as-a-Router: Agentic Model Routing for Coding Tasks",
+          "date": "2026-06-22",
+          "locator": "§3.1 Performance Gap Diagnosis; §3.2 C-A-F Loop; §3.3 ACRouter Instantiation; §4.1 Real-World Test: Agentic Programming; §5; Limitations",
+          "source_type": "arXiv primary preprint v1",
+          "supports": true,
+          "notes": "Orchestrator, execution-grounded Verifier, kNN Memory로 coding model routing을 수행하며 176개 OOD agentic-programming tasks를 포함한다."
+        }
+      ],
+      "qualifiers": [
+        "SkillOrchestra의 full orchestration 평가는 SWE diagnosis가 아니라 FRAMES이며 final answer는 GPT-5-mini judge를 쓴다.",
+        "Agent-as-a-Router는 model routing이지 관점 routing이 아니고, OOD agentic 평가를 40-step으로 제한했다.",
+        "프로젝트 final-temporal/OOD에서는 결과를 보며 online update하면 leakage와 order dependence가 생기므로, 적용 시 calibration 뒤 profile을 동결해야 한다.",
+        "이 메커니즘이 이 프로젝트의 Recall/비용을 개선한다는 것은 아직 미측정이다."
+      ]
+    },
+    {
+      "id": "PF-C4",
+      "claim": "최근 SWE 1차 자료는 고정 반복보다 실행 피드백으로 plan과 다음 분석을 갱신하는 방식을 보여준다. SWE-Adept는 test feedback에 따라 todo를 확장하고 복잡한 문제에서만 복수 가설을 탐색하며, PerfAgent는 profiler 요약·선택 테스트·재프로파일 피드백을 결합해 blind best-of-five보다 낮은 비용으로 더 높은 최종 optimization 지표를 보고했다.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2603.01327v1",
+          "title": "SWE-Adept: An LLM-Based Agentic Framework for Deep Codebase Analysis and Structured Issue Resolution",
+          "date": "2026-03-01",
+          "locator": "§3.2 Issue Localization; §3.3 Issue Resolution; §4.2 Main Results; §5.2 Ablation Study; Limitations",
+          "source_type": "arXiv primary preprint v1",
+          "supports": true,
+          "notes": "agent-directed selective dependency traversal, dynamic todo expansion, complexity-conditioned multi-hypothesis branching을 사용하며 Python SWE-Bench Lite/Pro에서 localization 및 end-to-end 결과를 보고한다."
+        },
+        {
+          "source": "https://arxiv.org/html/2607.19653v1",
+          "title": "PerfAgent: Profiler-Guided Iterative Refinement for Repository-Level Code Optimization",
+          "date": "2026-07-22",
+          "locator": "§I and Fig.1; §III-A–D; §IV-B–E, especially Table VI; §VI Threats to Validity",
+          "source_type": "arXiv primary preprint v1",
+          "supports": true,
+          "notes": "Table VI에서 GSO hack-adjusted 39.2 at $2.88 vs OpenHands oracle best@5 26.5 at $11.01; SWE-efficiency-Lite 74 at $4.25 vs 68 at $9.91을 보고한다."
+        }
+      ],
+      "qualifiers": [
+        "두 연구 모두 patch/optimization agent를 평가하며 이 프로젝트는 patch 전 diagnosis가 중심이다.",
+        "PerfAgent는 up to 5 iterations, single-run 결과, 약 12개 Python-centric repos·2 models·1 harness이므로 숫자를 이 프로젝트로 이전할 수 없다.",
+        "직접 적용 가능한 부분은 runtime evidence가 생겼을 때 해당 관점만 한 번 재분석하는 제어 흐름이지 자동 수정 loop가 아니다."
+      ]
+    },
+    {
+      "id": "PF-C5",
+      "claim": "critic을 추가하는 것만으로는 신뢰성이 보장되지 않는다. Adversarial Review v1은 naive reviewer–critic이 근거 없는 합의(false consensus)를 만들 수 있음을 보였고, DISAGREE_EVIDENCE/CONCERN처럼 이견 종류와 코드 근거 의무를 구조화했을 때 SWE-PRBench F1이 0.457에서 0.533으로 개선됐다. 한편 Vera는 verifier가 agent 자기보고가 아니라 tool trace와 최종 환경 상태를 판정해야 한다고 설계한다.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2608.18167v1",
+          "title": "Adversarial Review: Structured Disagreement for Grounded Agentic Code Review",
+          "date": "2026-08-16",
+          "locator": "§3.5 AR; §4.2–4.4 Review Quality and Text Constraint; §5.2 Result; §6 Cost-quality; §7 Discussion and Limitations",
+          "source_type": "arXiv primary preprint v1",
+          "supports": true,
+          "notes": "SWE-PRBench에서 naive AR 0.457, evidence-constrained AR 0.533 F1. SWE-bench Verified의 AR은 75.2% vs zero-shot 71.6%였으나 약 4.5× tokens를 사용했다."
+        },
+        {
+          "source": "https://arxiv.org/html/2607.01793v1",
+          "title": "Safety Testing LLM Agents at Scale: From Risk Discovery to Evidence-Grounded Verification",
+          "date": "2026-07-02",
+          "locator": "§III Preliminaries, equations (1)–(2); §IV-C Adaptive Execution and Evidence-Grounded Verification",
+          "source_type": "arXiv primary preprint v1",
+          "supports": true,
+          "notes": "executable case를 goal, initial state, deterministic verifier로 정의하고 verifier는 observable trajectory와 terminal state를 검사한다."
+        }
+      ],
+      "qualifiers": [
+        "AR은 Claude Sonnet 4.5 중심 단일 연구이며 evidence-constrained prompt는 SWE-bench Verified run에 back-port되지 않았다.",
+        "Vera는 agent safety testing이지 code-quality diagnosis가 아니다.",
+        "따라서 LLM critic은 deterministic Evidence Gate를 대체할 수 없고, disputed/high-risk finding에만 보조적으로 적용해야 한다."
+      ]
+    },
+    {
+      "id": "PF-C6",
+      "claim": "장기 coding trajectory의 test-time scaling에서는 raw trace보다 가설·진행·실패를 보존한 compact structured summary가 비교·재사용에 더 적합할 수 있다. Scaling Test-Time Compute for Agentic Coding v1은 16개 초기 rollout, RTV selection, summary-conditioned PDR refinement로 SWE-Bench Verified와 Terminal-Bench에서 single-attempt 대비 개선을 보고했다.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2604.16529v1",
+          "title": "Scaling Test-Time Compute for Agentic Coding",
+          "date": "2026-04-16",
+          "locator": "§2.2 Rollout Summaries; §2.3 Recursive Tournament Voting; §2.4 Parallel-Distill-Refine; §3.2.1–3.2.2 Ablations; §3.3 Main Results",
+          "source_type": "arXiv primary preprint v1",
+          "supports": true,
+          "notes": "structured summaries가 raw traces보다 selection에 유리했고, Claude-4.5-Opus SWE-Bench Verified 70.9→77.6, Terminal-Bench 46.9→59.1을 보고한다."
+        }
+      ],
+      "qualifiers": [
+        "주 실험은 N=16, T=2인 대규모 rollout과 추가 summary/vote 호출을 사용하므로 현행 inclusive B_run과 바로 양립하지 않는다.",
+        "patch-solving trajectory 결과이며 다섯 diagnosis perspective의 merge에는 직접 검증되지 않았다.",
+        "소규모 N=2–4 또는 single-finding refinement의 효용은 논문 결과에서 확정할 수 없다."
+      ]
+    },
+    {
+      "id": "PF-C7",
+      "claim": "planner의 자기표현 uncertainty만으로 tool 실행/중단을 결정하는 것은 위험하다. AgentAbstain v1의 paired should-act/should-abstain 평가에서 최고 agent도 paired accuracy 59.5%였고, task-solving 능력과 abstention 능력은 대체로 독립적이었다. 따라서 동적 관점·도구 router는 free-form confidence 대신 typed reason, deterministic preconditions, act/abstain paired calibration이 필요하다.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2607.10059v1",
+          "title": "AgentAbstain: Do LLM Agents Know When Not to Act?",
+          "date": "2026-07-11",
+          "locator": "Abstract; §1; §2.1 Abstention Taxonomy; §2.2 Task Model and Paired Design",
+          "source_type": "arXiv primary preprint v1",
+          "supports": true,
+          "notes": "263 paired tasks, 42 executable MCP sandboxes, 17 LLMs/4 harnesses. pre-execution과 runtime abstention을 분리하고 deterministic commit trace check를 사용한다."
+        }
+      ],
+      "qualifiers": [
+        "일반 tool-using agents의 benchmark이며 software diagnosis 전용은 아니다.",
+        "프로젝트 도구는 read-only/test/profiler 중심이라 논문의 irreversible commit 위험보다 낮다.",
+        "59.5%는 이 프로젝트 planner의 수치가 아니다."
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "name": "현행 all-five first pass를 fallback·대조군으로 유지",
+      "current_gap": "비용과 무관하게 매번 5관점을 실행하지만, router 실패/OOD에서 누락을 막는 안전 기준선은 필요하다.",
+      "mechanism": "현재 DiagnosisPlan fallback과 P4/C1 대조 구성을 그대로 보존하되 default topology의 우월성으로 간주하지 않는다.",
+      "expected_effect": "[INFERENCE] 새 dynamic router가 invalid, schema-failed, OOD, unresolved일 때 기존 recall 방어선이 된다.",
+      "ai_specificity": "낮음. AI 고도화가 아니라 실패 안전성과 반증 가능한 control이다.",
+      "minimal_change": "코드·계약 변경 없음. dynamic variant에 `fallback_reason=all_five`와 fallback hit trace만 추가한다.",
+      "extra_cost": "현재와 동일한 5 analyst calls와 해당 token 비용.",
+      "risks": [
+        "고정 구성이 default로 남으면 불필요 관점 비용이 계속된다.",
+        "fallback이 너무 자주 발동하면 dynamic router가 사실상 no-op이 된다."
+      ],
+      "evaluation": "fixed-five의 per-perspective Recall, Critical/High Recall, accepted true finding/B_run을 기준선으로 고정하고 fallback rate와 fallback이 구한 missed finding을 별도 보고한다.",
+      "provisional_decision": "keep"
+    },
+    {
+      "name": "보수적 multi-label dynamic perspective router",
+      "current_gap": "Planner가 관점별 우선순위를 제안할 수는 있지만 D1 dispatch mask가 없어 모든 관점을 실행한다.",
+      "mechanism": "DiagnosisPlan vNext가 `selected_perspectives[]`, `omitted_perspective_disposition[]`, enumerated reason codes, required evidence gaps를 출력한다. scope/AST/CFG/graph signals와 calibration에서 동결된 관점별 competence-cost profile을 사용해 1–5개 관점을 선택한다. schema invalid, OOD detector, unresolved structural facts, coverage invariant 위반이면 all-five fallback한다. free confidence는 쓰지 않는다.",
+      "expected_effect": "[INFERENCE] 쉬운/단일범주 사례에서 analyst 호출을 줄이고 절약된 B_run을 선택 관점의 context 또는 gate에 재배분하면서 중요한 관점 누락은 fallback으로 제한할 수 있다.",
+      "ai_specificity": "높음. LLM multi-label planning과 검증된 specialist competence profile을 결합하되 dispatch/gate는 결정론적으로 시행한다.",
+      "minimal_change": "기존 DiagnosisPlan에 선택·생략 disposition 필드와 D1 dispatch mask를 추가한다. Finding, merger, ExecutionPolicy는 변경하지 않는다.",
+      "extra_cost": "planner 출력 소폭 증가와 calibration 비용. 운영에서는 선택 관점 수만큼 호출하므로 5개보다 같거나 적고 fallback run은 동일하다.",
+      "risks": [
+        "base-rate가 낮은 concurrency/performance 관점을 누락할 수 있다.",
+        "60-case pilot은 learned router 학습에 부족할 수 있다.",
+        "너무 세밀한 taxonomy는 router misclassification을 늘린다.",
+        "calibration profile을 final holdout 중 갱신하면 leakage와 order dependence가 생긴다."
+      ],
+      "evaluation": "P4-Fixed vs P4-Dynamic을 (a) 동일 B_run cap과 (b) natural-cost operating point로 paired 비교한다. multi-label perspective Recall, Critical/High Recall, omitted-perspective false-negative rate, calls, wall time, tokens, accepted true finding/cost, fallback rate를 측정한다. 최소 perturbation으로 특정 관점 trigger가 있는/없는 paired cases를 만들고 final-temporal/OOD 전에 router·threshold를 동결한다.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "RuntimeEvidence 후 affected-perspective 1회 재분석",
+      "current_gap": "현재 graph는 M2 뒤 focused test/profiler를 실행해 RuntimeEvidence를 normalize한 다음 곧바로 Evidence Gate로 간다. 실행 증거가 원인 가설·counterevidence·조치 설명을 바꾸어도 analyst가 이를 재해석하는 명시적 단계가 없다.",
+      "mechanism": "RuntimeEvidence normalizer와 Evidence Gate 사이에 D3를 추가한다. 실제 실행된 test/profiler와 연결된 target perspective 하나만 기존 contributor slice+runtime evidence로 한 번 재분석하고, revision+1 successor 또는 retraction tombstone을 내보낸다. 실행 없음/blocked/inconclusive이면 기존 상태 규칙만 적용하고 추가 호출하지 않는다.",
+      "expected_effect": "[INFERENCE] blind retry 대신 실제 test/profile feedback으로 root cause, severity evidence, rejected/abstained 상태를 더 정확히 갱신할 수 있다.",
+      "ai_specificity": "높음. LLM은 실행 증거의 인과 의미만 해석하고 실행·상태 승격 규칙은 기존 deterministic layers가 유지한다.",
+      "minimal_change": "D3 node와 기존 M2 lineage/revision 규칙을 재사용하는 runtime delta apply step 하나를 추가한다. profiler policy, opt-in, immutable ExecutionPolicy, executor는 그대로 둔다.",
+      "extra_cost": "runtime evidence가 생성된 finding에만 analyst 1 call, 최대 1회. 새 profiler/test 실행은 요구하지 않는다.",
+      "risks": [
+        "execution 결과에 과적합하거나 대표성 낮은 workload를 과해석할 수 있다.",
+        "M2 이후 revision 적용 순서를 명확히 하지 않으면 composer가 stale canonical finding을 볼 수 있다.",
+        "추가 호출이 runtime feedback 자체의 이득과 혼동될 수 있다."
+      ],
+      "evaluation": "P4 vs P4-RuntimeAssimilation을 동일 tool outputs·B_run에서 비교한다. gold status transition accuracy, supported/refuted 반영률, Critical/High Recall, unsupported causal claim, revision/tombstone validity와 token cost를 측정하고 profiler/test 별 subgroup을 분리한다.",
+      "provisional_decision": "add"
+    },
+    {
+      "name": "분쟁·고위험 finding에만 evidence-cited critic",
+      "current_gap": "현재 반대 검토자 1개와 Evidence Gate가 있으나 reviewer–critic false consensus를 막는 typed disagreement contract와 호출 조건이 구체적이지 않다.",
+      "mechanism": "canonical finding을 수정하지 않은 채 critic이 `AGREE | DISAGREE_EVIDENCE(evidence_id, locator) | DISAGREE_CONCERN(missing_requirement)`만 출력한다. reviewer/merger는 evidence disagreement면 수정·drop, concern이면 근거를 추가하지 못할 경우 abstain한다. High/Critical, contributor conflict, unresolved counterevidence, runtime/static disagreement일 때만 호출하며 최종 authority는 deterministic Evidence Gate다.",
+      "expected_effect": "[INFERENCE] 다섯 번째 이후 관점을 더 추가하지 않고도 근거 없는 합의와 speculative finding을 줄일 가능성이 있다.",
+      "ai_specificity": "높음. 서로 다른 역할의 LLM disagreement를 구조화하지만 사실 판정은 evidence IDs와 gate에 종속한다.",
+      "minimal_change": "기존 '반대 검토자 1개'의 output schema와 trigger만 변경한다. 별도 swarm이나 자유 토론은 추가하지 않는다.",
+      "extra_cost": "triggered finding batch당 critic 1 call, 이견 시 reviewer response 최대 1 call. easy/low-risk run은 0 call.",
+      "risks": [
+        "critic이 plausible concern을 새 결함처럼 증폭할 수 있다.",
+        "같은 모델 계열은 상관 오류와 false consensus를 공유할 수 있다.",
+        "AR의 SWE-bench 이득은 약 4.5× token 비용이었으므로 무조건 실행하면 B_run을 잠식한다."
+      ],
+      "evaluation": "현재 single contrarian vs typed conditional critic을 same-B_run으로 비교한다. unsupported finding rate, false-consensus paired accuracy, Critical/High Recall, abstain appropriateness, critic-trigger precision/recall, accepted finding/cost를 측정한다. evidence-constrained prompt와 naive critic을 별도 ablation한다.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "Compact-summary 기반 선택적 distill-refine",
+      "current_gap": "선택 관점 하나의 unresolved High/Critical finding이 남아도 현재는 graph expansion 1회 외에 독립 가설을 요약·선택·재사용하는 경로가 없다.",
+      "mechanism": "대규모 whole-run RTV/PDR가 아니라, 단일 unresolved finding의 structured summaries를 대상으로 2–4개 bounded analytic rollout을 만들고 small-group evidence comparison 뒤 1회 refinement한다.",
+      "expected_effect": "[INFERENCE] 긴 raw traces를 반복 전달하지 않고 희귀·복합 결함의 대안 가설을 탐색할 수 있다.",
+      "ai_specificity": "높음. summary representation, selection, reuse를 diagnosis finding 계약에 맞게 축소 적용한다.",
+      "minimal_change": "새 `analysis_summary` artifact와 conditional refine node가 필요하다. 기존 Finding/lineage에는 최종 선택 delta만 반영한다.",
+      "extra_cost": "trigger당 2–4 analyst rollouts, summaries, 비교 호출, refinement 1회로 상당하다.",
+      "risks": [
+        "근거 논문은 N=16,T=2 규모이며 소규모 diagnosis variant 효과는 미검증이다.",
+        "selection model이 동일한 오류를 선호할 수 있다.",
+        "same B_run에서 선택 analyst를 깊게 실행하는 것보다 열등할 수 있다.",
+        "구조가 현재 bounded DAG를 불필요하게 복잡하게 만들 수 있다."
+      ],
+      "evaluation": "dynamic router+critic 이후에도 남는 pre-registered unresolved High/Critical cases에만 N=2/4 pilot을 수행한다. 같은 B_run을 단일 selected analyst depth에 쓴 baseline과 compare하고, new true-finding discovery, unsupported rate, cost, wall time에서 Pareto 이득이 없으면 제외한다.",
+      "provisional_decision": "hold"
+    },
+    {
+      "name": "검증된 competence 기반 specialist/model router",
+      "current_gap": "현재 5 perspective analyst가 동일 backbone/고정 allocation을 가정해 관점별 model strength·cost 차이를 활용하지 않는다.",
+      "mechanism": "train/calibration에서 perspective×task-feature별 모델/agent success와 cost profile을 추정하고, run 중 선택된 perspective를 가장 적합한 frozen specialist/model에 배정한다. online C-A-F memory는 final holdout에서는 비활성화하고 release 사이에서만 재학습한다.",
+      "expected_effect": "[INFERENCE] 충분히 이질적인 model pool이 있을 때 강한 모델을 어려운 관점에만 쓰고 단순 관점은 저비용 모델로 처리할 수 있다.",
+      "ai_specificity": "높음. coding-specific model routing과 capability profile을 사용한다.",
+      "minimal_change": "모델이 하나뿐이면 적용 불가. 다중 model client, profile registry, per-node model/version trace, cost-normalized calibration이 필요해 현재 단계에서는 최소 변경이 아니다.",
+      "extra_cost": "각 모델×관점의 paired calibration, provider 운영 복잡도, version drift 재검증 비용이 크다.",
+      "risks": [
+        "여러 모델이 실제로 상보적이지 않으면 overhead만 늘어난다.",
+        "online memory는 evaluator-owned gold와 final holdout을 오염시킬 수 있다.",
+        "provider 가격·cache hit 불확실성과 모델 version drift가 profile을 빠르게 무효화한다.",
+        "task ordering에 따라 결과가 달라질 수 있다."
+      ],
+      "evaluation": "먼저 동일 60+pilot case의 최소 2개 model outcome matrix를 수집해 per-perspective oracle gap과 complementarity가 존재하는지 확인한다. gap이 작으면 중단한다. 존재할 때만 frozen router를 single-best-model 및 dynamic perspective router와 final split 전 비교한다.",
+      "provisional_decision": "hold"
+    }
+  ],
+  "contradictions": [
+    "Adversarial Review는 reviewer–critic이 SWE-bench Verified pass-rate를 높였다고 보고하지만, 같은 논문에서 naive AR은 SWE-PRBench 최하 F1과 false consensus를 보였고 약 4.5× tokens를 사용했다. 따라서 'critic 추가=항상 개선'은 반박된다.",
+    "Scaling Test-Time Compute의 unconstrained 16×2 rollout 개선과 현행 프로젝트의 inclusive same-B_run 비교 계약은 직접 양립하지 않는다. 동일 예산 비교 전에는 이 프로젝트 우월성 근거가 아니다.",
+    "SkillOrchestra/Agent-as-a-Router의 실행 경험 누적은 동적 routing을 지지하지만, 프로젝트의 evaluator-owned gold와 one-shot final-temporal/OOD에서는 online adaptation이 leakage/order dependence가 된다. 최종 평가용 router는 반드시 동결해야 한다.",
+    "PerfAgent는 profiler feedback loop가 blind best@5보다 낫다고 보고하지만 patch를 반복 변경·재측정한다. 본 프로젝트는 자동 수정이 범위 밖이므로 evidence→affected-perspective revision만 이전 가능하다.",
+    "SWE-Skills-Bench는 blanket skills의 평균 효용이 작다고 보고하지만 일부 specialized skills는 최대 +30%였다. 결론은 specialist를 제거하라는 것이 아니라 task-conditioned selection과 project compatibility 검증이 필요하다는 것이다.",
+    "SkillOrchestra는 fine-grained skill이 도움이 된다고 보고하는 동시에 orchestrator capacity가 낮으면 세분화가 misrouting을 늘릴 수 있다고 명시한다. 현재 5관점보다 더 세분화하는 것은 근거 없이 진행하면 안 된다."
+  ],
+  "unknowns": [
+    "현행 gold에서 각 case에 필요한 perspective의 multi-label 정답과 '안 돌려도 되는 관점' negative label을 신뢰성 있게 만들 수 있는가?",
+    "60-case pilot가 dynamic perspective router의 threshold/competence profile을 보정하기에 충분한가? power와 base-rate 확인이 필요하다.",
+    "구조·정확성·성능·동시성·테스트 사이의 상호작용 때문에 단독으로는 나오지 않던 finding이 관점 생략 시 얼마나 사라지는가?",
+    "same B_run에서 절약된 analyst tokens를 selected analyst depth, critic, 또는 runtime evidence assimilation 중 어디에 쓰는 것이 가장 높은 accepted true finding/cost를 만드는가?",
+    "현행 Evidence Gate와 typed critic의 오류가 얼마나 상관되어 있으며, critic이 실제로 새 counterevidence를 찾는지 아니면 설명만 늘리는가?",
+    "focused test/profiler 결과를 analyst가 다시 해석할 때 workload 대표성 한계를 지키면서 status/severity를 올바르게 갱신할 수 있는가?",
+    "서로 상보적인 다중 model pool이 실제로 존재하는가? outcome matrix 없이는 specialist model routing의 oracle gap도 알 수 없다.",
+    "동적 router가 OOD를 어떤 deterministic/held-out signal로 감지해 all-five fallback할지 아직 정해지지 않았다."
+  ],
+  "recommended_followups": [
+    "최우선 실험으로 `P4-Dyn`을 사전 등록한다: DiagnosisPlan dispatch mask, enumerated selection/omission reasons, invalid/OOD/unresolved all-five fallback만 추가하고 나머지 계약은 유지한다.",
+    "AgentAbstain식 최소 perturbation paired cases를 관점별로 만든다. 각 pair는 특정 관점 trigger 하나만 바꾸고 dispatch act/abstain을 동시에 맞혀야 통과하도록 해 always-run/always-skip 정책을 막는다.",
+    "`P4-Dyn`, `P4-Dyn+TypedCritic`, `P4-Dyn+RuntimeAssimilation`을 same-B_run factorial이 아니라 단계적 ablation으로 비교해 각 추가 메커니즘의 독립 기여를 분리한다.",
+    "runtime normalizer 뒤 D3를 정확히 한 번만 허용하고 existing lineage/revision/tombstone invariant를 재사용하는 설계안을 작성한다. profiler/test permission과 ExecutionPolicy는 변경하지 않는다.",
+    "critic contract에는 `DISAGREE_EVIDENCE`와 `DISAGREE_CONCERN`을 분리하고 evidence ID/source locator 없는 새 사실은 finding으로 승격하지 못하게 한다.",
+    "router와 competence profiles는 calibration 종료 후 freeze하고 final-temporal/OOD에서는 한 번만 실행한다. online C-A-F adaptation은 별도 production research track으로 분리한다.",
+    "N=16,T=2 test-time scaling이나 새 fixed perspectives는 당장 도입하지 않는다. dynamic routing·runtime assimilation·typed critic이 same-B_run Pareto 이득을 보인 뒤 unresolved High/Critical subgroup에서만 N=2/4 pilot을 허용한다."
+  ]
+}

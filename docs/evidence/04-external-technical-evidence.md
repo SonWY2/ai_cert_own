@@ -180,7 +180,49 @@
 - 한계
   - post-hoc audit이며 본 과제 score validity는 직접 측정해야 한다.
 
-## 6. 최신 근거가 직접 입증하지 않는 것
+## 6. 적응형 진단·반증·검증
+
+### 6.1 SWE-Router
+
+- 출처: [SWE-Router v1](https://arxiv.org/html/2607.00053v1), 2026-06-30, `preprint`
+- `FACT`
+  - coding agent의 partial trajectory를 본 뒤 약한/강한 model을 routing하는 방식을 평가한다.
+- `DESIGN INFERENCE`
+  - 초기 정적 신호뿐 아니라 graph 탐색·분석 결과를 본 뒤 관점 선택을 갱신할 수 있다.
+- 한계
+  - model routing이며 구조·정확성·성능·동시성·테스트 관점 생략을 직접 평가하지 않는다.
+
+### 6.2 AgentAbstain
+
+- 출처: [AgentAbstain v1](https://arxiv.org/html/2607.10059v1), 2026-07-11, `preprint`
+- `FACT`
+  - 최고 agent도 act/abstain paired accuracy 59.5%를 보고한다.
+- `DESIGN INFERENCE`
+  - Planner의 free-form confidence로 관점 skip을 결정하지 않고 typed reason, deterministic mandatory route, shadow calibration을 사용한다.
+- 한계
+  - tool action abstention이며 perspective routing 직접 근거가 아니다.
+
+### 6.3 Adversarial Review
+
+- 출처: [Adversarial Review v1](https://arxiv.org/html/2608.18167v1), 2026-08-16, `preprint`
+- `FACT`
+  - naive reviewer-critic은 SWE-PRBench F1 0.457이었고 evidence/concern을 구분한 text-constrained 구성은 0.533을 보고한다.
+- `DESIGN INFERENCE`
+  - 반복 debate 대신 High/Critical 충돌에만 근거 인용형 critic을 한 번 실행한다.
+- 한계
+  - 현행 Evidence Gate 대비 고유 counterevidence 이득은 프로젝트에서 별도 측정해야 한다.
+
+### 6.4 LLM-generated counterexample
+
+- 출처: [Improving Dynamic Specification Inference with LLM-Generated Counterexamples v1](https://arxiv.org/html/2604.10761v1), 2026-04-12, `preprint`
+- `FACT`
+  - Java method-level specification inference에서 invalid assertion 최대 11.68% 제거와 precision 최대 7% 개선을 보고한다.
+- `DESIGN INFERENCE`
+  - 독립 oracle과 claim quantifier가 있는 Finding에만 ephemeral falsification probe를 제한적으로 시험한다.
+- 한계
+  - Python repository 진단·race·성능 가설로 직접 일반화하지 않는다. Probe 미재현은 existential·확률적 가설의 반박이 아니다.
+
+## 7. 최신 근거가 직접 입증하지 않는 것
 
 - 본 과제의 1-hop, 80 node, 24k evidence budget
 - 5관점 DAG의 우월성
@@ -188,12 +230,17 @@
 - 60개 pilot과 3 trial의 통계 충분성
 - py-spy/Scalene의 프로젝트 overhead
 - A+ KPI 달성
+- fixed-five 대비 적응형 perspective routing의 Recall·token 개선
+- `정확성+구조` 보호 관점의 최적성
+- semantic critic의 Evidence Gate 대비 고유 이득
+- ephemeral probe의 Python 진단 confirmation coverage와 oracle validity
 
 이 항목은 모두 `DESIGN INFERENCE` 또는 `TARGET`이며 project ablation/final holdout으로만 승격한다.
 
-## 7. 현재 기술 결정
+## 8. 현재 기술 결정
 
-- **채택 제안**: Python 3.14 deterministic graph, lexical anchor, bounded expansion, canonical Finding, immutable ExecutionPolicy, RuntimeEvidence, deterministic profiler router.
-- **조건부**: vector anchor, learned router, 2-hop, Scalene memory mode.
-- **배제**: full-repo 강제 입력, all-query GraphRAG, always profiler 운영, LLM-only graph, vendor 수치의 성능 증명 사용.
+- **설계 반영**: Python 3.14 deterministic graph, lexical anchor, bounded expansion, canonical Finding, `DiagnosisPlan v2`, fixed-five/shadow 안전 기준, `HypothesisContract v1`, immutable ExecutionPolicy, RuntimeEvidence, deterministic profiler router.
+- **pilot 후 승격**: routed perspective execution, evidence-cited critic, ephemeral counterexample probe.
+- **조건부**: vector anchor, learned router, 2-hop, Scalene memory mode, telemetry 기반 trace/log reasoning.
+- **배제**: 자유형 specialist/swarm, 반복 debate, persistent free-form memory, full-repo 강제 입력, all-query GraphRAG, always profiler 운영, LLM-only graph, vendor 수치의 성능 증명 사용.
 

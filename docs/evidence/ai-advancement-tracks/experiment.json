@@ -1,0 +1,365 @@
+{
+  "strategy_id": "experiment",
+  "scope": "Experimental track only. These are preregistered pilot designs, not project results. Common contract for every arm: use only the existing pilot/train/calibration/regression assets; never inspect or tune on final-temporal/final-OOD manifests or labels. Pair variants on the same commit, task, exact model/prompt/policy/tool versions and evidence snapshot; randomize variant/case order; blind the existing two-expert plus tie-break adjudication; treat case as the statistical sample and repeated trials as nested observations, not independent samples. Every added planner, lens, critic, retrieval summary, test-generation, retry, gate and composer call consumes the same inclusive B_run; tool seconds also stay under the frozen arm cap. Preserve failures, timeouts, abstentions and budget overruns; mark overruns non_comparable rather than deleting them. Tune thresholds on train/calibration, select versions on regression, and only a finally frozen winner may be run once on each final holdout under the existing one_run_record contract.",
+  "claims": [
+    {
+      "id": "EXP-C1",
+      "claim": "The existing project contract already supplies the fairness and leakage controls needed for these pilots: same inputs and inclusive B_run across LLM variants, calibration-time budget freezing, nested rather than inflated trials, evaluator-hidden gold, frozen regression promotion evidence, and one-run temporal/OOD final holdouts.",
+      "kind": "documented",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§2 공정성 계약 및 Run budget, lines 18-47; §3.2 개발 split과 최종 holdout, lines 61-99; §4 실행 절차, lines 122-134; §11 Feedback와 promotion, lines 250-288",
+          "source_type": "local project design",
+          "supports": true,
+          "notes": "Defines same commit/task/model/tools/evidence snapshot, inclusive B_run, non_comparable over-budget trials, calibration/regression use, hidden final manifests, and one final execution."
+        },
+        {
+          "source": "docs/evidence/01-kpi-measurement-framework.md",
+          "title": "KPI 측정 프레임워크",
+          "date": "2026-08-23",
+          "locator": "§3 표본·split, lines 57-76; §10 AI 파이프라인 방어 지표, especially repeated-trial treatment; §11 통계 원칙, lines 218-223",
+          "source_type": "local project design",
+          "supports": true,
+          "notes": "Requires repository-disjoint development splits, frozen temporal/OOD final holdout, fixed trial count after pilot, preserved failures/timeouts, and one final aggregation."
+        }
+      ],
+      "qualifiers": [
+        "These are design contracts, not measured outcomes.",
+        "Any new arm must extend B_run accounting rather than creating an off-budget side channel."
+      ]
+    },
+    {
+      "id": "EXP-C2",
+      "claim": "The first discriminating perspective experiment should route a protected core plus optional existing perspectives before attempting a generated lens: it can test call reduction without changing the Finding/merge schema, while retaining a deterministic all-five fallback.",
+      "kind": "inferred",
+      "status": "candidate",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§2 pipeline and fallback, lines 26-56; §6 budget, lines 168-174; §7 5관점 분석, lines 176-205; §14 실험 설정, lines 333-358",
+          "source_type": "local project design",
+          "supports": true,
+          "notes": "The current design already has a versioned DiagnosisPlan, five-perspective fallback, bounded optional expansion, stable contributor lineage, and same-B_run perspective ablation hooks."
+        },
+        {
+          "source": "https://arxiv.org/html/2605.28433v1",
+          "title": "Roles with Rails: Contract-Preserving Role Evolution in Multi-Agent Structured Reasoning",
+          "date": "2026-05-27",
+          "locator": "Abstract; §1 Introduction; §3 Methodology; §4 Benchmarks and Metrics; Limitations",
+          "source_type": "primary preprint, arXiv:2605.28433v1",
+          "supports": true,
+          "notes": "Documents task-conditioned active-team retrieval and guarded role evolution, but also requires capability, communication, validation, aggregation and output-protocol contracts."
+        }
+      ],
+      "qualifiers": [
+        "Priority is an engineering inference, not a published result.",
+        "The external study evaluates automatically scored structured-reasoning tasks, not Python code diagnosis; its limitations state text-only benchmarks and hand-designed seed roles."
+      ]
+    },
+    {
+      "id": "EXP-C3",
+      "claim": "A generated lens is technically plausible only as a contract-bound ephemeral checklist owned by one of the five existing perspectives; unconstrained new roles risk coverage loss, incompatible handoffs, bypassed validation, duplicate aggregation, and output-schema drift.",
+      "kind": "inferred",
+      "status": "candidate",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.28433v1",
+          "title": "Roles with Rails: Contract-Preserving Role Evolution in Multi-Agent Structured Reasoning",
+          "date": "2026-05-27",
+          "locator": "Abstract; §1, paragraphs defining the five structural contracts; §3.1 Role Cards; §5 Limitations",
+          "source_type": "primary preprint, arXiv:2605.28433v1",
+          "supports": true,
+          "notes": "The paper explicitly contrasts frozen roles with unconstrained edits and commits edits only when five contracts are preserved and task score improves."
+        },
+        {
+          "source": "docs/ai-selection-matrix/01-multi-perspective-diagnosis-adr.md",
+          "title": "ADR-01: 다관점 진단에 하이브리드 분석을 사용한다",
+          "date": "2026-08-23",
+          "locator": "§4 Finding contract, lines 38-93; §6 관점별 책임, lines 121-132; §7 초기 설정, lines 134-139",
+          "source_type": "local project design",
+          "supports": true,
+          "notes": "The current canonical Finding and contributor lineage require one of five perspective owners, stable merge keys, evidence, revision and disposition semantics."
+        }
+      ],
+      "qualifiers": [
+        "No recent primary source directly validates generated diagnostic lenses for this project.",
+        "Therefore a new perspective enum or persistent role pool is not justified by current evidence."
+      ]
+    },
+    {
+      "id": "EXP-C4",
+      "claim": "History-aware retrieval must be judged by downstream diagnosis utility, not retrieval hit rate alone: recent repository-memory work reports strong small-budget retrieval in one fact benchmark but no statistically detectable headline downstream bug-fixing lift, while a separate retrieval benchmark finds no retrieval family dominates and natural no-gold abstention remains difficult.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.18284v1",
+          "title": "CommitDistill: A Lightweight Knowledge-Centric Memory Layer for Software Repositories",
+          "date": "2026-05-18",
+          "locator": "Abstract; §I Introduction, Contributions items 4-5 and Scope; §VI-G RQ5 downstream LLM-as-Judge utility",
+          "source_type": "primary preprint, arXiv:2605.18284v1",
+          "supports": true,
+          "notes": "Authors report 0.750 hit rate under a 256-character budget on 12 fact-style queries versus 0.333 BM25 and 0.083 git log --grep, but no retriever produced a statistically detectable headline mean lift over control in the downstream evaluation."
+        },
+        {
+          "source": "https://arxiv.org/html/2607.24882v1",
+          "title": "Agent Retrieval Bench: Evaluating Repository Context Retrieval for Coding Agents",
+          "date": "2026-07-27",
+          "locator": "Abstract; §1 Introduction; §3 Problem Definition",
+          "source_type": "primary preprint, arXiv:2607.24882v1",
+          "supports": true,
+          "notes": "427 samples across 25 repositories; per-task/context-budget winners differ, and selective thresholds fail to improve success on 50 natural no-gold cases. The authors explicitly do not claim retrieval metrics substitute for patch success."
+        }
+      ],
+      "qualifiers": [
+        "Both are preprints and neither evaluates this project's five-perspective Python diagnosis pipeline.",
+        "CommitDistill's current prototype mines commit messages only despite a broader proposed schema."
+      ]
+    },
+    {
+      "id": "EXP-C5",
+      "claim": "Generated tests can provide executable evidence for review findings, but only after independent validity, hermeticity and leakage checks; test presence or a single pass is insufficient.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "medium",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2603.23448v1",
+          "title": "Code Review Agent Benchmark",
+          "date": "2026-03-24",
+          "locator": "Abstract; §1 Introduction; §3.3 Our benchmark: c-CRAB; §4.1 Overview; §4.2 Benchmark Curation",
+          "source_type": "primary preprint, arXiv:2603.23448v1",
+          "supports": true,
+          "notes": "c-CRAB converts human review concerns into tests, requires the test to fail on the candidate patch and pass after the issue is resolved, and validates executable environments and fixability before retaining an instance."
+        },
+        {
+          "source": "https://arxiv.org/html/2607.12068v1",
+          "title": "Beyond Test Presence: Assessing the Quality and Robustness of Agent-Generated Tests in Open-Source Projects",
+          "date": "2026-07-13",
+          "locator": "Abstract; §II Phase 3; §III flakiness metrics/results; §IV-B Threats to Construct Validity",
+          "source_type": "primary preprint, arXiv:2607.12068v1",
+          "supports": true,
+          "notes": "Authors report higher static flakiness-candidate rates for agent-generated tests and explicitly distinguish static candidates from dynamically confirmed flakiness; the edge-case metric is acknowledged as a literal-only proxy."
+        },
+        {
+          "source": "https://arxiv.org/html/2606.26300v1",
+          "title": "The Verification Horizon: No Silver Bullet for Coding Agent Rewards",
+          "date": "2026-06-24",
+          "locator": "Abstract; §1 Introduction; §2 Test-driven Rewards, especially §2.1-2.3",
+          "source_type": "primary preprint, arXiv:2606.26300v1",
+          "supports": true,
+          "notes": "Treats tests as scalable verifiers but documents instruction-test misalignment and shortcut/reward-hacking risks, motivating quality judging and trajectory monitoring."
+        }
+      ],
+      "qualifiers": [
+        "c-CRAB generates tests from human reviews, not from autonomous project findings; transfer must be tested.",
+        "The July test-quality study relies heavily on static proxies and has stated construct-validity limits, so its rates are warnings rather than project thresholds."
+      ]
+    },
+    {
+      "id": "EXP-C6",
+      "claim": "Uncertainty-driven execution should be evaluated with paired no-tool/tool utility and affordability labels, not raw model self-confidence: a recent cross-model tool study reports systematic mismatch between perceived and true need/utility and finds calls can be neutral or harmful.",
+      "kind": "reported",
+      "status": "confirmed",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2605.00737v3",
+          "title": "To Call or Not to Call: A Framework to Assess and Optimize LLM Tool Calling",
+          "date": "2026-08-06",
+          "locator": "Abstract; §1 Introduction; §3 Operating Frameworks; §4.1 Need and Utility",
+          "source_type": "primary preprint, arXiv:2605.00737v3",
+          "supports": true,
+          "notes": "Separates necessity, utility and affordability with No Tool/Always Tool/Self-decision counterfactuals; reports model self-perception misalignment and neutral/harmful calls across evaluated web-search and calculator tasks."
+        },
+        {
+          "source": "docs/evidence/02-benchmark-and-ablation-plan.md",
+          "title": "기준선·Ablation 벤치마크 계획",
+          "date": "2026-08-23",
+          "locator": "§6 Profiler router experiment, lines 157-189",
+          "source_type": "local project design",
+          "supports": true,
+          "notes": "The current design already defines case/context/model/B_run-paired no-profile/profile outputs and evaluator-owned beneficial/neutral/harmful labels with calibration, utility and cost metrics."
+        }
+      ],
+      "qualifiers": [
+        "The paper's tools are web search and calculators, not focused tests or Python profilers.",
+        "Latent hidden-state estimators may be unavailable for hosted models; project-visible artifact uncertainty must be separately calibrated."
+      ]
+    },
+    {
+      "id": "EXP-C7",
+      "claim": "An LLM critic should be tested only as a bounded challenge layer before the existing Evidence Gate, never as the authority that creates confirmation or replaces RuntimeEvidence; its value is a measurable reduction in unsupported or wrong-severity findings without Critical/High recall loss.",
+      "kind": "inferred",
+      "status": "candidate",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "https://arxiv.org/html/2606.26300v1",
+          "title": "The Verification Horizon: No Silver Bullet for Coding Agent Rewards",
+          "date": "2026-06-24",
+          "locator": "Abstract; §1 Introduction, scalability-faithfulness-robustness framework; §2.2 Agentic Quality Judge; §2.3 trajectory monitoring",
+          "source_type": "primary preprint, arXiv:2606.26300v1",
+          "supports": true,
+          "notes": "Argues every verifier is a proxy for intent and no single fixed verifier is simultaneously scalable, faithful and robust; layered tests, quality filtering and behavior monitoring are used."
+        },
+        {
+          "source": "docs/evidence/03-ai-pipeline-technical-design.md",
+          "title": "AI 파이프라인 기술 설계",
+          "date": "2026-08-23",
+          "locator": "§1 invariants, lines 6-12; §2 pipeline, lines 26-56; §9 runtime request/router, lines 218-244; §10 RuntimeEvidence and Evidence Gate",
+          "source_type": "local project design",
+          "supports": true,
+          "notes": "The project separates static facts, hypotheses and runtime results, routes execution through immutable policy, and requires final findings to trace to source and RuntimeEvidence."
+        }
+      ],
+      "qualifiers": [
+        "This is an architecture inference, not evidence that an extra critic improves this system.",
+        "The critic overlaps the existing merger/evidence gate and must beat a budget-matched self-review control."
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "name": "P1 — Routed core plus optional existing perspectives",
+      "current_gap": "The first pass always spends analyst budget on all five perspectives; no measured evidence yet shows whether performance, concurrency and test perspectives are needed on every case. A pure single-perspective ablation is too coarse to evaluate safe dynamic selection.",
+      "mechanism": "Keep structure and correctness as mandatory core. The Diagnosis Planner selects performance, concurrency and/or test using task text plus graph/CFG/test-edge features; deterministic must-run guards force performance for performance signals, concurrency for async/task/lock/shared-state signals, and test for changed behavior or missing TESTS links. Emit selected_perspectives and enumerated route_reason_codes in DiagnosisPlan. Planner failure, schema failure or uncertainty falls back to all five. Preserve all existing contributor/Finding/merge contracts.",
+      "expected_effect": "Hypothesis: optional routing preserves Critical/High and per-perspective recall while reducing analyst calls, tokens and wall time; fallback prevents catastrophic omission.",
+      "ai_specificity": "Uses the existing LLM planner for task-conditioned perspective selection, but constrains it with deterministic coverage guards and typed reasons rather than a prompt-only free-form choice.",
+      "minimal_change": "Add selected_perspectives and route_reason_codes to DiagnosisPlan, three deterministic must-run predicates, routing trace fields, and a five-perspective fallback. No new agent type, perspective enum, merge rule or runtime tool.",
+      "extra_cost": "Small planner-output and routing-evaluation cost; expected operational cost is lower if optional perspectives are skipped. Fixed per-perspective token caps are not reallocated, so savings are observable rather than hidden as deeper selected calls.",
+      "risks": [
+        "Optional-perspective false negatives, especially cross-cutting performance/concurrency defects",
+        "Planner learns superficial task-text cues and misses graph-only risk",
+        "Apparent quality comes from deterministic guards rather than AI routing",
+        "Small perspective strata produce unstable estimates"
+      ],
+      "evaluation": "HYPOTHESIS: R2+ is non-inferior in Critical/High Recall and saves at least 20% analyst tokens/calls. COMPARISON: current P4 fixed-five first pass versus P4-R2+ on identical cases; same per-node caps and inclusive B_run, no unused-budget reallocation; retrospectively score planner-only selections separately from forced guards. METRICS: Critical/High Recall delta (primary), overall and five stratum recalls, optional-route precision/recall, accepted TP/1k tokens, calls, total tokens, p50/p95 wall time, grounding and safety. SAMPLE UNIT: pilot case, with trial nested; include all five defect strata and negative/unsafe cases. FAILURE CRITERION: one-sided Recall non-inferiority lower bound is not above -2pp, any optional stratum trigger recall <0.85, any new Critical/High regression, grounding >5%, or analyst token/call reduction <20%. DECISION CHANGED: pass advances routed first pass to frozen regression and makes fixed-five the deterministic fallback; failure keeps fixed-five and confines routing to optional D2 expansion.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "P2 — Contract-bound generated diagnostic lens",
+      "current_gap": "The fixed five checklists may miss framework- or domain-specific failure modes, but a new free-form perspective would violate current enums, lineage and merge contracts and could merely buy another generic retry.",
+      "mechanism": "Permit at most one ephemeral generated checklist after M1 only when the planner emits an evidence_gap or unclassified root-cause reason. The lens must declare one existing owner perspective, allowed evidence types, falsification question and stop condition; it may revise/challenge that owner's contributors but cannot introduce a sixth perspective, new schema, new tool, or persistent role. Reject the lens before execution if contract fields are invalid.",
+      "expected_effect": "Hypothesis: a task-conditioned checklist finds rare, blind-adjudicated true findings more efficiently than spending the same tokens on a generic second pass of the selected existing perspective.",
+      "ai_specificity": "The LLM synthesizes a case-specific diagnostic lens from task, graph and unresolved evidence, while typed rails constrain its capability and output.",
+      "minimal_change": "Add optional generated_checklist fields to the existing expansion request and validate ownership/evidence/stop contracts; reuse D2 lineage revision and tombstones. No role pool, training loop or new perspective enum.",
+      "extra_cost": "One bounded generation plus one affected-perspective D2 pass; both replace, rather than add to, the matched replay tokens inside B_run.",
+      "risks": [
+        "Prompt novelty masquerades as capability",
+        "Duplicate or ungrounded findings",
+        "Lens selection overfits evaluator taxonomy-tail cases",
+        "Contract/schema drift and harder reproducibility",
+        "No recent direct evidence in code diagnosis"
+      ],
+      "evaluation": "HYPOTHESIS: generated lens yields more unique accepted TP per 1k incremental tokens than a budget-matched generic D2 replay. COMPARISON: no expansion, matched replay of the highest-priority existing perspective, and one contract-bound generated lens; use evaluator-selected taxonomy-tail plus ordinary/negative development cases with labels hidden from the agent. METRICS: incremental unique gold TP, accepted TP/1k tokens, precision, duplicate rate, unsupported-finding rate, valid revision/retraction rate and contract violations. SAMPLE UNIT: case, with findings nested and trial nested. FAILURE CRITERION: no unique accepted TP, lens is not better than matched replay on TP/1k tokens, Recall lower bound is not above -2pp, grounding >5%, or any perspective/lineage/output-protocol violation. DECISION CHANGED: pass allows one ephemeral lens as optional D2; failure holds or excludes generated lenses and retains the five typed checklists.",
+      "provisional_decision": "hold"
+    },
+    {
+      "name": "P3 — Independent challenge-only verifier/critic",
+      "current_gap": "The Evidence Gate checks evidence/state contracts, but may not falsify causal reasoning or severity well; conversely an added critic may duplicate merger/gate work and reduce recall by over-rejecting.",
+      "mechanism": "Run one fresh-context critic after M2 and before runtime routing. It receives canonical findings, contributor slices and cited evidence, not prior chain-of-thought. Output is typed CritiqueDisposition(finding_id, contributor_id, uphold|challenge|request_runtime, reason_code, evidence_ids). It cannot create findings or mark runtime_confirmed. Evidence Gate remains final authority; challenged findings are retained in history.",
+      "expected_effect": "Hypothesis: independent falsification lowers unsupported and wrong-severity findings more than a same-token self-review, without removing gold Critical/High findings.",
+      "ai_specificity": "Uses a separately prompted/model-context LLM as an adversarial verifier of causal and severity claims rather than another vote or prose composer.",
+      "minimal_change": "One challenge node and disposition schema referencing existing IDs; reuse Evidence Gate, lineage history, runtime eligibility and report states. No new confirmation state.",
+      "extra_cost": "One bounded LLM call per case inside B_run plus blind adjudication of challenge validity; compare against an equal-token merger self-review.",
+      "risks": [
+        "Correlated model errors create false assurance",
+        "Over-retraction reduces recall",
+        "Redundant with merger/Evidence Gate",
+        "Critic smuggles new unsupported claims",
+        "Extra latency consumes budget otherwise available to analysis"
+      ],
+      "evaluation": "HYPOTHESIS: independent critic reduces unsupported/wrong-severity findings beyond both base and budget-matched self-review with no material recall loss. COMPARISON: P4 base, P4 plus same-merger self-review, P4 plus fresh-context challenge-only critic; identical total B_run by reserving the same token slice in all augmented arms. METRICS: unsupported-finding rate, Precision, Critical/High and overall Recall, valid FP retraction rate, TP false-retraction rate, severity correction accuracy, accepted TP/1k tokens and latency. SAMPLE UNIT: case; finding adjudication is nested and confidence intervals cluster by case/repository. FAILURE CRITERION: any new Critical/High regression attributable to a critic rejection, overall Recall decline >2pp, grounding remains >5% or does not improve versus matched self-review, or critic emits a new finding/confirmation. DECISION CHANGED: pass adds a bounded challenge node; failure keeps the present merger plus Evidence Gate and removes the redundant critic.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "P4 — Bounded ancestry-safe history retrieval",
+      "current_gap": "Current exact/BM25/vector anchors and Code Graph describe the frozen source snapshot but omit why prior changes were made; raw history can also be stale, noisy or leak a later solution.",
+      "mechanism": "At the frozen base commit only, deterministically retrieve at most three ancestor commits touching seed files/symbols, returning commit SHA/date, touched paths and bounded message/diff-hunk excerpts. Exclude descendants/post-cutoff history, generated artifacts and solution commits; label every row historical, never runtime evidence. Replace equal tokens from the lowest-ranked current context so the context/B_run cap is unchanged. Start without embeddings, distillation, database or persistent memory.",
+      "expected_effect": "Hypothesis: bounded provenance-rich history improves evidence retrieval and diagnosis on evaluator-labeled history-relevant cases while abstaining on history-irrelevant/no-gold cases, without stale-evidence false positives.",
+      "ai_specificity": "Retrieval is deterministic and auditable; the LLM's AI role is to decide whether ancestral rationale supports or contradicts a diagnosis, under the same evidence gate.",
+      "minimal_change": "Add a HistoryEvidence row and a base-commit ancestry filter to the existing context manifest; reuse lexical anchors, token pruning, evidence IDs and source hashes.",
+      "extra_cost": "Local git traversal/indexing and a small fixed context slice; no new service or embedding model. Additional provenance adjudication is required.",
+      "risks": [
+        "Stale rationale conflicts with current code",
+        "Later-fix leakage if ancestry boundary is wrong",
+        "Commit messages are incomplete or misleading",
+        "History tokens displace more useful source context",
+        "Retrieval hit improvements may not improve final findings"
+      ],
+      "evaluation": "HYPOTHESIS: history increases evidence Recall@10 and accepted TP/1k tokens on history-relevant cases without harming irrelevant/no-gold cases. COMPARISON: current retrieval versus current plus equal-budget bounded history; stratify evaluator-hidden history-relevant and history-irrelevant/no-gold cases. METRICS: file/function Accuracy@K, evidence Recall@5/10, gold evidence/1k tokens, downstream Critical/High Recall and Precision, history-attributed unique TP, abstention, stale/misleading-history findings, retrieval latency. SAMPLE UNIT: case; retrieval queries and findings are nested. FAILURE CRITERION: non-positive delta in both evidence Recall@10 and accepted TP/1k on the relevant stratum, any history-caused Critical/High FP or post-cutoff access, overall Recall lower bound not above -2pp, or cost p95 worsens with no quality gain. DECISION CHANGED: pass advances bounded history as an optional context source; failure keeps snapshot retrieval and excludes a history memory layer.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "P5 — Ephemeral focused test generation",
+      "current_gap": "The current focused-test path can run authorized existing commands, but an eligible High/Critical hypothesis may have no discriminating existing test. Treating an unvalidated generated test as evidence would be unsafe and circular.",
+      "mechanism": "Only after a statically supported, runtime-eligible correctness/concurrency finding lacks a target existing test, generate one ephemeral test in a read-only-source overlay. The generator cannot edit production source, existing tests, manifests or evaluator files. The ExecutionPolicy exact-matches the overlay command. Evaluator-only validation later checks that the test fails on the frozen buggy commit and passes on the known fixed commit, is hermetic across repeated clean runs, and did not access hidden artifacts. Only validated executions become RuntimeEvidence; invalid tests remain failed/inconclusive artifacts.",
+      "expected_effect": "Hypothesis: generated tests increase RuntimeConfirmationCoverage and useful rejection of false hypotheses on eligible findings where existing focused tests are absent, without unsafe execution or flaky evidence.",
+      "ai_specificity": "An LLM converts a bounded finding plus source/CFG evidence into an executable counterexample; deterministic policy, isolation, repeated execution and evaluator-hidden differential validation decide whether it counts.",
+      "minimal_change": "Add an ephemeral generated_test request kind, overlay path and validation status to the existing command manifest/RuntimeEvidence envelope; reuse eligibility, opt-in, timeout, hashes and lifecycle states.",
+      "extra_cost": "One bounded generation call plus isolated test runs and evaluator-only buggy/fixed differential validation; likely the highest wall-time pilot, so restrict to eligible findings lacking existing tests.",
+      "risks": [
+        "Test encodes the finding prose rather than intended behavior",
+        "False oracle or implementation-specific assertion",
+        "Flakiness, file/network/time side effects",
+        "Hidden-test or fixed-patch leakage",
+        "Generated test consumes budget without confirming/rejecting a finding"
+      ],
+      "evaluation": "HYPOTHESIS: generated tests add at least 5pp RuntimeConfirmationCoverage on the evaluator-owned eligible cohort and at least 80% of attempted tests pass differential/hermetic validation. COMPARISON: current P4 existing-focused-test path versus P4 plus generated test only after existing-test absence/inconclusive state; same cases, B_run and ExecutionPolicy caps. METRICS: RuntimeConfirmationCoverage (primary), completed-attempt coverage, true-hypothesis confirmation, false-hypothesis rejection, differential validity (buggy fail/fixed pass), three-clean-run stability, unsafe/policy violations, cost per confirmed TP and C/H Recall. SAMPLE UNIT: case, with evaluator-owned eligible finding nested; trials are nested. FAILURE CRITERION: <80% valid attempted tests, <5pp confirmation-coverage gain, any source/evaluator mutation or hidden-artifact access, any unsafe execution, any unstable validated test, new Critical/High regression, or overall Recall decline >2pp. DECISION CHANGED: pass advances ephemeral diagnostic test generation behind policy; failure retains existing-test execution only and excludes generated tests from evidence.",
+      "provisional_decision": "advance"
+    },
+    {
+      "name": "P6 — Calibrated uncertainty-driven execution shadow policy",
+      "current_gap": "The deterministic runtime router is safe but may under/over-trigger; the design deliberately removed free-form confidence, and hosted models may not expose hidden states needed by recent latent estimators.",
+      "mechanism": "Build a shadow logistic or GBDT ranker only from observable typed artifacts already produced before execution: unresolved_path/evidence_gap, contributor disagreement, missing TESTS edge, severity/evidence class, runtime eligibility, static-signal count and prior tool outcome cluster. Do not use self-reported confidence or chain-of-thought. Train on paired evaluator-owned beneficial/neutral/harmful labels, calibrate by repository-disjoint folds, and allocate the same number of calls/tool seconds as the deterministic router. Keep immutable ExecutionPolicy as a hard gate.",
+      "expected_effect": "Hypothesis: calibrated artifact uncertainty ranks beneficial test/profile executions ahead of neutral/harmful ones under the same call budget, improving utility per call without safety loss.",
+      "ai_specificity": "A learned uncertainty/utility policy combines structured agent disagreement and evidence gaps; it is more than a prompt but remains auditable and shadow-only until promoted.",
+      "minimal_change": "Add a versioned pre-execution feature vector, calibrated score and shadow decision to the routing artifact; no change to executor, opt-in, policy or Finding states until promotion.",
+      "extra_cost": "Offline feature/label construction, calibration and monitoring; runtime scoring is negligible and the call budget is unchanged. Sufficient paired labels are the main cost.",
+      "risks": [
+        "Small labels and repository leakage overfit the ranker",
+        "Artifact disagreement may correlate with difficulty but not tool utility",
+        "Model/version drift invalidates calibration",
+        "Self-generated features create feedback loops",
+        "Unsafe calls if learned score bypasses deterministic policy"
+      ],
+      "evaluation": "HYPOTHESIS: uncertainty ranker improves paired utility per call versus the deterministic router at the same call/tool-second cap. COMPARISON: never, always, current deterministic, LLM self-decision, calibrated artifact ranker and retrospective oracle; use existing paired no-tool/tool outputs and label versioning. METRICS: beneficial coverage, harmful/neutral run rate, invocation Precision/Recall/F-beta/PR-AUC, utility gain per call, ECE, Brier, reliability, p95 tool time, confirmed TP/cost and unsafe runs. SAMPLE UNIT: case; paired arm/trial/finding observations are nested, with repository-disjoint calibration and regression. FAILURE CRITERION: no improvement in utility per call over deterministic routing, beneficial coverage declines >2pp, harmful-run rate increases, ECE/Brier do not beat a base-rate predictor, any unsafe call/policy bypass, or cost p95 worsens. DECISION CHANGED: pass promotes only to frozen shadow/regression comparison before operational use; failure keeps the deterministic router and does not use model self-confidence.",
+      "provisional_decision": "hold"
+    }
+  ],
+  "contradictions": [
+    "Roles with Rails reports benefits from adaptive role evolution, but evaluates automatically scored structured-reasoning benchmarks and explicitly notes text-only/hand-designed-seed limitations; it cannot establish benefit for generated Python diagnostic lenses.",
+    "CommitDistill reports strong tiny-budget history retrieval hit rate, yet its downstream paired LLM evaluation finds no statistically detectable headline lift; retrieval success and diagnosis success must remain separate endpoints.",
+    "c-CRAB demonstrates that validated generated tests can operationalize review intent, while The Verification Horizon shows tests are still proxy verifiers vulnerable to instruction-test misalignment and shortcut exploitation; tests should layer under, not replace, provenance and trajectory checks.",
+    "To Call reports latent need estimators outperform model self-reports in its settings, but utility estimation remains difficult and its tools are search/calculation; this conflicts with treating raw LLM confidence as a ready profiler/test router."
+  ],
+  "unknowns": [
+    "Whether the 60-case pilot contains enough evaluator-owned optional-perspective need labels and Critical/High events for the -2pp non-inferiority gate; power remains to be calculated after pilot variance is observed.",
+    "Which structure/correctness core and deterministic must-run triggers maximize optional-route safety for framework DI, reflection and async edge cases.",
+    "Whether an independent critic adds signal beyond the current merger, planned opposing review and Evidence Gate when total B_run is held fixed.",
+    "Whether history-relevant and natural no-history cases can be labeled with reliable provenance without exposing future fixes, and whether commit prose contains enough signal in the selected Python repositories.",
+    "How many runtime-eligible findings lack a usable existing focused test, and what fraction of generated tests can satisfy buggy-fail/fixed-pass plus hermeticity without seeing the fixed patch.",
+    "Whether hosted model APIs expose stable token probabilities/hidden states; if not, whether observable artifact features have adequate calibration and transport across model/prompt versions.",
+    "The final trial count, multiplicity correction and sample sizes for temporal and OOD endpoints; these must be set by pilot power analysis, not by the current target of three trials."
+  ],
+  "recommended_followups": [
+    "Preregister the six arm definitions, exact variant hashes, common B_run/tool-second caps, case-level analysis, thresholds, randomization and blind adjudication before running any development case.",
+    "Run P1 first because it establishes the lower-cost routed baseline used by every later comparison; record planner-only decisions separately from deterministic forced perspectives so AI routing contribution is identifiable.",
+    "In parallel on disjoint development artifacts, curate evaluator-owned history-relevant/no-history labels for P4 and runtime-eligible existing-test-absent findings for P5; keep all gold and fixed-patch artifacts inaccessible to agents.",
+    "Run P3 against both base and budget-matched self-review; do not interpret a critic win over base alone as evidence of independent verification value.",
+    "Keep P2 and P6 out of operational design until P2 beats a matched existing-perspective replay and P6 has enough paired labels for repository-disjoint calibration; neither should be justified by raw self-confidence or role novelty.",
+    "Promote only candidates that pass their pilot failure gates to frozen regression artifacts under the existing promotion gate; retain every failure/timeout/non_comparable trace and FeedbackEvent provenance.",
+    "After regression selection, freeze model/prompt/policy/router/lens/history/test/critic versions and B_run hash; execute each final-temporal and final-OOD manifest exactly once and report them separately before any pooled analysis."
+  ]
+}

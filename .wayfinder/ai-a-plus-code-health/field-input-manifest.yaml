@@ -1,0 +1,772 @@
+schema_version: field-input-manifest-v18
+status: scope_frozen
+frozen_at: "2026-08-29"
+confirmed_by:
+  - role: project_owner
+    identity: user
+confirmation_sources:
+  - docs/project-context/ai-professional-project-proposal.md
+  - docs/evidence/01-kpi-measurement-framework.md
+  - docs/evidence/02-benchmark-and-ablation-plan.md
+  - docs/evidence/03-ai-pipeline-technical-design.md
+  - .wayfinder/ai-a-plus-code-health/research/fastapi-portfolio-evidence.md
+
+product_scope:
+  language: Python
+  analysis_runtime: "3.14"
+  repository_kind: any_git_repository_containing_python_source
+  framework_restriction: none
+  evaluation_claim_focus:
+    - backend_service
+    - FastAPI
+    - asyncio
+  scan_modes:
+    - scheduled_main_branch
+    - pull_request_or_candidate_commit
+  output: verified_risk_priority_table
+  automatic_code_change: false
+
+repository_portfolio:
+  status: scope_frozen_for_core
+  synthetic_fixture:
+    required: true
+    role: primary_implementation_and_hidden_holdout
+    source: python314_fastapi_asyncio_fixture_with_hidden_mutation_manifest
+    strata:
+      - correctness
+      - performance
+      - concurrency_and_cancellation
+      - api_contract
+      - cross_file_change
+  mandatory_runtime_pilot:
+    - repo: fastapi-users/fastapi-users
+      revision: 9ef8cd82619856772ac06a178b114eb47c79586c
+      release: v15.0.5
+      license: MIT
+      role: small_auth_api_cross_file_control
+    - repo: PrefectHQ/prefect
+      revision: 57ee2c2c10f662fee32807c126a117adce32dd28
+      release: 3.8.4
+      license: Apache-2.0
+      role: large_async_concurrency_runtime_canary
+  langflow_canary:
+    repo: langflow-ai/langflow
+    revision: ab52f7f8b911bb42712cefdfe9af3ed02db560a6
+    release: v1.11.5
+    license: MIT
+    static_scale_required: true
+    runtime_mode: conditional
+    runtime_admission:
+      - python314_dependency_install_succeeds_in_pinned_container
+      - deterministic_representative_workload_exists
+      - setup_and_run_fit_pilot_budget
+      - required_services_can_be_isolated_without_new_product_infrastructure
+  removed_from_core:
+    - candidate: fastapi/full-stack-fastapi-template
+      reason: overlaps_with_dedicated_synthetic_fixture
+    - candidate: fastapi_and_starlette_framework_calibration
+      reason: separate_framework_score_does_not_prove_product_value
+    - candidate: vllm_gpu_performance_lane
+      reason: cuda_model_artifact_and_serving_scope_add_cost_without_core_diagnostic_evidence
+    - candidate: open_webui
+      reason: python314_and_license_gate
+  temporal_public_holdout:
+    required: true
+    rule: freeze_recent_public_cases_after_development_cutoff_and_hide_labels_from_agent
+  contamination_policy:
+    public_pretraining_status: unknown_or_likely_exposed
+    public_corpus_role: pilot_regression_scale_canary_and_reproducibility
+    final_claim_basis:
+      - hidden_synthetic_holdout
+      - temporal_public_holdout
+
+evaluation_dataset_contract:
+  protocol_version: evaluation-protocol-v1
+  development_lane:
+    source: pinned_public_pilot_repositories
+    use: development_reproduction_and_preliminary_results
+    excluded_from_final_metric: true
+  final_claim_lanes:
+    - hidden_synthetic_holdout
+    - temporal_public_holdout
+  hidden_synthetic_holdout:
+    contents:
+      - seeded_correctness_performance_concurrency_api_and_cross_file_defects
+      - clean_negative_cases
+      - unsafe_execution_or_critical_high_dismissal_cases
+    labels_hidden_from_agent: true
+  temporal_public_holdout:
+    cutoff: frozen_after_development
+    cases_released_after_cutoff: true
+    labels_hidden_from_agent: true
+    public_pretraining_contamination_claim: prohibited
+  split_rules:
+    - all_members_of_repository_or_template_family_stay_in_one_split
+    - near_duplicates_never_cross_development_and_final_lanes
+    - final_case_ids_and_hashes_freeze_before_final_run
+  source_admission:
+    allowed:
+      - project_owned_synthetic_fixture
+      - public_repository_with_recorded_revision_and_license
+    prohibited:
+      - anonymous_private_case
+      - unversioned_snapshot
+  gold_record:
+    required:
+      - case_id_and_family_id
+      - immutable_snapshot_sha
+      - executable_oracle_command_when_available
+      - expected_invariant_or_failure
+      - root_cause_symbol
+      - impact_and_relative_priority
+  truth_precedence:
+    - executable_behavior_oracle
+    - known_regression_test
+    - hidden_mutation_manifest
+    - independent_llm_judge_for_semantic_match_only
+  blind_rule: gold_record_is_sealed_before_output_and_arm_identity_is_hidden_from_judge
+  public_patch_role: supporting_evidence_not_complete_gold
+  unresolved_truth_conflict: exclude_case_and_record_reason_before_aggregate_result
+  reporting:
+    - report_public_pilot_as_preliminary_only
+    - report_each_final_lane_separately_before_combined_summary
+    - state_no_human_evaluation_and_llm_judge_limitations
+
+support_envelope:
+  static_scan:
+    repository_scope: all_discoverable_python_files_in_immutable_snapshot
+    monorepo_rule: analyze_python_files_and_resolved_python_dependencies_only
+    repository_python_version: no_restriction_when_source_is_parseable
+  dynamic_validation:
+    rule: run_only_when_reproducible_workload_exists_in_approved_RunManifest
+    unavailable_runtime: keep_scan_accepted_and_defer_runtime_dependent_findings
+  unresolved_edges:
+    - dependency_injection
+    - reflection
+    - dynamic_import
+    - monkey_patch
+    - native_extension_internals
+    - environment_dependent_multiprocessing
+  unresolved_rule: preserve_as_unknown_and_defer_affected_finding
+  scan_status:
+    allowed:
+      - accepted
+      - rejected
+    degraded_status: prohibited
+    reject_when:
+      - immutable_snapshot_missing
+      - no_python_source
+      - analysis_budget_exceeded_before_minimum_report
+  finding_status:
+    allowed:
+      - confirmed
+      - rejected
+      - deferred
+  risk_taxonomy:
+    - structure
+    - correctness
+    - performance
+    - concurrency
+    - tests
+  taxonomy_rule: exactly_one_primary_category_and_no_subtaxonomy
+  finding_admission: concrete_code_location_failure_or_cost_mechanism_evidence_and_next_verification_action_required
+  excluded_findings:
+    - style_or_formatting_only
+    - generic_best_practice_without_failure_or_cost_mechanism
+    - non_python_semantics
+  size_claim: no_universal_repository_size_claim_before_pilot_measurement
+
+
+static_analysis_baseline:
+  parser:
+    - python_ast
+    - python_symtable
+  graph_storage: sqlite_node_and_edge_tables_without_graph_service
+  nodes:
+    - file
+    - module
+    - class
+    - function_or_method
+  edges:
+    - defines
+    - imports
+    - calls_when_statically_resolved
+    - inherits_when_statically_resolved
+  ast_flags:
+    - async_and_await
+    - task_creation
+    - try_except_finally
+    - context_manager
+    - raise_and_return
+    - decorators
+  edge_state:
+    - resolved
+    - unknown
+  retrieval:
+    seed: changed_code_stacktrace_or_user_selected_symbol
+    order:
+      - exact_symbol
+      - changed_file_and_lexical_match
+      - one_hop_graph_neighbor
+      - two_hop_graph_neighbor
+    max_graph_hops: 2
+    context_unit: source_slice_with_file_symbol_range_and_hash
+    deterministic_ordering: true
+  ablation_comparator: lexical_and_symbol_without_graph_neighbors
+  excluded_from_core:
+    - cfg_as_core_or_whole_repository_graph
+    - global_dataflow
+    - whole_program_type_inference
+    - cpg
+    - vector_database
+    - learned_graph_ranking
+    - whole_repository_long_context
+  experimental_extension:
+    function_local_cfg_and_bounded_def_use:
+      trigger: correctness_concurrency_or_resource_lifecycle_hypothesis_on_selected_function
+      scope: one_function_and_its_local_variables_only
+      cfg_edges:
+        - normal
+        - branch
+        - exception
+        - finally
+      dataflow: parameter_assignment_use_return_and_raise_def_use
+      target_findings:
+        - uninitialized_or_stale_value
+        - missing_cleanup_on_exit_path
+        - exception_path_gap
+        - async_cancellation_or_await_path_gap
+      excluded:
+        - interprocedural_dataflow
+        - heap_and_alias_analysis
+        - dynamic_call_resolution
+        - whole_repository_cfg
+      ablation: baseline_vs_baseline_plus_function_local_cfg_under_same_budget
+      promotion_gate: critical_high_recall_or_evidence_precision_improves_without_cost_or_safety_guardrail_failure
+
+
+risk_priority_table:
+  prototype: prototypes/risk-priority-table-v1.md
+  row_unit: stable_finding_id
+  columns:
+    - risk_id_title_category_and_location
+    - impact_and_trigger_condition
+    - change_and_evidence_status
+    - one_next_action_with_expected_time_and_result
+    - user_action
+  coverage_banner:
+    - analyzed_python_files
+    - unresolved_paths
+    - completed_dynamic_validations
+  sort_tuple:
+    - severity_desc
+    - change_worsened_then_new_then_unknown_then_unchanged_then_resolved
+    - evidence_confirmed_then_deferred_then_rejected
+    - verification_time_asc
+    - finding_id_asc
+  default_visibility:
+    hide:
+      - resolved
+      - evidence_rejected
+  mode_entry:
+    scheduled_main: current_confirmed_and_deferred_findings
+    release_candidate: new_and_worsened_first_with_impact_or_full_scope_label
+  detail: evidence_unknowns_and_single_next_action
+  prohibited:
+    - aggregate_risk_score
+    - root_cause_cluster_row
+    - dashboard_chart_or_heatmap
+    - multiple_next_action_choices
+
+finding_contract:
+  public_id: opaque_F_prefixed_id_assigned_on_first_detection
+  identity_key_fields:
+    - repository_identity
+    - root_cause_symbol
+    - failure_mechanism
+    - trigger_condition
+    - impact
+  identity_excludes:
+    - line_number
+    - perspective
+    - wording
+    - evidence_order
+  location_display: current_file_symbol_and_line_range
+  deduplication: same_identity_key_merges_perspective_evidence_into_one_finding
+  reuse_id_when:
+    - exact_identity_key_match
+    - unique_semantic_match_after_file_or_symbol_move
+  ambiguous_match: keep_existing_comparison_unknown_and_do_not_auto_link
+  independent_axes:
+    evidence_status:
+      - confirmed
+      - rejected
+      - deferred
+    change_status:
+      - new
+      - worsened
+      - resolved
+      - unchanged
+      - unknown
+    user_action:
+      - verify
+      - fix
+      - accept_risk
+      - dismiss
+  user_action_before_decision: null
+  no_additional_states:
+    duplicate: merge_by_identity_key
+    inconclusive: evidence_status_deferred
+    refuted: evidence_status_rejected
+    reopened: change_status_new
+    improved: change_status_unchanged
+    user_deferred: no_action_until_later
+
+git_topology:
+  scheduled_main:
+    triggers:
+      - weekly
+      - manual
+    target: immutable_current_main_sha
+    base: previous_accepted_scheduled_main_sha
+    scope: full_repository
+    same_sha: skip
+    first_run: create_current_inventory_without_delta_label
+  release_candidate:
+    trigger: manual_or_ci_request
+    target: immutable_candidate_sha
+    base: merge_base_with_main
+    scope_option:
+      - impact
+      - full
+    impact_scope: changed_python_files_plus_resolved_graph_impact
+    missing_base_artifact: analyze_base_in_same_run
+  source_freshness: bind_every_report_to_base_and_target_sha_not_timestamp
+  force_push_handling: new_target_sha_creates_new_run
+  comparison_states:
+    - new
+    - worsened
+    - resolved
+    - unchanged
+    - unknown
+  state_rules:
+    new: absent_in_base_and_present_in_target_including_historical_reopen
+    worsened: same_finding_identity_with_higher_severity_or_observed_impact
+    resolved: present_in_base_and_absent_in_complete_target_analysis
+    unchanged: same_finding_persists_without_worsening_including_partial_improvement
+    unknown: incomplete_analysis_or_identity_ambiguity_prevents_comparison
+  authority:
+    system: recommendation_only
+    final_decision_and_override: project_owner
+    automatic_release_block: prohibited
+
+
+execution_capabilities:
+  policy_shape: automatic_static_read_plus_one_RunManifest_approval
+  environment_kind: local_linux_docker
+  container_runtime: Docker
+  rationale: reproducible_execution_boundary
+  image_policy: immutable_digest_required_before_pilot
+  automatic_read:
+    scope: immutable_repository_snapshot_only
+    includes:
+      - source_config_lockfile_metadata_and_git_diff
+      - ast_symbol_import_and_source_graph
+    excludes:
+      - paths_outside_snapshot
+      - symlink_escape
+      - untracked_or_ignored_workspace_files
+  run_approval:
+    unit: one_RunManifest_per_scan_with_declared_validation_DAG
+    validity: single_execution
+    shows:
+      - commands_workloads_and_dag_trigger_conditions
+      - selected_tools
+      - total_time_cpu_memory_limits
+      - network_and_writable_paths
+      - external_model_and_data_transmission
+    approved_capabilities:
+      - locked_dependency_materialization
+      - import_and_test_collection
+      - test_benchmark_and_profiler
+      - configured_external_model_api
+      - declared_container_process_attach
+      - automatic_routing_between_declared_DAG_nodes
+    invalidated_by: snapshot_or_RunManifest_hash_change
+    approval_owner: project_owner
+  network_policy:
+    dependency_and_model_api: allowed_when_declared_in_RunManifest
+    target_workload: disabled_unless_declared_in_RunManifest
+  filesystem_policy:
+    source: read_only
+    writable:
+      - ephemeral_workspace
+      - declared_evidence_output
+  prohibited:
+    - host_or_production_process_attach
+    - write_outside_declared_paths
+    - source_code_mutation
+    - patch_merge_release_or_deployment_action
+  performance_comparison: unprofiled_control_and_profiled_run_in_same_container_and_host
+  host_metrics_recorded: true
+  allowed_tools:
+    baseline:
+      - pytest
+      - cProfile
+      - asyncio_stdlib_debug_and_introspection
+    evidence_driven_optional:
+      py-spy: live_cpu_or_hang_stack_sampling
+      Scalene: python_native_system_or_memory_copy_separation
+      Memray: allocation_peak_or_leak_hypothesis
+      VizTracer: async_task_order_or_timeline_hypothesis
+    selection_policy:
+      - route_automatically_only_between_tools_declared_in_approved_DAG
+      - never_run_undeclared_tool
+      - never_run_multiple_profilers_simultaneously
+      - never_require_every_tool_for_every_repository
+      - normalize_all_outputs_to_Evidence_kind_runtime
+  dynamic_validation_dag:
+    prototype: prototypes/dynamic-validation-flow-v1.md
+    correctness: focused_pytest_then_judge
+    concurrency: focused_pytest_with_asyncio_observation_then_py_spy_only_on_hang_or_stack_need_then_judge
+    performance: repeated_unprofiled_workload_then_cProfile_only_on_reproduced_slowdown_then_Scalene_only_when_python_native_system_split_is_needed_then_judge
+    no_executable_workload: no_run_and_deferred
+    stop_when:
+      - oracle_is_satisfied_or_refuted
+      - next_node_condition_is_false
+      - total_timeout_or_resource_limit_is_reached
+      - declared_DAG_nodes_are_exhausted
+    terminal_status:
+      - confirmed
+      - rejected
+      - deferred
+    outside_DAG_tool: update_RunManifest_and_request_new_approval
+
+
+code_and_evidence_policy:
+  data_classes:
+    project_data:
+      contents: repository_snapshot_ast_graph_log_profile_and_evidence
+      automatic_read: allowed_within_snapshot
+      external_model_transmission: allowed_under_approved_RunManifest
+      local_storage: allowed
+    harness_credentials:
+      contents: model_api_key_and_container_credentials
+      scan_input_or_model_transmission: prohibited
+      handling: environment_injected_outside_repository_snapshot
+  raw_execution_artifacts:
+    location: local_ephemeral_workspace
+    retention: until_evaluation_artifacts_are_accepted
+  structured_evidence:
+    contents: Evidence_runtime_records_hash_decision_and_cost
+    retention: project_reproducibility_period
+  source_snapshot: immutable_revision_and_digest
+  model_provider: selectable_and_frozen_per_run
+  model_name_version_and_prompt_hash: required_per_run
+  audit_record: RunManifest_hash_and_result_hash
+
+
+traceability_contract:
+  schema_version: evidence-contract-v1
+  storage_root: runs/{run_id}
+  files:
+    ScanRun: run.json
+    Evidence: evidence.jsonl
+    Finding: findings.jsonl
+    Report: report.json
+    UserAction: actions.jsonl
+  common_immutable_fields:
+    - id
+    - schema_version
+    - content_hash
+  records:
+    ScanRun:
+      fields:
+        - run_id_mode_and_scope
+        - repository_base_and_target_sha
+        - RunManifest_config_model_prompt_and_budget_hash
+        - run_status
+    Evidence:
+      kinds:
+        - source
+        - static
+        - runtime
+      fields:
+        - evidence_id_and_run_id
+        - producer_and_kind
+        - source_locator_or_exact_command
+        - payload_or_artifact_hash
+        - observed_value
+    Finding:
+      fields:
+        - stable_finding_id_and_run_id
+        - category_severity_and_root_symbol
+        - failure_mechanism_condition_and_impact
+        - evidence_ids
+        - evidence_and_change_status
+        - next_action_and_oracle
+        - model_io_hash
+    Report:
+      fields:
+        - report_id_and_run_id
+        - ordered_finding_ids
+        - coverage_and_scan_status
+    UserAction:
+      fields:
+        - action_id_run_id_and_finding_id
+        - verify_fix_accept_risk_or_dismiss
+        - timestamp
+  merged_concepts:
+    SourceSnapshot_and_RunManifest: ScanRun
+    StaticFact_ContextSlice_and_RuntimeEvidence: Evidence
+    DiagnosisPlan_HypothesisContract_and_RiskRecord: Finding
+  model_output_rule: model_request_response_is_hashed_provenance_and_never_counts_as_Evidence
+  content_hash: sha256_of_canonical_utf8_json_with_sorted_keys_excluding_content_hash_field
+  mutation_rule: existing_record_is_never_modified_and_user_decision_appends_UserAction
+  replay_chain: Report_to_Finding_to_Evidence_to_ScanRun_to_source_sha_command_and_artifact_hash
+  prohibited:
+    - separate_traceability_database_or_service
+    - model_reasoning_as_ground_truth
+    - evidence_without_source_or_command_provenance
+
+evaluation_metric_contract:
+  primary:
+    name: ValidNextVerificationRecommendation_at_20m
+    baseline_arm: A_plain_llm
+    proposed_arm: F_runtime_feedback
+    unique_final_cases: 80
+    paired_evaluation: both_arms_run_on_every_case
+    allocation:
+      scheduled_main_hidden_synthetic: 20
+      scheduled_main_temporal_public: 20
+      release_candidate_hidden_synthetic: 20
+      release_candidate_temporal_public: 20
+    time_window: full_machine_pipeline_with_static_llm_and_dynamic_steps_within_20_minutes
+    numerator: cases_with_valid_recommendation_within_time_window
+    denominator: all_frozen_final_cases
+    validity:
+      - selected_risk_is_in_sealed_acceptable_priority_set
+      - evidence_matches_snapshot_and_supports_hypothesis
+      - next_action_can_confirm_or_refute_hypothesis
+      - executable_action_has_target_workload_and_oracle
+      - no_unjustified_critical_high_dismissal
+    success:
+      rate_difference_minimum_percentage_points: 30
+      family_bootstrap_95_percent_ci_lower_bound_above_zero: true
+      proposed_arm_unjustified_critical_high_dismissals: 0
+    missing_timeout_tool_or_judge_failure: count_as_primary_failure
+    reporting_strata:
+      - scheduled_main_vs_release_candidate
+      - hidden_synthetic_vs_temporal_public
+      - standard_vs_complex_case
+  secondary_quality_metrics:
+    recall_minimum: 0.85
+    critical_high_recall_minimum: 0.90
+    precision_minimum: 0.75
+    runtime_confirmation_minimum: 0.70
+    beneficial_profiler_coverage_minimum: 0.80
+    context_evidence_recall_minimum: 0.90
+    unsupported_final_finding_rate_maximum: 0.05
+    unsafe_execution_count: 0
+  machine_efficiency_reporting:
+    - wall_time_median_and_p95
+    - token_and_tool_seconds
+    - recommendation_retry_rate
+    - valid_recommendations_per_compute_hour
+  prohibited_human_claims:
+    - human_decision_time_reduction
+    - human_rework_reduction
+    - reviewer_productivity_improvement
+
+evaluation_judge:
+  human_evaluation: none
+  type: independent_llm_judge
+  deterministic_truth_precedence:
+    - executable_behavior_oracle
+    - known_regression_test
+    - hidden_mutation_manifest
+  llm_role: semantic_match_of_risk_evidence_and_next_action_only
+  model_rule: fixed_version_and_different_model_family_from_evaluated_system
+  settings: temperature_zero_and_frozen_prompt_hash
+  blinding: no_arm_identity_and_randomized_candidate_order
+  output: valid_or_invalid_with_reason_code
+  calibration: known_valid_and_invalid_synthetic_decisions
+  calibration_accuracy_minimum: 0.90
+  oracle_override_by_llm: prohibited
+  judge_failure: primary_case_failure
+
+evaluation_environment:
+  host_os: Ubuntu_22_04_linux_6_8
+  host_cpu: AMD_EPYC_7543
+  host_gpu: not_required_for_core_path
+  runtime: Docker
+  python: "3.14.x_in_container"
+  dependency_lock: required_per_repository
+  ci_or_runner: local_reproducible_runner
+  model_provider: external_api_allowed
+  model_name_and_version: freeze_per_pilot_and_final_run
+  token_and_tool_budget: freeze_after_pilot_calibration
+
+claims_boundary:
+  allowed:
+    - reproducible_public_and_synthetic_case_results
+    - component_ablation_under_same_budget
+    - llm_judged_recommendation_quality_and_machine_efficiency
+    - runtime_evidence_confirmation_and_rejection
+  prohibited:
+    - contamination_free_public_benchmark_claim
+    - multi_reviewer_generalization
+    - inter_rater_reliability
+    - enterprise_private_repository_generalization
+    - anonymous_private_case_performance_claim
+    - human_decision_time_reduction_claim
+    - human_rework_reduction_claim
+    - reviewer_productivity_improvement_claim
+
+core_ablation_contract:
+  design: six_cumulative_arms_with_adjacent_pair_comparison
+  arms:
+    A_plain_llm: raw_diff_or_user_seeded_source_plus_one_generic_review
+    B_structured_review: A_plus_fixed_five_perspective_schema
+    C_static_facts: B_plus_ast_symbol_import_and_lexical
+    D_graph_context: C_plus_bounded_two_hop_code_graph
+    E_evidence_contract: D_plus_HypothesisContract_and_evidence_status
+    F_runtime_feedback: E_plus_approved_dynamic_validation_DAG
+  adjacent_contribution:
+    structured_review: B_minus_A
+    static_facts: C_minus_B
+    code_graph: D_minus_C
+    evidence_contract: E_minus_D
+    runtime_feedback: F_minus_E
+  same_budget_controls:
+    - same_case_split_and_input_snapshot
+    - same_model_version_and_sampling_settings
+    - same_total_token_tool_second_and_wall_time_ceiling
+    - same_retry_limit_and_output_schema
+    - unused_budget_is_not_reallocated
+    - arm_definitions_freeze_after_pilot_before_final_holdout
+  keep_predicate:
+    pass_when:
+      - preregistered_target_quality_metric_gain_at_least_5_percentage_points
+      - or_cost_reduction_at_least_10_percent_without_quality_guardrail_failure
+    required_for_both:
+      - no_critical_high_recall_guardrail_failure
+      - no_additional_unsafe_or_unsupported_claim
+  fail_action: remove_from_core_and_move_to_experimental_or_excluded
+  project_claim_source: frozen_final_holdout_only
+  experimental_pair:
+    function_local_cfg_def_use: F_vs_F_plus_CFG_on_eligible_functions_under_same_budget
+
+experiment_isolation_contract:
+  execution: shadow_subprocess_reading_same_immutable_input
+  budget: separate_from_core_and_paired_with_its_control
+  writable_state: experiment_specific_output_directory_only
+  core_cache_mutation: prohibited
+  output:
+    format: same_finding_schema_with_EXPERIMENTAL_label
+    location: separate_experiment_result
+    finding_id_prefix: X
+    merge_into_core_risk_table: prohibited
+    count_in_core_kpi_or_a_plus_claim: prohibited
+  lineage_required:
+    - experiment_id_and_feature_version
+    - base_run_id_and_source_sha
+    - config_model_prompt_and_budget_hash
+  failure_isolation:
+    experiment_timeout_error_or_partial_result: record_and_stop_experiment_only
+    core_run_status_change: prohibited
+  promotion:
+    evidence: frozen_same_budget_paired_evaluation_not_used_for_tuning
+    pass_when:
+      - target_quality_gain_at_least_5_percentage_points
+      - or_cost_reduction_at_least_10_percent_without_quality_guardrail_failure
+    required:
+      - no_critical_high_recall_regression
+      - no_unsafe_or_unsupported_claim
+      - reproducible_result_and_lineage
+    application: move_to_core_only_in_next_manifest_version
+    retroactive_change_to_completed_final_result: prohibited
+    automatic_promotion: prohibited
+  rollback:
+    trigger: later_revalidation_breaks_promotion_guardrail_or_reproducibility
+    action: move_back_to_experimental_in_new_manifest_version_and_rerun_affected_comparison
+
+experimental_candidate_contract:
+  maximum_active_candidates: 2
+  selected:
+    function_local_cfg_and_bounded_def_use:
+      purpose: expose_branch_exception_cleanup_and_async_path_evidence
+      scope: selected_function_only
+      comparator: F_vs_F_plus_CFG_under_same_budget
+      target_metric: critical_high_recall_or_evidence_precision
+    counterevidence_critic:
+      purpose: challenge_top_critical_high_findings_with_counterevidence
+      invocation: one_fixed_llm_call_per_evaluated_finding
+      input: finding_cited_evidence_and_existing_two_hop_context
+      output: keep_reject_or_defer_with_counterevidence_ids
+      prohibited:
+        - create_new_finding
+        - execute_tool
+        - change_user_action
+      comparator: F_vs_F_plus_critic_under_same_total_token_and_time_budget
+      target_metric: precision_or_unsupported_finding_rate
+  replacement_rule: selecting_a_new_candidate_requires_removing_one_in_next_manifest_version
+
+claim_policy:
+  component_role_axis:
+    - core
+    - experimental
+    - excluded
+  evidence_state_axis:
+    - external_fact
+    - project_hypothesis
+    - preliminary_project_result
+    - validated_project_result
+    - invalidated
+  current_project_result_state: none
+  core_components:
+    - deterministic_ast_scope_symbol_import_and_lexical
+    - bounded_typed_code_graph_with_unresolved_edges
+    - fixed_five_llm_baseline
+    - hypothesis_contract_execution_policy_and_evidence_gate
+    - selective_pytest_cprofile_and_asyncio_validation
+    - bounded_dag_with_deterministic_merge_and_fixed_chain_comparator
+  experimental_components:
+    - function_local_cfg_and_bounded_def_use
+    - counterevidence_critic
+  excluded_components:
+    - full_cpg_and_global_dataflow
+    - vector_database_and_learned_graph_ranking
+    - adaptive_perspective_routing
+    - learned_tool_router_and_uncertainty_calibration
+    - multi_sample_test_time_compute
+    - free_form_agent_swarm
+    - repeated_debate
+    - llm_only_graph
+    - always_run_profiler
+    - automatic_release_gate
+    - vllm_gpu_performance_lane
+  evidence_admission:
+    external_fact: pinned_official_source_or_primary_research_supports_only_capability_and_limit
+    implemented: source_changed_contract_test_and_end_to_end_trace
+    validated_component: same_budget_ablation_guardrails_and_final_holdout
+    runtime_confirmed: immutable_Evidence_kind_runtime_independent_oracle_and_matching_snapshot
+    validated_system_value: plain_llm_vs_full_system_final_holdout_meets_primary_outcome_and_safety_gate
+    validated_a_plus_claim: final_holdout_rubric_traceability_and_no_disqualifying_gap
+  downgrade_or_invalidate:
+    - no_independent_quality_cost_or_safety_contribution_moves_core_to_experimental_or_excluded
+    - source_or_evidence_hash_mismatch_invalidates_claim
+    - hidden_oracle_or_holdout_exposure_invalidates_result
+    - unsafe_run_or_any_proposed_arm_critical_high_dismissal_invalidates_success_claim
+    - pilot_only_result_remains_preliminary
+  deterministic_safety_gate_exception:
+    rule: may_remain_core_without_recall_lift_when_it_prevents_a_prohibited_state_with_acceptable_overhead
+  reporting:
+    pilot: preliminary_result_with_sample_tuning_exposure_and_uncertainty
+    final: validated_project_result_only_after_frozen_holdout
+
+deferred_but_not_blocking_this_manifest:
+  - actual Python 3.14 dependency and workload replay result for each pinned repository
+  - immutable Docker image digest and core-tool timeout after pilot
+  - exact external model, prompt hash, token budget, and tool-second budget
+  - temporal holdout cutoff and selected case identifiers after development freeze

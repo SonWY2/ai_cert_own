@@ -20,6 +20,8 @@ from urllib.request import Request, urlopen
 MANIFEST_MARKER = "issue-file-manifest-v1"
 CHUNK_MARKER = "issue-file-chunk-v1"
 ALLOWED_PREFIX = ".wayfinder/ai-a-plus-code-health/research/"
+EXPECTED_REPOSITORY = "SonWY2/ai_cert_own"
+WORKSPACE_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST_PATTERN = re.compile(
     rf"<!-- {MANIFEST_MARKER}\n(?P<metadata>.*?)\n-->", re.DOTALL
 )
@@ -56,6 +58,10 @@ def require_allowed_path(value: object) -> str:
         raise ValueError(f"manifest path must match {ALLOWED_PREFIX}*.md")
     return normalized
 
+def require_workspace(repository: object) -> None:
+    if repository != EXPECTED_REPOSITORY:
+        raise ValueError(f"this tool only operates in {EXPECTED_REPOSITORY}")
+
 
 def gh_api_json(repo: str, method: str, endpoint: str, payload: dict[str, Any]) -> dict[str, Any]:
     with tempfile.NamedTemporaryFile(mode="wb", suffix=".json", delete=False) as handle:
@@ -82,12 +88,12 @@ def gh_api_json(repo: str, method: str, endpoint: str, payload: dict[str, Any]) 
 
 
 def stage(arguments: argparse.Namespace) -> None:
+    require_workspace(arguments.repo)
     source = Path(arguments.path).resolve()
-    root = Path.cwd().resolve()
     try:
-        relative_path = source.relative_to(root).as_posix()
+        relative_path = source.relative_to(WORKSPACE_ROOT).as_posix()
     except ValueError as error:
-        raise ValueError("path must be inside the current repository") from error
+        raise ValueError("path must be inside this workspace") from error
     require_allowed_path(relative_path)
     content = source.read_bytes()
     if not content:
@@ -186,9 +192,10 @@ def marker_metadata(pattern: re.Pattern[str], body: object, kind: str) -> tuple[
 
 def materialize(arguments: argparse.Namespace) -> None:
     repository = arguments.repo
+    require_workspace(repository)
     owner = repository.split("/", 1)[0]
-    if "/" not in repository or not arguments.issue.isdigit() or int(arguments.issue) <= 0:
-        raise ValueError("repository must be owner/repo and issue must be a positive integer")
+    if not arguments.issue.isdigit() or int(arguments.issue) <= 0:
+        raise ValueError("issue must be a positive integer")
     api_root = os.environ.get("GITHUB_API_URL", "https://api.github.com")
     base_url = f"{api_root}/repos/{repository}/issues/{arguments.issue}"
     issue, _ = github_request(base_url, arguments.token)
@@ -248,6 +255,8 @@ def materialize(arguments: argparse.Namespace) -> None:
         raise ValueError("reassembled file does not match the manifest")
 
     workspace = Path(arguments.workspace).resolve()
+    if workspace != WORKSPACE_ROOT:
+        raise ValueError("materialization must run inside this workspace")
     destination = (workspace / target_path).resolve()
     try:
         destination.relative_to(workspace)
@@ -268,6 +277,7 @@ def materialize(arguments: argparse.Namespace) -> None:
 
 
 def close_issue(arguments: argparse.Namespace) -> None:
+    require_workspace(arguments.repo)
     if not arguments.issue.isdigit() or int(arguments.issue) <= 0:
         raise ValueError("issue must be a positive integer")
     api_root = os.environ.get("GITHUB_API_URL", "https://api.github.com")

@@ -1,0 +1,55 @@
+name: Materialize staged research document
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: Public staging Issue number created by issue_chunk_file.py
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  materialize:
+    if: github.ref == 'refs/heads/main' && github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - id: materialize
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 .github/scripts/issue_chunk_file.py materialize \
+            --repo "$GITHUB_REPOSITORY" \
+            --issue "${{ inputs.issue_number }}" \
+            --token "$GITHUB_TOKEN" \
+            --workspace "$GITHUB_WORKSPACE"
+
+      - name: Commit verified document
+        env:
+          ISSUE_NUMBER: ${{ inputs.issue_number }}
+          TARGET_PATH: ${{ steps.materialize.outputs.path }}
+        run: |
+          test -n "$TARGET_PATH"
+          git add -- "$TARGET_PATH"
+          git diff --cached --quiet && exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs: materialize staged research file #$ISSUE_NUMBER"
+          git push origin HEAD:main
+
+      - name: Close completed staging Issue
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          python3 .github/scripts/issue_chunk_file.py close \
+            --repo "$GITHUB_REPOSITORY" \
+            --issue "${{ inputs.issue_number }}" \
+            --token "$GITHUB_TOKEN"

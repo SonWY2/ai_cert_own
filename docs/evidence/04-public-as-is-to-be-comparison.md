@@ -546,4 +546,6 @@ bash /home/wy/.local/share/wreckfish/a-plus-verification/starlette-boundary-v27/
 
 계획 전체 21호출 중 **3완료·18미실행**, 누적 사용량 **33,974토큰**(강한 단일 2회 23,554·작은 단일 1회 10,420). 접수된 원문은 강한 군 7건, 작은 단일 1건이지만 독립 원인 판정 8건 모두 누락이고 `TP/FP`는 판정되지 않았다. 좁은 `N_static`은 여전히 두 반례형의 가설 0건이다. 후속 `repeat-1/small_five`를 실행하려면 별도의 해시 `9fd523a91240413bfb1f613e5bc6c14cbb06ccdfe1a8232fdc36054a1f872517`에 대한 소유자 영수증이 필요하다. 원문 후보 수만으로 어느 모델의 정확도나 비용 우월성도 주장할 수 없다.
 
-**현행 승인 규칙(이후 회차):** 위 세 호출의 당시 승인 사실은 그대로 둔다. `repeat-1/small_five`의 다음 영수증은 소유자 본인이 대화형 단말에서 `python3.14 src/approve_run.py /tmp/wreckfish-starlette-eof-before-replay /tmp/wreckfish-development-v30-prep-20260927/repeat-1-small_five-manifest.json /tmp/wreckfish-development-v30-prep-20260927/repeat-1-small_five-approval.json`을 실행해 Git·모델·문맥·한도를 읽고 `y`로 승인할 때 발급된다. 표시된 해시를 다시 입력할 필요는 없다. 소진된 세 영수증은 재사용하지 않으며, 이 안내만으로 새 영수증이나 모델 결과가 생기지는 않는다. [동결 명세 v31](../../.wayfinder/ai-a-plus-code-health/field-input-manifest.yaml)의 `run_approval`이 이전 해시 수기 입력 안내보다 우선한다.
+**v31 당시 안내(현행 아님):** 위 세 호출의 당시 승인 사실은 그대로 둔다. 이 시점에는 `repeat-1/small_five`의 다음 영수증을 소유자가 대화형 단말에서 `y`로 발급하도록 안내했다. 새 영수증이나 모델 결과는 여기서 생산되지 않았다. 아래 v32 정책이 이 안내를 대체한다.
+
+**v32 무인 경로:** `repeat-1/small_five`는 기존 고정 Git과 정확한 RunManifest를 검증한 뒤 별도 영수증 없이 실행할 수 있다. 모델 전용 설정 `nodes=[]`에는 대상 코드 실행 권한이 없다. 먼저 고정 Git의 출처 묶음을 생성·검증하고 [진단 CLI](../../src/modules/diagnosis/USAGE.md)에 `SOURCE_BUNDLE`, `repeat-1-small_five-manifest.json`, 선택 심볼, 새 비공개 `--response-output`을 전달한다. 현재 보존된 출처 묶음 경로는 이 문단에서 확인하지 않았고 모델 서버 연결·계정 인증도 별도로 필요하다. 이 문단은 실행 기록이 아니며 나머지 18호출·독립 판정은 여전히 미완료다.

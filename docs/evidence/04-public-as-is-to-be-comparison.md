@@ -537,3 +537,11 @@ bash /home/wy/.local/share/wreckfish/a-plus-verification/starlette-boundary-v27/
 원자료는 소유자 전용 `/tmp/wreckfish-development-v30-prep-20260927/repeat-2-strong_single-result.json`(SHA-256 `f12c788b47d2ca50116b3c3f4f017febb5851b41896120cf06c62c9097e2dda2`) 및 0600 정규화 응답(SHA-256 `c7a62c61d231ca20f14c7fde73703d3b3aacdf2da71c449b59e6f95df52103f4`)으로 보존했다. 응답 바이트·사용량·후보 행을 `verify_responses`로 재검증했다. 앞의 회차를 유지한 부분 비교 입력 `two-partial-comparison-input.json`의 SHA-256은 `1f3008ea86c135b2bb7ae126f0c9eddf6b506ce82587c7845e5c8ecfab6d08df`, 보고 `two-partial-comparison-report.json`은 `078eb50b699e463a3a2453663e220a2e77adfcf385dc0af438b814a8b0dda6c3`이다.
 
 두 강한 단일 회차 합계는 **2호출·23,554토큰·접수 가설 7건**이다. 독립 판정 7건 모두 누락으로 `TP=0, FP=0, U=7`; 21호출 중 완료 2·미실행 19이고 `N_static`은 좁은 두 반례형에서만 재생 검증·가설 0건이다. 가설 간 중복·참거짓은 아직 판정하지 않았고 제공자 USD 영수증도 없다. 다음 동결 순서 `repeat-2/small_single`에는 `089f5b0a6d23da8afd37507668088019fdb46513ecd89e0b411e5483ded8d447`에 대한 소유자의 별도 영수증이 필요하다. 접수 건수만으로 개선이나 모델 우월성을 주장하지 않는다.
+
+## v30 기준선 세 번째 회차: 작은 모델 단일 검토
+
+소유자가 계획 순서 `repeat-2/small_single`의 모델 전용 v3 설정 해시 `089f5b0a6d23da8afd37507668088019fdb46513ecd89e0b411e5483ded8d447`를 새 영수증으로 직접 승인했다. 송신 전 동일 Git `ba504c555fbd6d02ea584c295667185a10453700`·심볼·문맥 SHA·단일 역할 지침·80,000토큰/1,200초·미사용 영수증을 대조했다. `gpt-6-luna` 단일 1호출은 정상 완료(모델 21.414초, CLI 22.297초, 10,420토큰), 후보 1건 접수·미검증 0건이다. 승인 영수증 소진을 확인했고 대상 실행은 없으며 모델 서버를 종료했다.
+
+0600 비공개 원자료 `/tmp/wreckfish-development-v30-prep-20260927/repeat-2-small_single-result.json`의 SHA-256은 `e3fc3f31a105ea97145126c2f13fcac95655d3ce0170d36c9d1105156250f935`, 별도 정규화 응답 SHA-256은 `334cd73b0638b24bdad423da192d7ba2aa65fcc94c69d31ff655d12c4a51c4ea`이다. `verify_responses`로 응답·사용량·행 인덱스를 재확인했다. 앞의 두 회차를 그대로 보존한 부분 비교 입력 `three-partial-comparison-input.json` SHA-256 `5d8bafc2d49133da0052eb459036b2c4e7d9a7597610c86237868be12b307f6f`, 보고 `three-partial-comparison-report.json` SHA-256 `c526c58691ac8ce689fd8ecfd0b7cbecd20496f3cb8002dae9f21af85cb6dea1`이다.
+
+계획 전체 21호출 중 **3완료·18미실행**, 누적 사용량 **33,974토큰**(강한 단일 2회 23,554·작은 단일 1회 10,420). 접수된 원문은 강한 군 7건, 작은 단일 1건이지만 독립 원인 판정 8건 모두 누락이고 `TP/FP`는 판정되지 않았다. 좁은 `N_static`은 여전히 두 반례형의 가설 0건이다. 후속 `repeat-1/small_five`를 실행하려면 별도의 해시 `9fd523a91240413bfb1f613e5bc6c14cbb06ccdfe1a8232fdc36054a1f872517`에 대한 소유자 영수증이 필요하다. 원문 후보 수만으로 어느 모델의 정확도나 비용 우월성도 주장할 수 없다.

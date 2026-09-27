@@ -1,4 +1,4 @@
-"""Scan a Git repository, request one manual approval and show a verified diagnosis."""
+"""Scan a Git repository, bind a RunManifest and show a verified diagnosis."""
 
 import argparse
 import json
@@ -52,7 +52,7 @@ def main() -> int:
     parser.add_argument("--generic-review", action="store_true",
                         help="Opt-in development run retaining five roles plus one general reviewer")
     parser.add_argument("--review-units", choices=("raw", "outline", "cards"), default="raw",
-                        help="Approve unchanged source context, AST outline, or bounded local syntax cards")
+                        help="Use unchanged source context, AST outline, or bounded local syntax cards")
     args = parser.parse_args()
     if args.boundary_review and args.generic_review:
         parser.error("Choose only one additional review mode")
@@ -68,12 +68,10 @@ def main() -> int:
         if (output.exists() or output.is_symlink() or not output.parent.is_dir()
                 or output.parent.is_symlink() or output.resolve().is_relative_to(source_root)):
             raise ValueError("새 출력 디렉터리는 저장소 밖의 기존 부모 아래에 있어야 함")
-        if not sys.stdin.isatty():
-            raise ValueError("대화형 단말 승인이 필요함; 모델 전송과 대상 실행 없음")
         template = json.loads(args.manifest.read_text(encoding="utf-8"))
         output.mkdir(mode=0o700)
         created = True
-        print("[1/4] Git 출처 준비", flush=True)
+        print("[1/3] Git 출처 준비", flush=True)
         scanned = _child("scan_sources.py", repo, args.revision, output / "source")
         if scanned.returncode != 0:
             raise ValueError("Git 출처 스캔 거절")
@@ -93,19 +91,12 @@ def main() -> int:
             validate_runtime_plan(manifest)
             validate_source_workloads(verified, manifest)
             if not {"log", "evidence"}.issubset(manifest["model"]["transmitted_data"]):
-                raise ValueError("실행 로그·근거 전송 승인이 선언되지 않음")
+                raise ValueError("실행 로그·근거 전송 범위가 선언되지 않음")
             validate_runtime_host()
         _save(output / "manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2) + "\n")
-        stage = "소유자 승인"
-        print("[2/4] 현재 소스·모델·실행 설정 승인 (전체 RunManifest와 SHA-256 확인)",
-              flush=True)
-        approval = subprocess.run([sys.executable, str(Path(__file__).with_name("approve_run.py")),
-                                   str(repo), str(output / "manifest.json"), str(output / "approval.json")])
-        if approval.returncode:
-            raise ValueError("대화형 승인이 취소되거나 거절됨")
         stage = "진단·실행"
-        print("[3/4] 승인된 진단·실행", flush=True)
-        command = [str(source), str(output / "manifest.json"), str(output / "approval.json"),
+        print("[2/3] 선언된 진단·실행", flush=True)
+        command = [str(source), str(output / "manifest.json"),
                    "--final-output", str(output / "final"),
                    "--response-output", str(output / "responses")]
         command += ["--symbol", args.symbol] if args.symbol else ["--scope", "full"]
@@ -119,7 +110,7 @@ def main() -> int:
             command += ["--runtime-output", str(output / "runtime")]
         diagnosed = _child("diagnose_approved.py", *command)
         if diagnosed.returncode not in (0, 3):
-            raise ValueError("진단 입력·승인 또는 무결성 검사 거절")
+            raise ValueError("진단 입력 또는 무결성 검사 거절")
         _save(output / "result.json", diagnosed.stdout)
         result = json.loads(diagnosed.stdout)
         bundle = Path(result["final_source_only_bundle"])
@@ -129,7 +120,7 @@ def main() -> int:
         verify_responses(result["response_artifacts"], result["perspectives"])
         stage = "리포트 검증"
         report = render_report(source, bundle, runtime_trace_dir=runtime_dir)
-        report += (f"\n## 승인된 모델 응답 원자료\n\n"
+        report += (f"\n## 모델 응답 원자료\n\n"
                    f"- 정규화 응답 {len(result['response_artifacts'])}건의 파일 해시·감사 연결 확인. "
                    "`responses/`는 소유자 전용이며 제공자 wire 원문이나 결함 확증은 아님.\n")
         _private(output)
@@ -140,15 +131,15 @@ def main() -> int:
         state = "분석 불완전" if sealed["report"]["analysis_status"] == "incomplete" else "분석 완료"
         if failed:
             state += "·실행 명령 비정상 종료"
-        print(f"[4/4] {state} · 실행 실패 {failed}건 · 후보 {len(sealed['findings'])}건")
+        print(f"[3/3] {state} · 실행 실패 {failed}건 · 후보 {len(sealed['findings'])}건")
         print(f"리포트: {output / 'report.md'}")
         print(f"모델 응답 원자료 {len(result['response_artifacts'])}건: {output / 'responses'}")
         return diagnosed.returncode
     except (OSError, ValueError, KeyError, TypeError, subprocess.CalledProcessError) as error:
-        reason = str(error) if isinstance(error, ValueError) and stage == "사전 확인" else "해당 단계의 승인·검증이 완료되지 않음"
+        reason = str(error) if isinstance(error, ValueError) and stage == "사전 확인" else "해당 단계의 검증이 완료되지 않음"
         print(f"{stage} 실패: {reason}", file=sys.stderr)
         if created and not (output / "report.md").exists():
-            _save(output / "report.md", f"# 코드 진단 중단\n\n- 단계: {stage}\n- 원인: 해당 단계의 승인·검증이 완료되지 않음\n- 봉인된 결과: 없음\n")
+            _save(output / "report.md", f"# 코드 진단 중단\n\n- 단계: {stage}\n- 원인: 해당 단계의 검증이 완료되지 않음\n- 봉인된 결과: 없음\n")
         return 2
 
 

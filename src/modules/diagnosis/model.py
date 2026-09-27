@@ -1,7 +1,7 @@
 """Perspective-based hypothesis generation from authenticated, bounded source context.
 
-Only the approved analysis entry point may call ``analyze``: this module does not
-issue or consume an approval and its output never establishes a runtime finding.
+Only the authenticated diagnosis entry point may call ``analyze``. Its output
+never establishes a runtime finding.
 """
 
 import hashlib
@@ -317,12 +317,11 @@ def analyze(context: dict, source_evidence: list[dict], manifest: dict, *,
             runtime_context: dict | None = None,
             unverified: list[dict] | None = None,
             response_artifacts: ResponseArtifacts | None = None) -> tuple[list[dict], list[dict]]:
-    """Return provisional hypotheses and audit rows for approved model calls.
+    """Return provisional hypotheses and audit rows for bounded model calls.
 
-    The caller must first authenticate Git source, consume the matching manual
-    approval and ensure this context comes solely from that frozen commit.
-    Pass the same budget for each module in a batch; failures with unknown usage
-    stop all subsequent transmissions.
+    The caller must authenticate Git source and ensure this context comes solely
+    from that frozen commit and matches the RunManifest. Pass the same budget
+    for each module in a batch; failures with unknown usage stop transmissions.
     """
     perspectives = _roles(mode)
     validate_model_plan(manifest, mode=mode)

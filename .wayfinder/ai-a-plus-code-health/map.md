@@ -14,11 +14,11 @@ Python 백엔드 대규모 코드 건강검진 시스템을 개발자가 그대�
 
 - Wayfinder는 결정과 실증 차단 조건을 기록한다. 실제 구현·시험 결과는 `src/`·`tests/`·`docs/evidence/`에서 별도로 확인하고, 이 지도만으로 달성을 주장하지 않는다.
 - 입력은 Python 코드가 있는 모든 저장소를 받되, 다른 언어의 의미 분석은 하지 않는다. A+ 성과 주장은 검증 자료가 대표하는 Python backend·FastAPI·asyncio 범위로 제한한다.
-- 정적 읽기와 그래프 탐색은 자동화한다. import·테스트·벤치마크·프로파일러처럼 코드를 실행하는 단계는 정책 승인을 통과해야 한다.
+- 정적 읽기·모델 진단은 목표와 검증된 RunManifest로 자동 진행한다. 대상 실행은 선언된 node와 Docker CPU·메모리·PID 제한 강제가 있을 때만 자동 진행하며 사람이 승인하지 않는다.
 - 핵심 경로는 독립 기여를 대조 실험으로 입증할 수 있는 기술만 포함한다.
 - 최신 기법은 격리된 실험 경로로 폭넓게 조사하되, 승격 전 결과를 기본 KPI나 A+ 달성 수치에 합산하지 않는다.
 - 평가 자료는 고정 공개 저장소·숨겨진 합성 결함·개발 cutoff 이후 시간 기반 공개 holdout을 분리한다. 개인 과제이므로 익명 비공개 실제 사례와 다수 전문가 평가는 포함하지 않는다.
-- 최소 핵심 범위는 Python 3.14 합성 fixture, FastAPI Users·Prefect runtime 파일럿, Langflow 대규모 정적 확인이다. Langflow runtime과 py-spy·Scalene·Memray·VizTracer는 가설별 관찰 필요성, 재현 workload, 실행 예산, 정책 승인을 통과할 때만 하나씩 추가한다.
+- 최소 핵심 범위는 Python 3.14 합성 fixture, FastAPI Users·Prefect runtime 파일럿, Langflow 대규모 정적 확인이다. Langflow runtime과 py-spy·Scalene·Memray·VizTracer는 가설별 관찰 필요성, 재현 workload, 실행 예산, RunManifest 정책과 강제된 격리를 통과할 때만 하나씩 추가한다.
 - 각 세션은 `wayfinder`, `grilling`, `domain-modeling`을 우선 적용하고, 연구 티켓은 외부 원문과 공식 문서를 우선한다.
 - 새 세션이나 context compaction 뒤에는 [`SESSION-RECOVERY.md`](SESSION-RECOVERY.md)의 순서로 지도·동결 manifest·frontier 티켓을 복구한다. 채팅 기록은 결정의 기준이 아니다.
 - GitHub 인증이 없어 local-markdown tracker를 사용한다. 티켓 파일의 `blocked_by`가 의존 관계이고, `status: open`, `assignee: null`, 모든 blocker가 closed인 티켓이 frontier다.
@@ -50,6 +50,8 @@ Python 백엔드 대규모 코드 건강검진 시스템을 개발자가 그대�
 - [진행 티켓 029](tickets/029.md#v29-p1-역할별-지침구현과-로컬-검증)에서 [030의 P1 구체 계획](tickets/030.md#10-p1-다음-구현의-구체적-실행-계획)을 v29로 적용했다. 역할별 실제 지침 집합 해시를 `run-manifest-v3` 승인에 묶고 후속 예산을 조정했다. v28 검증기는 봉인·응답의 **오프라인** 재검증 전용으로 보존했다. 합성 CLI five/boundary 각 접수 1·미검증 1·확증 0·종료 3, 첫 다섯 요청 동일; Python 3.14 회귀 205통과/1건너뜀. 신규 실모델·대상 실행 0건이며 P2/P3·독립 실증·A+은 미완료([상세](../../docs/evidence/04-public-as-is-to-be-comparison.md#v29-p1-역할별-지침과-승인-경계-구현)).
 - [진행 티켓 029](tickets/029.md#v30-p2p3-개발-경로-구현미실측-관문)에서 P2 원본 Git AST 목록/카드와 P3 원인별 개발 집계·기본 다섯+일반 여섯째 역할을 v30 선택 경로로 추가했다. Python 3.14 회귀 258통과/1건너뜀; 실제 Starlette 고정 Git AST와 모델 호출 0건인 21호출 기준선 계획, 누락 분모·USD N/A를 확인했다. 새 승인은 없으며 품질/비용 우월성·독립 최종 A+ 입증은 남는다([원자료](../../docs/evidence/04-public-as-is-to-be-comparison.md#v30-p2-정적-점검p3-개발-비교-경로의-실제-범위)).
 - [진행 티켓 029](tickets/029.md#v30-세-번째-기준선-승인-호출후속)의 소유자 승인 3회로 Starlette 동결 기준선에서 강한 단일 2회·작은 단일 1회를 완료했다. 합계 33,974토큰·접수 가설 8건이나 독립 판정 8건 누락·나머지 18호출 미실행으로 모델 비교 우월성·USD 비용·A+은 미입증이다([원자료 SHA와 한계](../../docs/evidence/04-public-as-is-to-be-comparison.md#v30-기준선-세-번째-회차-작은-모델-단일-검토)).
+- [진행 티켓 029](tickets/029.md#소유자-요청-해시-수기-입력-폐지)에서 현재 소유자 요청에 따라 대화형 `y` 명시 승인 시 해시·일회용 영수증을 자동 발급하도록 변경했다. 직접 해시 입력 요구는 v31 [동결 manifest](field-input-manifest.yaml)의 `run_approval`에서 폐지했고, 구 차단 기록은 현행 계약으로 정정했다. 비대화형·거절은 발급하지 않는다. Python 3.14 회귀 261통과/1건 건너뜀, 신규 모델 전송·대상 실행 0건. 최종 A+ 차단 조건은 유지한다.
+- [진행 티켓 029](tickets/029.md#무인-runmanifest-실행-전환)에서 v32 [동결 manifest](field-input-manifest.yaml)로 이전 v31의 `y` 승인 및 영수증을 폐지했다. 정확한 Git·문맥·지침·예산 검증 후 비대화형 진단을 진행하며 무인 대상 실행은 Docker CPU·메모리·PID 한도가 강제될 때만 허용한다. 기존 실측은 역사적 기록이며 이 전환만으로 모델 우월성은 입증되지 않는다.
 
 ## Decisions so far
 
@@ -96,7 +98,7 @@ Python 백엔드 대규모 코드 건강검진 시스템을 개발자가 그대�
 
 - Wayfinder 단계에서 source·test·profiler harness·scheduler·UI를 구현하거나 benchmark를 실제 수행하는 일
 - 자동 코드·테스트 수정, patch·PR 생성·적용, merge·배포 수행
-- 사용자 승인 없는 test·benchmark·profiler 실행 또는 production process attach
+- RunManifest 밖의 test·benchmark·profiler 실행 또는 강제된 자원 격리 없이 대상 코드를 자동 실행하거나 production process에 attach
 - Python 백엔드 밖의 범용 다중 언어 분석과 APM·보안 scanner·CI/CD 전체 대체
 - Ruff·type checker·test runner·profiler·graph database·issue tracker 자체 재구현
 - 모든 모델·그래프·에이전트·profiler 조합의 무차별 비교와 독립 기여에 불필요한 일반 인프라 상세 설계

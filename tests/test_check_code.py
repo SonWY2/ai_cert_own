@@ -1,4 +1,4 @@
-"""The user entry point keeps consent separate and reports incomplete diagnosis."""
+"""The noninteractive entry point reports verified diagnosis and errors."""
 
 import contextlib
 import hashlib
@@ -19,7 +19,6 @@ import check_code  # noqa: E402
 from modules.evidence.authenticity import verify_git_source  # noqa: E402
 from modules.evidence.final_bundle import verify_final_bundle  # noqa: E402
 import diagnose_approved  # noqa: E402
-from modules.run_policy import issue_approval, manifest_hash  # noqa: E402
 
 
 class CheckCodeTest(unittest.TestCase):
@@ -60,27 +59,13 @@ class CheckCodeTest(unittest.TestCase):
             code = check_code.main()
         return code, stdout.getvalue()
 
-    def test_noninteractive_real_subprocess_never_scans_or_transmits(self):
-        output = self.root / "noninteractive"
-        run = subprocess.run([sys.executable, str(ROOT / "src" / "check_code.py"), str(self.repo),
-                              "--manifest", str(self.saved), "--output", str(output)],
-                             capture_output=True, text=True)
-        self.assertEqual(run.returncode, 2)
-        self.assertIn("대화형 단말", run.stderr)
-        self.assertFalse(output.exists())
 
-    def test_model_only_full_scope_generates_verified_report(self):
+    def test_noninteractive_one_command_generates_verified_final_report(self):
         output = self.root / "result"
         real_child = check_code._child
-        original_run = subprocess.run
-        approved = []
-        def approve(argv):
-            manifest = json.loads((output / "manifest.json").read_text())
-            approved.append(manifest_hash(manifest))
-            issue_approval(manifest, self.sha, output / "approval.json", approved[0])
-            return subprocess.CompletedProcess(argv, 0)
         def child(name, *args):
             if name != "diagnose_approved.py":
+                self.assertEqual(name, "scan_sources.py")
                 return real_child(name, *args)
             text = io.StringIO()
             with patch.object(sys, "argv", [name, *args]), contextlib.redirect_stdout(text):
@@ -88,30 +73,25 @@ class CheckCodeTest(unittest.TestCase):
             return subprocess.CompletedProcess(args, code, text.getvalue(), "")
         reply = {"usage": {"input_tokens": 40, "output_tokens": 4},
                  "stop_reason": "end_turn", "content": [{"type": "text", "text": '{"candidates": []}'}]}
-        with patch.object(sys.stdin, "isatty", return_value=True), patch.object(
-                check_code.subprocess, "run", wraps=original_run) as process, patch.object(
+        with patch.object(sys.stdin, "isatty", return_value=False), patch.object(
                 check_code, "_child", side_effect=child), patch(
-                "modules.diagnosis.model._request", return_value=reply):
-            def approval_or_scan(argv, *a, **kw):
-                if Path(argv[1]).name == "approve_run.py":
-                    return approve(argv)
-                return original_run(argv, *a, **kw)
-            process.side_effect = approval_or_scan
+                "modules.diagnosis.model._request", return_value=reply) as request:
             code, printed = self.call(output)
+        self.assertEqual(request.call_count, 5)
         self.assertEqual(code, 0)
-        self.assertIn("분석 완료", printed)
+        self.assertIn("[3/3] 분석 완료", printed)
         self.assertIn("후보 0건", printed)
         self.assertNotIn("{\"stage\"", printed)
-        self.assertEqual(len(approved), 1)
-        self.assertTrue((output / "approval.json.used").exists())
         self.assertIn("결함 부재를 보장하지 않음", (output / "report.md").read_text())
         self.assertEqual(json.loads(self.saved.read_text()), self.template)
         self.assertEqual(json.loads((output / "manifest.json").read_text())["snapshot_sha"], self.sha)
         self.assertEqual({p.name for p in output.iterdir()},
-                         {"source", "manifest.json", "approval.json", "approval.json.used",
-                          "final", "responses", "result.json", "report.md"})
+                         {"source", "manifest.json", "final", "responses", "result.json", "report.md"})
         result = json.loads((output / "result.json").read_text())
         self.assertEqual(len(result["response_artifacts"]), 5)
+        source_bundle = next((output / "source" / "runs").iterdir())
+        sealed = verify_final_bundle(Path(result["final_source_only_bundle"]), source_bundle)
+        self.assertEqual(sealed["report"]["analysis_status"], "completed")
         self.assertIn("모델 응답 원자료 5건", printed)
         audits = [row for group in result["perspectives"] for row in group["perspectives"]]
         self.assertEqual(len(audits), len(result["response_artifacts"]))
@@ -125,7 +105,6 @@ class CheckCodeTest(unittest.TestCase):
     def test_incomplete_provider_preserves_result_and_report_with_exit_three(self):
         output = self.root / "incomplete"
         real_child = check_code._child
-        original_run = subprocess.run
 
         def child(name, *args):
             if name != "diagnose_approved.py":
@@ -135,18 +114,9 @@ class CheckCodeTest(unittest.TestCase):
                 code = diagnose_approved.main()
             return subprocess.CompletedProcess(args, code, text.getvalue(), "")
 
-        def approval(argv, *args, **kwargs):
-            if Path(argv[1]).name != "approve_run.py":
-                return original_run(argv, *args, **kwargs)
-            manifest = json.loads((output / "manifest.json").read_text())
-            issue_approval(manifest, self.sha, output / "approval.json", manifest_hash(manifest))
-            return subprocess.CompletedProcess(argv, 0)
-
         response = {"usage": {"input_tokens": 40, "output_tokens": 4},
                     "stop_reason": "incomplete", "content": []}
-        with patch.object(sys.stdin, "isatty", return_value=True), patch.object(
-                check_code.subprocess, "run", side_effect=approval), patch.object(
-                check_code, "_child", side_effect=child), patch(
+        with patch.object(check_code, "_child", side_effect=child), patch(
                 "modules.diagnosis.model._request", return_value=response):
             code, printed = self.call(output, symbol="check")
         self.assertEqual(code, 3)
@@ -163,7 +133,6 @@ class CheckCodeTest(unittest.TestCase):
     def test_mixed_candidates_preserve_valid_role_and_render_null_safely(self):
         output = self.root / "unverified"
         real_child = check_code._child
-        original_run = subprocess.run
 
         def child(name, *args):
             if name != "diagnose_approved.py":
@@ -172,13 +141,6 @@ class CheckCodeTest(unittest.TestCase):
             with patch.object(sys, "argv", [name, *args]), contextlib.redirect_stdout(text):
                 code = diagnose_approved.main()
             return subprocess.CompletedProcess(args, code, text.getvalue(), "")
-
-        def approval(argv, *args, **kwargs):
-            if Path(argv[1]).name != "approve_run.py":
-                return original_run(argv, *args, **kwargs)
-            manifest = json.loads((output / "manifest.json").read_text())
-            issue_approval(manifest, self.sha, output / "approval.json", manifest_hash(manifest))
-            return subprocess.CompletedProcess(argv, 0)
 
         def respond(endpoint, payload, timeout):
             perspective = json.loads(payload["messages"][0]["content"])["perspective"]
@@ -198,9 +160,7 @@ class CheckCodeTest(unittest.TestCase):
                     "content": [{"type": "text", "text": json.dumps({
                         "candidates": [claim, None, valid] if perspective == "tests" else []})}]}
 
-        with patch.object(sys.stdin, "isatty", return_value=True), patch.object(
-                check_code.subprocess, "run", side_effect=approval), patch.object(
-                check_code, "_child", side_effect=child), patch(
+        with patch.object(check_code, "_child", side_effect=child), patch(
                 "modules.diagnosis.model._request", side_effect=respond):
             code, printed = self.call(output, symbol="check")
         self.assertEqual(code, 3)
@@ -231,24 +191,21 @@ class CheckCodeTest(unittest.TestCase):
         self.assertEqual(sealed["report"]["analysis_status"], "incomplete")
         self.assertEqual(sealed["report"]["confirmed_count"], 0)
 
-    def test_existing_output_and_invalid_template_prevent_approval(self):
+    def test_existing_output_and_invalid_template_block_model(self):
         output = self.root / "existing"
         output.mkdir()
-        with patch.object(sys.stdin, "isatty", return_value=True):
-            code, _ = self.call(output)
+        code, _ = self.call(output)
         self.assertEqual(code, 2)
-        self.assertFalse((output / "approval.json").exists())
+        self.assertFalse((output / "report.md").exists())
         self.template["model"]["endpoint"] = "https://example.invalid/other"
         self.saved.write_text(json.dumps(self.template))
         new = self.root / "invalid"
-        with patch.object(sys.stdin, "isatty", return_value=True), patch.object(
-                check_code.subprocess, "run", wraps=subprocess.run) as process:
+        with patch("modules.diagnosis.model._request") as request:
             code, _ = self.call(new)
         self.assertEqual(code, 2)
-        self.assertFalse((new / "approval.json").exists())
+        request.assert_not_called()
         self.assertFalse((new / "result.json").exists())
         self.assertIn("코드 진단 중단", (new / "report.md").read_text())
-        self.assertFalse(any("approve_run.py" in str(call) for call in process.call_args_list))
 
 
 if __name__ == "__main__":

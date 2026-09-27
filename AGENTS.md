@@ -1,4 +1,37 @@
-# CLAUDE.md
+# AGENTS.md
+
+## Response & Reporting Standards
+
+작업 결과, 디버깅 분석, 아키텍처 결정 사항을 보고할 때는 서술형 장문을 일체 배제하고 아래의 **3단계 고정 규격**을 엄격히 준수한다.
+
+### 1. 핵심 원칙
+- **메타 발언 금지**: "분석 결과를 보고드립니다", "다음과 같이 수정했습니다" 등의 불필요한 서두나 맺음말 없이 즉시 본론으로 진입한다.
+- **테이블 강제**: 모든 현황 분석 및 의사결정은 반드시 마크다운 표(`As-Is vs To-Be`)로 정리하며, 셀 내 분기는 줄바꿈(`<br>•`)을 사용한다.
+- **상태와 사실의 엄격한 분리**: 모델의 추론/단서는 '미검증 후보'와 '확인된 결함'으로 명확히 구분하여 표기한다.
+- **정량적 지표 필수**: 모호한 수식어 대신 구체적인 토큰 수, 파일 경로, 테스트 결과 수치(Pass/Fail/Skip)를 기재한다.
+
+---
+
+### 2. 출력 템플릿 (Output Template)
+
+### 1. 핵심 요약 (TL;DR)
+> **"{의사결정의 핵심 방향 및 변경 사항 한 줄 요약}"**
+* {배경 원인 또는 핵심 전제 한 줄 보충}
+
+### 2. 영역별 현황 및 조치 사항
+| 영역 | 기존 문제점 (As-Is) | 개선 조치 (To-Be) |
+| :--- | :--- | :--- |
+| **1. {주제/모듈}** | {기존 제약, 병목 또는 잘못된 동작} | • **{조치명}**: {구체적 해결책 및 적용 범위} |
+| **2. {주제/모듈}** | {기존 제약, 병목 또는 잘못된 동작} | • **{조치명}**: {구체적 해결책 및 적용 범위} |
+
+### 3. 검증 결과 및 참고 정보
+* **테스트 결과 (회귀 검증)**
+  * {환경/런타임}: **{N} Passed, {N} Failed, {N} Skipped**
+* **특이 사항 및 제약**
+  * {사후 조치 필요 사항, 영구 소실/복구 불가 데이터, 주의점}
+* **관련 문서/커밋**: `{경로 또는 커밋 식별자}`
+
+---
 
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
@@ -51,7 +84,7 @@ Transform tasks into verifiable goals:
 - "Fix the bug" → "Write a test that reproduces it, then make it pass"
 - "Refactor X" → "Ensure tests pass before and after"
 
-For multi-step tasks, state a brief plan:
+For multi-step tasks, state a brief plan before implementation; report results using the Response & Reporting Standards above:
 ```
 1. [Step] → verify: [check]
 2. [Step] → verify: [check]
@@ -158,3 +191,4 @@ AI A+ 코드 건강검진 시스템 계획을 시작하거나 이어갈 때는 �
 1. 먼저 [`.wayfinder/ai-a-plus-code-health/SESSION-RECOVERY.md`](.wayfinder/ai-a-plus-code-health/SESSION-RECOVERY.md)를 읽는다.
 2. 해당 절차에 따라 canonical map, 동결 manifest, 선택한 frontier 티켓만 불러온다.
 3. 모든 결정은 응답을 끝내기 전에 실제 Wayfinder 파일에 기록한다. 파일과 채팅이 충돌하면 파일을 기준으로 한다.
+4. 목표와 RunManifest가 주어지면 승인·영수증·대화형 확인 없이 정적 진단과 모델 전송을 진행한다. 대상 코드 실행은 선언된 node와 강제된 Docker CPU·메모리·PID 한도가 모두 있을 때만 허용한다. 이전 승인 스킬·기록과 충돌하면 [현행 동결 manifest](.wayfinder/ai-a-plus-code-health/field-input-manifest.yaml)의 `execution_capabilities.run_policy`를 따른다.

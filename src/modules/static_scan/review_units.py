@@ -159,8 +159,8 @@ def extract_review_units(db: sqlite3.Connection, context: dict, *, level: str,
                          selected_symbol: str | None = None, max_bytes: int = 8192) -> dict:
     """Extract deterministic AST observations; transmit only verified source slices.
 
-    The caller must supply a context already approved for transmission. An
-    altered slice/identity is rejected, rather than used to widen that approval.
+    The caller supplies a context authenticated from the frozen Git source.
+    Altered slices or identities are rejected before transmission.
     ``source_bytes`` counts the entire compact UTF-8 JSON result. Unlisted
     inventory due to the metadata budget is explicitly unknown, never reviewed.
     """

@@ -1,7 +1,7 @@
 """Run exactly declared workloads in an isolated container from frozen Git bytes.
 
-The trusted caller must consume a matching single-use approval first. No host
-workspace checkout or unknown Git object is mounted into the container.
+The host workspace checkout or unknown Git object is never mounted into the
+container; execution is limited to the declared manifest and frozen Git bytes.
 """
 
 import hashlib
@@ -13,7 +13,6 @@ import resource
 import stat
 import statistics
 import subprocess
-import sys
 import tempfile
 import time
 from pathlib import Path
@@ -107,7 +106,7 @@ def _test_script(node: dict) -> str:
 
 
 def validate_source_workloads(verified: dict, manifest: dict) -> None:
-    """Require executable Python/test paths to be tracked by the approved commit."""
+    """Require executable Python/test paths to be tracked by the frozen commit."""
     inventory = {item["path"] for item in verified["evidence"]}
     for node in manifest["nodes"]:
         if node["tool"] == "python":
@@ -153,7 +152,7 @@ def _limit_log() -> None:
 
 
 def validate_runtime_host() -> None:
-    """Require a reachable Docker daemon; report unenforced resource ceilings."""
+    """Require a reachable Docker daemon enforcing resource ceilings."""
     try:
         completed = subprocess.run(
             ["docker", "info", "--format", "{{json .}}"],
@@ -166,8 +165,7 @@ def validate_runtime_host() -> None:
     if (info.get("CgroupDriver") not in ("cgroupfs", "systemd")
             or any(info.get(name) is not True
                    for name in ("MemoryLimit", "CpuCfsQuota", "PidsLimit"))):
-        print("경고: Docker CPU·메모리·PID 제한이 강제되지 않음. 개발용 실행 결과만 기록함.",
-              file=sys.stderr)
+        raise ValueError("Docker CPU, memory, and PID limits must be enforced")
 
 
 def _run(repo_root: Path, manifest: dict, node: dict, evidence_root: Path,
@@ -259,10 +257,10 @@ def _run(repo_root: Path, manifest: dict, node: dict, evidence_root: Path,
 
 
 def validate_runtime_plan(manifest: dict) -> None:
-    """Reject unsupported declared routes before a receipt is consumed."""
+    """Reject unsupported declared runtime routes before any container launch."""
     manifest_hash(manifest)
     if not manifest["nodes"]:
-        raise ValueError("Model-only approval does not authorize runtime execution")
+        raise ValueError("Model-only manifest does not authorize runtime execution")
     if manifest["network"]["dependency"] or manifest["network"]["workload"]:
         raise ValueError("Network-enabled workload requires an egress-isolated runner")
     if not manifest["writable_paths"]:
@@ -275,7 +273,7 @@ def validate_runtime_plan(manifest: dict) -> None:
         raise ValueError("Overlapping writable mounts are unsupported")
     nodes = manifest["nodes"]
     if sum(manifest["limits"]["per_node"][node["id"]]["cpu_seconds"] for node in nodes) > manifest["limits"]["cpu_seconds"]:
-        raise ValueError("Declared node CPU ceilings exceed the total approved CPU budget")
+        raise ValueError("Declared node CPU ceilings exceed the total runtime CPU budget")
     eligible = {}
     outputs = set()
     for node in nodes:
@@ -320,24 +318,21 @@ def validate_runtime_plan(manifest: dict) -> None:
             raise ValueError("Unsupported DAG trigger")
 
 
-def execute_nodes(verified: dict, manifest: dict, approval_digest: str,
-                  evidence_root: Path, *, run_deadline: float | None = None) -> dict:
-    """Execute a declared ordered DAG after the caller consumes approval.
+def execute_nodes(verified: dict, manifest: dict, evidence_root: Path,
+                  *, run_deadline: float | None = None) -> dict:
+    """Execute a bounded declared DAG against verified frozen Git source.
 
-    ``approval_digest`` is the digest returned by consume_approval for this exact
-    manifest. This function is internal; the public CLI owns authorization.
-    ``run_deadline`` is an optional absolute monotonic deadline shared with the
-    caller's other approved operations; it cannot extend local wall/tool limits.
+    ``run_deadline`` is an optional absolute monotonic deadline shared with
+    other operations; it cannot extend local wall/tool limits.
     """
-    if approval_digest != manifest_hash(manifest):
-        raise ValueError("Approval does not match declared workload manifest")
+    digest = manifest_hash(manifest)
     validate_runtime_plan(manifest)
     if run_deadline is not None and (
             type(run_deadline) not in (float, int) or not math.isfinite(run_deadline)):
-        raise ValueError("Shared approved deadline must be a finite monotonic timestamp")
+        raise ValueError("Shared runtime deadline must be a finite monotonic timestamp")
     run = verified["run"]
     if run["commit"] != manifest["snapshot_sha"]:
-        raise ValueError("Frozen source differs from approved runtime snapshot")
+        raise ValueError("Frozen source differs from declared runtime snapshot")
     validate_source_workloads(verified, manifest)
     nodes = manifest["nodes"]
     root = Path(evidence_root).absolute()
@@ -386,7 +381,7 @@ def execute_nodes(verified: dict, manifest: dict, approval_digest: str,
             if len(samples) == trials:
                 timings[node["id"]] = samples
         trace = {"schema_version": _SCHEMA, "snapshot_sha": run["commit"],
-                 "source_run_id": run["id"], "manifest_sha256": approval_digest,
+                 "source_run_id": run["id"], "manifest_sha256": digest,
                  "nodes": result, "runtime_attested": False,
                  "runtime_provenance": _PROVENANCE, "limitations": _LIMITATIONS}
         with (root / "execution.json").open("xb") as stream:
@@ -481,7 +476,7 @@ def verify_execution(source_bundle: Path, manifest: dict, evidence_root: Path) -
                     row["manifest_sha256"] != digest or
                     type(row["wall_seconds"]) not in (int, float) or
                     not math.isfinite(row["wall_seconds"]) or row["wall_seconds"] < 0):
-                raise ValueError("Execution metadata differs from approved manifest")
+                raise ValueError("Execution metadata differs from declared manifest")
             if (row["stdout_path"] != f"{node['id']}-{trial}.stdout" or
                     row["stderr_path"] != f"{node['id']}-{trial}.stderr"):
                 raise ValueError("Execution log path differs from declared node")

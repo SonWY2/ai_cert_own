@@ -1,6 +1,6 @@
-"""Review a frozen symbol or bounded Python source scope after one manual approval.
+"""Review a frozen symbol or bounded Python source scope from a pinned RunManifest.
 
-Hypotheses remain provisional; no target code is executed or finding confirmed.
+Declared Docker workloads may run; hypotheses remain provisional and findings unconfirmed.
 """
 
 import argparse
@@ -19,7 +19,7 @@ from modules.evidence.authenticity import verify_git_source
 from modules.evidence.final_bundle import verify_final_bundle, write_final_bundle
 from modules.findings import admit, priority_rows
 from modules.findings.locations import validate_locations
-from modules.run_policy import SCHEMA_VERSION, consume_approval, manifest_hash, verify_approval
+from modules.run_policy import SCHEMA_VERSION, manifest_hash
 from modules.runtime_exec.docker import (execute_nodes, summarize_execution, verify_execution,
                                          validate_runtime_host, validate_runtime_plan, validate_source_workloads)
 
@@ -75,7 +75,6 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("source_bundle", type=Path, nargs="?")
     parser.add_argument("run_manifest", type=Path, nargs="?")
-    parser.add_argument("receipt", type=Path, nargs="?")
     parser.add_argument("--symbol", help="Exact graph symbol or node ID from frozen source")
     parser.add_argument("--scope", choices=("full", "impact"), help="All tracked Python or candidate impact scope")
     parser.add_argument("--main-ref", help="Immutable candidate comparison reference (requires --candidate-ref)")
@@ -90,13 +89,13 @@ def main() -> int:
     parser.add_argument("--generic-review", action="store_true",
                         help="Opt-in sixth general review with the same first five independent calls")
     parser.add_argument("--review-units", choices=("raw", "outline", "cards"), default="raw",
-                        help="Approved source context: unchanged, AST outline, or bounded local syntax cards")
+                        help="Source context: unchanged, AST outline, or bounded local syntax cards")
     parser.add_argument("--final-output", type=Path, help="Seal a source-only deferred report outside the repository")
-    parser.add_argument("--runtime-output", type=Path, help="Run the approved Docker DAG and store its unadjudicated traces")
+    parser.add_argument("--runtime-output", type=Path, help="Run the declared Docker DAG and store its unadjudicated traces")
     parser.add_argument("--response-output", type=Path,
-                        help="New owner-only directory outside the repository for approved provider replies")
+                        help="New owner-only directory outside the repository for provider replies")
     parser.add_argument("--prepare-manifest", type=Path,
-                        help="Write a new v3 manifest bound to this exact scope without approval or transmission")
+                        help="Write a new v3 manifest bound to this exact scope without transmission")
     args = parser.parse_args()
     if args.boundary_review and (args.single_baseline or args.plain_baseline):
         parser.error("--boundary-review forbids --single-baseline and --plain-baseline")
@@ -112,10 +111,10 @@ def main() -> int:
         return 0
     response_artifacts = None
     try:
-        if not args.source_bundle or not args.run_manifest or not (args.receipt or args.prepare_manifest):
-            raise ValueError("source bundle, manifest and receipt (or --prepare-manifest) are required")
-        if args.prepare_manifest and (args.receipt or args.runtime_output or args.final_output or args.response_output):
-            raise ValueError("Manifest preparation cannot approve, execute or produce diagnosis output")
+        if not args.source_bundle or not args.run_manifest:
+            raise ValueError("source bundle and manifest are required")
+        if args.prepare_manifest and (args.runtime_output or args.final_output or args.response_output):
+            raise ValueError("Manifest preparation cannot execute or produce diagnosis output")
         if not args.prepare_manifest and not args.response_output:
             raise ValueError("--response-output is required to preserve normalized model replies")
         if (args.symbol is None) == (args.scope is None):
@@ -135,9 +134,9 @@ def main() -> int:
         run = verified["run"]
         manifest = json.loads(args.run_manifest.read_text(encoding="utf-8"))
         if manifest.get("schema_version") != SCHEMA_VERSION:
-            raise ValueError("Use a new v3 manifest; previous approvals cannot authorize this diagnosis")
+            raise ValueError("Use a v3 RunManifest for this diagnosis")
         if manifest["snapshot_sha"] != run["commit"]:
-            raise ValueError("Approved snapshot differs from authenticated Git source")
+            raise ValueError("Manifest snapshot differs from authenticated Git source")
         repository = Path(run["repository"]).resolve()
         source_bundle = args.source_bundle.resolve()
         analysis, contexts, plan = prepare_analysis(
@@ -147,8 +146,8 @@ def main() -> int:
         if args.prepare_manifest:
             manifest = {**manifest, "analysis": analysis,
                         "model": {**manifest["model"], "prompt_sha256": prompt_sha256}}
-            digest = manifest_hash(manifest)
             validate_model_plan(manifest, mode=mode)
+            digest = manifest_hash(manifest)
             destination = args.prepare_manifest
             if (destination.resolve().is_relative_to(repository)
                     or destination.resolve().is_relative_to(source_bundle)):
@@ -159,13 +158,10 @@ def main() -> int:
             print(json.dumps({"manifest": str(destination), "manifest_sha256": digest,
                               "model_calls": 0, "target_executions": 0}))
             return 0
-        manifest_hash(manifest)
         validate_model_plan(manifest, mode=mode)
         if manifest["analysis"] != analysis:
-            raise ValueError("Approved analysis mode, scope or source context differs")
-        if (args.receipt.resolve().is_relative_to(repository)
-                or args.receipt.resolve().is_relative_to(source_bundle)):
-            raise ValueError("Approval receipt must be outside the repository and source bundle")
+            raise ValueError("Manifest analysis mode, scope or source context differs")
+        digest = manifest_hash(manifest)
         selected = next(iter(contexts.values())) if args.symbol or args.single_baseline else None
         selected_paths = ([key.removeprefix("module:") for key in contexts]
                           if not args.symbol and not args.single_baseline else
@@ -178,16 +174,13 @@ def main() -> int:
             if (args.runtime_output.resolve().is_relative_to(repository)
                     or args.runtime_output.resolve().is_relative_to(source_bundle)):
                 raise ValueError("Runtime output must be outside the repository and source bundle")
-            verify_approval(manifest, run["commit"], args.receipt)
             validate_runtime_host()
-        verify_approval(manifest, run["commit"], args.receipt)
         response_artifacts = ResponseArtifacts(args.response_output, repository, source_bundle)
-        digest = consume_approval(manifest, run["commit"], args.receipt)
         run_deadline = time.monotonic() + manifest["limits"]["wall_seconds"]
         runtime_trace = None
         runtime_context = None
         if args.runtime_output:
-            execute_nodes(verified, manifest, digest, args.runtime_output, run_deadline=run_deadline)
+            execute_nodes(verified, manifest, args.runtime_output, run_deadline=run_deadline)
             runtime_trace = verify_execution(args.source_bundle, manifest, args.runtime_output)
             runtime_context = summarize_execution(runtime_trace, args.runtime_output)
         unverified = []
@@ -228,6 +221,7 @@ def main() -> int:
                             "provisional_hypotheses"),
                   "scope": coverage["scope"],
                   "source_run_id": run["id"], "snapshot_sha": run["commit"],
+                  "manifest_sha256": digest,
                   "perspectives": audit, "findings": findings, "location_proofs": proofs,
                   "model_version": manifest["model"]["name_version"],
                   "priority_rows": priority_rows(findings), "unverified_candidates": unverified,
@@ -251,7 +245,7 @@ def main() -> int:
             result["runtime_trace"] = runtime_trace
             result["runtime_trace_not_adjudicated_in_source_only_report"] = True
     except (OSError, ValueError, TypeError, KeyError, RuntimeError, subprocess.CalledProcessError) as error:
-        parser.exit(2, f"approved diagnosis rejected: {error}\n")
+        parser.exit(2, f"diagnosis rejected: {error}\n")
     finally:
         if response_artifacts is not None:
             response_artifacts.close()

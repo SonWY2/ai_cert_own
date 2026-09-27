@@ -1,13 +1,15 @@
-"""Executable snapshots must not escape Git or run before manifest approval."""
+"""Executable snapshots must stay in frozen Git and declared bounded Docker runs."""
 
+import contextlib
 import hashlib
+import io
 import json
 import subprocess
 import sys
 import tempfile
 import time
 import unittest
-from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -16,8 +18,11 @@ from modules.evidence.provenance import write_source_run  # noqa: E402
 from modules.run_policy import LOCAL_OAUTH_ENDPOINT, manifest_hash  # noqa: E402
 from modules.runtime_exec.docker import (  # noqa: E402
     _artifact_sha, execute_nodes, materialize, summarize_execution,
-    validate_runtime_plan, validate_source_workloads, verify_execution,
+    validate_runtime_host, validate_runtime_plan, validate_source_workloads,
+    verify_execution,
 )
+from modules.runtime_exec import docker  # noqa: E402
+import run_approved  # noqa: E402
 from modules.static_scan.orchestrator import scan  # noqa: E402
 
 
@@ -60,7 +65,7 @@ class RuntimeExecTest(unittest.TestCase):
                 "model": {"endpoint": None, "name_version": None,
                           "prompt_sha256": None, "transmitted_data": []}}
 
-    def test_model_only_approval_cannot_run_runtime(self):
+    def test_model_only_manifest_cannot_run_runtime(self):
         manifest = self.manifest("a" * 40)
         manifest["tools"] = []
         manifest["nodes"] = []
@@ -109,20 +114,75 @@ class RuntimeExecTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Network-enabled"):
             validate_runtime_plan(valid)
 
-    def test_no_receipt_denies_container_execution(self):
-        (self.repo / "bench.py").write_text("raise RuntimeError('target must not run')\n")
-        sha = self.freeze()
-        bundle = write_source_run(self.root / "source", str(self.repo), scan(self.repo, sha))
-        manifest = self.manifest(sha)
+    def test_cli_executes_without_receipt_with_mocked_docker(self):
+        bundle, manifest, output, expected = self.failed_trace()
+        for artifact in output.iterdir():
+            artifact.unlink()
+        output.rmdir()
         file = self.root / "manifest.json"
         file.write_text(json.dumps(manifest))
-        output = self.root / "runtime"
-        denied = subprocess.run([sys.executable, str(ROOT / "src" / "run_approved.py"),
-                                 str(bundle), str(file), str(self.root / "absent-receipt"),
-                                 str(output)], capture_output=True, text=True)
-        self.assertEqual(denied.returncode, 2)
-        self.assertFalse(output.exists())
+        stdout = io.StringIO()
 
+        def failed_launch(_workspace, _manifest, _node, root, _remaining, trial, _trials):
+            self.assertEqual(trial, 0)
+            (root / "base-0.stdout").write_bytes(b"")
+            (root / "base-0.stderr").write_bytes(b"docker: image unavailable\n")
+            return expected["nodes"][0].copy()
+
+        with patch.object(sys, "argv", ["run_approved.py", str(bundle), str(file),
+                                        str(output)]), patch.object(
+                run_approved, "validate_runtime_host") as host, patch.object(
+                docker, "_run", side_effect=failed_launch) as launch, contextlib.redirect_stdout(stdout):
+            self.assertEqual(run_approved.main(), 0)
+        host.assert_called_once_with()
+        launch.assert_called_once()
+        trace = json.loads(stdout.getvalue())
+        self.assertEqual(trace, expected)
+        self.assertEqual(verify_execution(bundle, manifest, output), expected)
+
+    def test_changed_commit_and_workload_rejected_without_container(self):
+        bundle, manifest, output, _ = self.failed_trace()
+        verified = verify_git_source(bundle)
+        wrong_commit = json.loads(json.dumps(manifest))
+        wrong_commit["snapshot_sha"] = "a" * 40
+        with patch.object(docker, "materialize") as materialize_mock:
+            with self.assertRaisesRegex(ValueError, "source differs"):
+                execute_nodes(verified, wrong_commit, output)
+            materialize_mock.assert_not_called()
+        wrong_workload = json.loads(json.dumps(manifest))
+        for node in wrong_workload["nodes"]:
+            node["workload"] = "missing.py"
+            node["argv"][-1] = "missing.py"
+        with patch.object(docker, "materialize") as materialize_mock:
+            with self.assertRaisesRegex(ValueError, "not frozen Git source"):
+                execute_nodes(verified, wrong_workload, output)
+            materialize_mock.assert_not_called()
+        manifest_file = self.root / "invalid-manifest.json"
+        for candidate, error in ((wrong_commit, "authenticated source commit"),
+                                 (wrong_workload, "not frozen Git source")):
+            manifest_file.write_text(json.dumps(candidate))
+            stderr = io.StringIO()
+            with self.subTest(error=error), patch.object(
+                    sys, "argv", ["run_approved.py", str(bundle), str(manifest_file),
+                                  str(self.root / "new-runtime")]), patch.object(
+                    run_approved, "validate_runtime_host") as host, contextlib.redirect_stderr(stderr):
+                with self.assertRaises(SystemExit) as rejected:
+                    run_approved.main()
+                self.assertEqual(rejected.exception.code, 2)
+                self.assertIn(error, stderr.getvalue())
+                host.assert_not_called()
+        self.assertFalse((self.root / "new-runtime").exists())
+
+    def test_host_preflight_requires_enforced_limits(self):
+        for missing in ("CgroupDriver", "MemoryLimit", "CpuCfsQuota", "PidsLimit"):
+            info = {"ServerVersion": "1", "CgroupDriver": "systemd",
+                    "MemoryLimit": True, "CpuCfsQuota": True, "PidsLimit": True}
+            info[missing] = None
+            with self.subTest(missing=missing), patch.object(
+                    docker.subprocess, "run",
+                    return_value=subprocess.CompletedProcess([], 0, json.dumps(info))):
+                with self.assertRaisesRegex(ValueError, "must be enforced"):
+                    validate_runtime_host()
 
     def failed_trace(self):
         """Offline failed launch logs: deliberately no simulated Docker success."""
@@ -172,7 +232,6 @@ class RuntimeExecTest(unittest.TestCase):
             str(bundle), str(manifest_file), str(output)], capture_output=True, text=True)
         self.assertEqual(inspected.returncode, 0, inspected.stderr)
         self.assertFalse((output / "base-0.cid").exists())
-        self.assertFalse((self.root / "receipt.used").exists())
         self.assertFalse(json.loads(inspected.stdout)["runtime_attested"])
 
     def test_verified_log_summary_is_bounded_and_cleans_control_bytes(self):
@@ -231,7 +290,7 @@ class RuntimeExecTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             verify_execution(bundle, manifest, output)
 
-    def test_unsupported_runtime_paths_are_rejected_before_approval(self):
+    def test_unsupported_runtime_paths_are_rejected_before_execution(self):
         valid = self.manifest("a" * 40)
         cases = [
             (lambda m: m["nodes"][0]["argv"].__setitem__(1, "/work/evidence/script.py"),
@@ -326,8 +385,8 @@ class RuntimeExecTest(unittest.TestCase):
         (output / "base-0.stdout").unlink()
         (output / "base-0.stderr").unlink()
         output.rmdir()
-        trace = execute_nodes(verify_git_source(bundle), manifest, manifest_hash(manifest),
-                              output, run_deadline=time.monotonic() - 1)
+        trace = execute_nodes(verify_git_source(bundle), manifest, output,
+                              run_deadline=time.monotonic() - 1)
         self.assertEqual(trace["nodes"], [
             {"node_id": "base", "trial": 0, "status": "deferred", "reason": "total_timeout"},
             {"node_id": "profile", "status": "deferred", "reason": "control_unavailable"},
@@ -342,7 +401,7 @@ class RuntimeExecTest(unittest.TestCase):
         forbidden = bundle / "execution"
         denied = subprocess.run([
             sys.executable, str(ROOT / "src" / "run_approved.py"),
-            str(bundle), str(file), str(self.root / "absent-receipt"), str(forbidden)],
+            str(bundle), str(file), str(forbidden)],
             capture_output=True, text=True)
         self.assertEqual(denied.returncode, 2)
         self.assertIn("outside target repository and source bundle", denied.stderr)

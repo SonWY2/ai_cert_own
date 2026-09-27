@@ -1,10 +1,8 @@
-"""A declared run needs a matching single-use local approval before execution."""
+"""Bounded RunManifest declarations and canonical hashes constrain autonomous runs."""
 
 import copy
-import json
-import os
-import sys
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -14,8 +12,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from modules.diagnosis.plan import context_hash, prepare_analysis
 from modules.evidence.authenticity import verify_git_source
 from modules.evidence.provenance import write_source_run
-from modules.run_policy import (LOCAL_OAUTH_ENDPOINT, PolicyError, consume_approval,
-                                issue_approval, manifest_hash, verify_approval)
+from modules.run_policy import LOCAL_OAUTH_ENDPOINT, PolicyError, manifest_hash
 from modules.static_scan.orchestrator import scan
 
 
@@ -43,48 +40,30 @@ class RunPolicyTest(unittest.TestCase):
                 "context_policy": "git-ast-context-v1",
                 "contexts": [{"scope_id": "symbol:worker.run", "sha256": "d" * 64}]}
 
-    def test_v2_manifest_cannot_authorize_or_consume_approval(self):
+    def test_legacy_manifest_is_rejected(self):
         manifest = self.manifest()
-        with tempfile.TemporaryDirectory() as directory:
-            receipt = Path(directory) / "approval.json"
-            digest = manifest_hash(manifest)
-            issue_approval(manifest, manifest["snapshot_sha"], receipt, digest)
-            old = {**manifest, "schema_version": "run-manifest-v2"}
-            with self.assertRaises(PolicyError):
-                manifest_hash(old)
-            with self.assertRaises(PolicyError):
-                verify_approval(old, old["snapshot_sha"], receipt)
-            with self.assertRaises(PolicyError):
-                consume_approval(old, old["snapshot_sha"], receipt)
-            self.assertFalse(Path(str(receipt) + ".used").exists())
+        manifest["schema_version"] = "run-manifest-v2"
+        with self.assertRaises(PolicyError):
+            manifest_hash(manifest)
 
-    def test_analysis_plan_is_bound_to_single_use_approval(self):
+    def test_analysis_plan_changes_manifest_identity(self):
         manifest = self.manifest()
         manifest["network"]["model"] = True
         manifest["model"] = {"endpoint": LOCAL_OAUTH_ENDPOINT, "name_version": "pinned-model",
                              "prompt_sha256": "c" * 64, "transmitted_data": ["source", "context"]}
         manifest["analysis"] = self.model_analysis()
-        with tempfile.TemporaryDirectory() as directory:
-            receipt = Path(directory) / "approval.json"
-            digest = manifest_hash(manifest)
-            issue_approval(manifest, manifest["snapshot_sha"], receipt, digest)
-            changes = [
+        digest = manifest_hash(manifest)
+        for change in (
                 {"mode": "boundary", "roles": manifest["analysis"]["roles"] + ["assumptions"]},
                 {"contexts": [{"scope_id": "symbol:worker.run", "sha256": "e" * 64}]},
                 {"symbol": "worker.other",
-                 "contexts": [{"scope_id": "symbol:worker.other", "sha256": "d" * 64}]},
-                {"scope": "full", "symbol": None,
-                 "contexts": [{"scope_id": "module:worker.py", "sha256": "d" * 64}]},
-            ]
-            for change in changes:
-                altered = copy.deepcopy(manifest)
-                altered["analysis"].update(change)
-                with self.subTest(change=change), self.assertRaises(PolicyError):
-                    consume_approval(altered, altered["snapshot_sha"], receipt)
-                self.assertFalse(Path(str(receipt) + ".used").exists())
-            self.assertEqual(consume_approval(manifest, manifest["snapshot_sha"], receipt), digest)
+                 "contexts": [{"scope_id": "symbol:worker.other", "sha256": "d" * 64}]}):
+            altered = copy.deepcopy(manifest)
+            altered["analysis"].update(change)
+            with self.subTest(change=change):
+                self.assertNotEqual(manifest_hash(altered), digest)
 
-    def test_incomplete_or_ambiguous_analysis_cannot_be_approved(self):
+    def test_incomplete_or_ambiguous_analysis_is_rejected(self):
         manifest = self.manifest()
         manifest["network"]["model"] = True
         manifest["model"] = {"endpoint": LOCAL_OAUTH_ENDPOINT, "name_version": "pinned-model",
@@ -107,31 +86,25 @@ class RunPolicyTest(unittest.TestCase):
             {"mode": "plain", "roles": ["all"], "scope": "full", "symbol": None},
             {"extra": True},
         ]
-        with tempfile.TemporaryDirectory() as directory:
-            receipt = Path(directory) / "approval.json"
-            for change in changes:
-                altered = copy.deepcopy(manifest)
-                altered["analysis"].update(change)
-                with self.subTest(change=change), self.assertRaises(PolicyError):
-                    issue_approval(altered, altered["snapshot_sha"], receipt, context_hash(altered))
-                self.assertFalse(receipt.exists())
-            for analysis in (None, {}, []):
-                altered = copy.deepcopy(manifest)
-                altered["analysis"] = analysis
-                with self.subTest(analysis=analysis), self.assertRaises(PolicyError):
-                    issue_approval(altered, altered["snapshot_sha"], receipt, context_hash(altered))
+        for change in changes:
+            altered = copy.deepcopy(manifest)
+            altered["analysis"].update(change)
+            with self.subTest(change=change), self.assertRaises(PolicyError):
+                manifest_hash(altered)
+        for analysis in (None, {}, []):
+            altered = copy.deepcopy(manifest)
+            altered["analysis"] = analysis
+            with self.subTest(analysis=analysis), self.assertRaises(PolicyError):
+                manifest_hash(altered)
 
-    def test_v1_and_missing_analysis_are_rejected_before_receipt_creation(self):
-        with tempfile.TemporaryDirectory() as directory:
-            receipt = Path(directory) / "approval.json"
-            for legacy in (True, False):
-                manifest = self.manifest()
-                del manifest["analysis"]
-                if legacy:
-                    manifest["schema_version"] = "run-manifest-v1"
-                with self.subTest(legacy=legacy), self.assertRaises(PolicyError):
-                    issue_approval(manifest, manifest["snapshot_sha"], receipt, context_hash(manifest))
-                self.assertFalse(receipt.exists())
+    def test_v1_and_missing_analysis_are_rejected(self):
+        for legacy in (True, False):
+            manifest = self.manifest()
+            del manifest["analysis"]
+            if legacy:
+                manifest["schema_version"] = "run-manifest-v1"
+            with self.subTest(legacy=legacy), self.assertRaises(PolicyError):
+                manifest_hash(manifest)
             manifest = self.manifest()
             manifest["analysis"] = self.model_analysis()
             with self.assertRaises(PolicyError):
@@ -145,15 +118,11 @@ class RunPolicyTest(unittest.TestCase):
         manifest["analysis"] = {**self.model_analysis(), "scope": "impact", "symbol": None,
                                 "base_sha": "a" * 40,
                                 "contexts": [{"scope_id": "module:broken.py", "sha256": None}]}
-        with tempfile.TemporaryDirectory() as directory:
-            receipt = Path(directory) / "approval.json"
-            digest = manifest_hash(manifest)
-            issue_approval(manifest, manifest["snapshot_sha"], receipt, digest)
-            self.assertEqual(verify_approval(manifest, manifest["snapshot_sha"], receipt), digest)
-            manifest["analysis"]["mode"] = "single"
-            manifest["analysis"]["roles"] = ["all"]
-            with self.assertRaises(PolicyError):
-                manifest_hash(manifest)
+        self.assertEqual(len(manifest_hash(manifest)), 64)
+        manifest["analysis"]["mode"] = "single"
+        manifest["analysis"]["roles"] = ["all"]
+        with self.assertRaises(PolicyError):
+            manifest_hash(manifest)
 
     def test_analysis_uses_frozen_source_and_preserves_unavailable_batch_modules(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -191,32 +160,16 @@ class RunPolicyTest(unittest.TestCase):
 
 
 
-    def test_snapshot_and_manifest_bind_single_use_receipt(self):
+    def test_canonical_hash_changes_with_declared_workload(self):
         manifest = self.manifest()
         digest = manifest_hash(manifest)
         self.assertEqual(digest, manifest_hash(dict(reversed(list(manifest.items())))))
-        with tempfile.TemporaryDirectory() as directory:
-            receipt = Path(directory) / "approval.json"
-            with self.assertRaises(PolicyError):
-                issue_approval(manifest, manifest["snapshot_sha"], receipt, "wrong")
-            self.assertFalse(receipt.exists())
-            issue_approval(manifest, manifest["snapshot_sha"], receipt, digest)
-            self.assertEqual(os.stat(receipt).st_mode & 0o077, 0)
-            self.assertEqual(verify_approval(manifest, manifest["snapshot_sha"], receipt), digest)
-            altered = copy.deepcopy(manifest)
-            altered["nodes"][0]["argv"].append("-q")
-            with self.assertRaises(PolicyError):
-                verify_approval(altered, altered["snapshot_sha"], receipt)
-            self.assertEqual(consume_approval(manifest, manifest["snapshot_sha"], receipt), digest)
-            with self.assertRaises(PolicyError):
-                consume_approval(manifest, manifest["snapshot_sha"], receipt)
+        altered = copy.deepcopy(manifest)
+        altered["nodes"][0]["argv"].append("-q")
+        self.assertNotEqual(manifest_hash(altered), digest)
 
-    def test_changed_snapshot_and_unpinned_tools_are_denied(self):
+    def test_unpinned_tools_are_denied(self):
         manifest = self.manifest()
-        with tempfile.TemporaryDirectory() as directory:
-            receipt = Path(directory) / "approval.json"
-            with self.assertRaises(PolicyError):
-                issue_approval(manifest, "c" * 40, receipt, manifest_hash(manifest))
         manifest["nodes"][0]["argv"] = ["bash", "-c", "echo unsafe"]
         with self.assertRaises(PolicyError):
             manifest_hash(manifest)
@@ -277,29 +230,6 @@ class RunPolicyTest(unittest.TestCase):
         with self.assertRaises(PolicyError):
             manifest_hash(manifest)
 
-    def test_cli_denies_noninteractive_or_in_repository_approval(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            repo = root / "repo"
-            repo.mkdir()
-            def git(*args):
-                return subprocess.run(["git", "-C", str(repo), *args], check=True,
-                                      capture_output=True, text=True).stdout.strip()
-            git("init", "-q")
-            (repo / "worker.py").write_text("pass\n")
-            git("add", "worker.py")
-            git("-c", "user.email=a@b.c", "-c", "user.name=A", "commit", "-qm", "fixture")
-            manifest = self.manifest()
-            manifest["snapshot_sha"] = git("rev-parse", "HEAD")
-            manifest_path = root / "manifest.json"
-            manifest_path.write_text(json.dumps(manifest))
-            command = [sys.executable, str(ROOT / "src" / "approve_run.py"),
-                       str(repo), str(manifest_path)]
-            outside = root / "approval.json"
-            self.assertEqual(subprocess.run([*command, str(outside)], capture_output=True).returncode, 2)
-            self.assertFalse(outside.exists())
-            self.assertEqual(subprocess.run([*command, str(repo / "approval.json")], capture_output=True).returncode, 2)
-            self.assertFalse((repo / "approval.json").exists())
 
 if __name__ == "__main__":
     unittest.main()

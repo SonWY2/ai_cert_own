@@ -1,4 +1,4 @@
-"""Freeze the exact source contexts a manual model approval permits."""
+"""Freeze the exact source contexts declared in a RunManifest."""
 
 import hashlib
 import json
@@ -11,7 +11,7 @@ from modules.static_scan.review_units import extract_review_units
 
 
 def context_hash(context):
-    """Digest canonical UTF-8 JSON, shared by approval and candidate audit."""
+    """Digest canonical UTF-8 JSON shared by the manifest and candidate audit."""
     raw = json.dumps(context, sort_keys=True, ensure_ascii=False,
                      separators=(",", ":"), allow_nan=False).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()

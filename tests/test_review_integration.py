@@ -1,4 +1,4 @@
-"""Approved AST review units remain scoped, auditable and provisional."""
+"""AST review units remain scoped, auditable and provisional."""
 
 import contextlib
 import copy
@@ -19,36 +19,34 @@ from modules.diagnosis.model import instructions_for, prompt_hash
 from modules.evidence.authenticity import verify_git_source
 from modules.evidence.final_bundle import verify_final_bundle, write_final_bundle
 from modules.evidence.report import render_report
-from modules.run_policy import issue_approval, manifest_hash
-from test_diagnose_approved import ApprovedDiagnosisTest
+from test_diagnose_approved import ManifestDiagnosisTest
 
 
 class ReviewIntegrationTest(unittest.TestCase):
-    def test_review_units_require_exact_approval_and_survive_sealing(self):
+    def test_review_units_require_exact_manifest_and_survive_sealing(self):
         for review in ("outline", "cards"):
             with self.subTest(review=review), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
-                fixture = ApprovedDiagnosisTest()
+                fixture = ManifestDiagnosisTest()
                 repo, sha, _ = fixture.fixture(root, {
                     "unit.py": "def work(value):\n    while value < 5:\n        value += 1\n    return 1 / value\n"})
-                bundle, manifest, file, receipt = fixture.approved(
-                    root, repo, sha, 60000, symbol="work")
+                bundle, manifest, file = fixture.manifest_fixture(root, repo, sha, 60000, symbol="work")
                 verified = verify_git_source(bundle)
                 analysis, contexts, _ = prepare_analysis(verified, symbol="work", review=review)
                 manifest["analysis"] = analysis
                 file.write_text(json.dumps(manifest))
-                issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+                
 
                 with patch("modules.diagnosis.model._request") as request:
                     with patch.object(sys, "argv", ["diagnose_approved.py", str(bundle),
-                                                      str(file), str(receipt), "--symbol", "work",
+                                                      str(file), "--symbol", "work",
                                                       "--review-units", "raw", "--response-output",
                                                       str(root / "denied")]):
                         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as rejected:
                             diagnose_approved.main()
                     self.assertEqual(rejected.exception.code, 2)
                     request.assert_not_called()
-                self.assertFalse(Path(str(receipt) + ".used").exists())
+                
 
                 source_id = verified["evidence"][0]["id"]
                 candidate = {"root_symbol": "work", "mechanism": "unverified division condition",
@@ -70,7 +68,7 @@ class ReviewIntegrationTest(unittest.TestCase):
 
                 output = io.StringIO()
                 with patch("modules.diagnosis.model._request", side_effect=respond), patch.object(
-                        sys, "argv", ["diagnose_approved.py", str(bundle), str(file), str(receipt),
+                        sys, "argv", ["diagnose_approved.py", str(bundle), str(file),
                                       "--symbol", "work", "--review-units", review,
                                       "--response-output", str(root / "responses"),
                                       "--final-output", str(root / "final")]), contextlib.redirect_stdout(output):
@@ -95,16 +93,15 @@ class ReviewIntegrationTest(unittest.TestCase):
                                        diagnosis_coverage=result["diagnosis_coverage"])
 
 
-    def test_generic_sixth_has_separate_approval_and_no_candidate_hint(self):
+    def test_generic_sixth_has_distinct_prompt_and_no_candidate_hint(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            fixture = ApprovedDiagnosisTest()
+            fixture = ManifestDiagnosisTest()
             repo, sha, _ = fixture.fixture(root, {
                 "unit.py": "def work(value):\n    return 1 / value\n"})
-            bundle, manifest, file, receipt = fixture.approved(
-                root, repo, sha, 60000, symbol="work", mode="generic")
+            bundle, manifest, file = fixture.manifest_fixture(root, repo, sha, 60000, symbol="work", mode="generic")
             file.write_text(json.dumps(manifest))
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            
             self.assertNotEqual(prompt_hash("generic"), prompt_hash("five"))
             self.assertEqual([instructions_for("generic", role)
                               for role in ("structure", "correctness", "performance",
@@ -115,14 +112,14 @@ class ReviewIntegrationTest(unittest.TestCase):
 
             with patch("modules.diagnosis.model._request") as request:
                 with patch.object(sys, "argv", ["diagnose_approved.py", str(bundle),
-                                               str(file), str(receipt), "--symbol", "work",
+                                               str(file), "--symbol", "work",
                                                "--boundary-review", "--response-output",
                                                str(root / "denied")]):
                     with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as rejected:
                         diagnose_approved.main()
                 self.assertEqual(rejected.exception.code, 2)
                 request.assert_not_called()
-            self.assertFalse(Path(str(receipt) + ".used").exists())
+            
 
             source_id = verify_git_source(bundle)["evidence"][0]["id"]
             candidate = {"root_symbol": "work", "mechanism": "zero can reach division",
@@ -145,7 +142,7 @@ class ReviewIntegrationTest(unittest.TestCase):
             output = io.StringIO()
             with patch("modules.diagnosis.model._request", side_effect=respond), patch.object(
                     sys, "argv", ["diagnose_approved.py", str(bundle), str(file),
-                                  str(receipt), "--symbol", "work", "--generic-review",
+                                  "--symbol", "work", "--generic-review",
                                   "--response-output", str(root / "responses"),
                                   "--final-output", str(root / "final")]), contextlib.redirect_stdout(output):
                 self.assertEqual(diagnose_approved.main(), 0)

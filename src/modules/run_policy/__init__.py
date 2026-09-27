@@ -1,14 +1,9 @@
-"""Declarative, single-use manual approval for a pinned proposed runtime manifest.
-
-This module never executes a manifest or attests that an executor honors it.
-"""
+"""Validate bounded RunManifest declarations and hash their canonical contents."""
 
 import hashlib
 import json
 import os
 import re
-import stat
-from pathlib import Path
 from urllib.parse import urlsplit
 
 SCHEMA_VERSION = "run-manifest-v3"
@@ -20,7 +15,7 @@ _ID = re.compile(r"[A-Za-z][A-Za-z0-9_-]{0,63}\Z")
 
 
 class PolicyError(ValueError):
-    """Manifest or approval violates the declared boundary."""
+    """Manifest violates the declared boundary."""
 
 
 def _fields(value, keys, label):
@@ -204,7 +199,7 @@ def validate_manifest(manifest):
         raise PolicyError("nodes must be a list")
     if not nodes and (manifest["tools"] or limits["per_node"] or
                       manifest["model"]["endpoint"] is None):
-        raise PolicyError("model-only approval cannot declare executable tools or nodes")
+        raise PolicyError("model-only manifest cannot declare executable tools or nodes")
     seen = set()
     for node in nodes:
         _fields(node, ("id", "argv", "cwd", "workload", "trigger", "tool"), "node")
@@ -249,93 +244,3 @@ def manifest_hash(manifest):
         raise PolicyError("manifest must be canonical JSON data") from exc
     return hashlib.sha256(raw).hexdigest()
 
-
-def _path(path):
-    path = Path(path)
-    if not path.name or path.name in (".", "..") or not path.is_absolute():
-        raise PolicyError("receipt_path must be an absolute filename")
-    parent = path.parent
-    info = parent.stat()
-    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid() or info.st_mode & 0o022:
-        raise PolicyError("receipt directory must be owner-controlled and not group/world writable")
-    return path
-
-
-def _receipt(manifest, expected_snapshot_sha, receipt_path):
-    _sha(expected_snapshot_sha, "expected_snapshot_sha")
-    validate_manifest(manifest)
-    if manifest["snapshot_sha"] != expected_snapshot_sha:
-        raise PolicyError("snapshot SHA mismatch")
-    return _path(receipt_path), manifest_hash(manifest)
-
-
-def _read_receipt(path):
-    try:
-        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
-        try:
-            meta = os.fstat(fd)
-            if not stat.S_ISREG(meta.st_mode) or meta.st_uid != os.getuid() or meta.st_mode & 0o077:
-                raise PolicyError("receipt must be an owner-only regular file")
-            with os.fdopen(fd, "rb", closefd=False) as stream:
-                raw = stream.read(4097)
-            if len(raw) > 4096:
-                raise PolicyError("oversize receipt")
-            return json.loads(raw)
-        finally:
-            os.close(fd)
-    except (OSError, ValueError, UnicodeError) as exc:
-        raise PolicyError("unavailable or invalid approval receipt") from exc
-
-
-def issue_approval(manifest, expected_snapshot_sha, receipt_path, typed_hash):
-    """Record human entry of the displayed canonical hash, exclusively and owner-only."""
-    path, digest = _receipt(manifest, expected_snapshot_sha, receipt_path)
-    if typed_hash != digest:
-        raise PolicyError("typed hash does not match displayed canonical manifest hash")
-    content = json.dumps({"schema_version": SCHEMA_VERSION, "snapshot_sha": expected_snapshot_sha,
-                          "manifest_hash": digest}, sort_keys=True, separators=(",", ":")).encode()
-    try:
-        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
-        try:
-            os.fchmod(fd, 0o600)
-            with os.fdopen(fd, "wb", closefd=False) as stream:
-                stream.write(content)
-                stream.flush()
-                os.fsync(fd)
-        finally:
-            os.close(fd)
-    except FileExistsError as exc:
-        raise PolicyError("approval receipt already exists") from exc
-    return digest
-
-
-def verify_approval(manifest, expected_snapshot_sha, receipt_path):
-    """Verify receipt and unused marker; not a reservation against concurrent consumption."""
-    path, digest = _receipt(manifest, expected_snapshot_sha, receipt_path)
-    record = _read_receipt(path)
-    if record != {"schema_version": SCHEMA_VERSION, "snapshot_sha": expected_snapshot_sha,
-                  "manifest_hash": digest}:
-        raise PolicyError("approval receipt does not match snapshot and manifest")
-    if os.path.lexists(str(path) + ".used"):
-        raise PolicyError("approval already consumed")
-    return digest
-
-
-def consume_approval(manifest, expected_snapshot_sha, receipt_path):
-    """Atomically claim one receipt; caller must claim before any prospective execution.
-
-    No rollback after claim: failed work requires a fresh human approval and receipt.
-    """
-    digest = verify_approval(manifest, expected_snapshot_sha, receipt_path)
-    path = _path(receipt_path)
-    try:
-        fd = os.open(str(path) + ".used", os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
-    except FileExistsError as exc:
-        raise PolicyError("approval already consumed") from exc
-    try:
-        os.fchmod(fd, 0o600)
-        os.write(fd, (digest + "\n").encode("ascii"))
-        os.fsync(fd)
-    finally:
-        os.close(fd)
-    return digest

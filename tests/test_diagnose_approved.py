@@ -1,4 +1,4 @@
-"""Manual one-use consent gates model transmission even for known Git source."""
+"""Pinned RunManifest gates source context, budget and diagnosis output."""
 
 import hashlib
 import json
@@ -21,11 +21,11 @@ from modules.evidence.authenticity import verify_git_source  # noqa: E402
 from modules.evidence.final_bundle import verify_final_bundle  # noqa: E402
 from modules.evidence.provenance import write_source_run  # noqa: E402
 from modules.findings.admission import admit  # noqa: E402
-from modules.run_policy import issue_approval, manifest_hash  # noqa: E402
+from modules.run_policy import manifest_hash  # noqa: E402
 from modules.static_scan.orchestrator import scan  # noqa: E402
 
 
-class ApprovedDiagnosisTest(unittest.TestCase):
+class ManifestDiagnosisTest(unittest.TestCase):
     def fixture(self, root, files):
         repo = root / "repo"
         repo.mkdir()
@@ -42,8 +42,8 @@ class ApprovedDiagnosisTest(unittest.TestCase):
         base = git("rev-parse", "HEAD")
         return repo, base, git
 
-    def approved(self, root, repo, sha, tokens, *, mode="five", symbol="a",
-                 scope=None, main_ref=None, candidate_ref=None):
+    def manifest_fixture(self, root, repo, sha, tokens, *, mode="five", symbol="a",
+                         scope=None, main_ref=None, candidate_ref=None):
         bundle = write_source_run(root / "source", str(repo), scan(repo, sha))
         bounds = {"wall_seconds": 30, "cpu_seconds": 30, "memory_bytes": 1048576,
                   "tokens": tokens, "tool_seconds": 30}
@@ -64,15 +64,14 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                               "transmitted_data": ["source", "context"]}}
         manifest_file = root / "manifest.json"
         manifest_file.write_text(json.dumps(manifest))
-        receipt = root / "approval.json"
-        return bundle, manifest, manifest_file, receipt
+        return bundle, manifest, manifest_file
 
-    def invoke(self, bundle, manifest_file, receipt, *options, expected_code=0):
+    def invoke(self, bundle, manifest_file, *options, expected_code=0):
         output = io.StringIO()
         if "--response-output" not in options:
             options = (*options, "--response-output", str(manifest_file.parent / "responses"))
         with patch.object(sys, "argv", ["diagnose_approved.py", str(bundle), str(manifest_file),
-                                        str(receipt), *options]), contextlib.redirect_stdout(output):
+                                        *options]), contextlib.redirect_stdout(output):
             code = diagnose_approved.main()
         self.assertEqual(code, expected_code)
         return json.loads(output.getvalue())
@@ -83,13 +82,12 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                 with self.subTest(scope=scope, boundary_line=boundary_line), tempfile.TemporaryDirectory() as directory:
                     root = Path(directory)
                     repo, sha, _ = self.fixture(root, {"a.py": "def a(value):\n    return 1 / value\n"})
-                    bundle, manifest, file, receipt = self.approved(
-                        root, repo, sha, 30000, mode="boundary",
-                        symbol="a" if scope[0] == "--symbol" else None,
-                        scope=None if scope[0] == "--symbol" else "full")
+                    bundle, manifest, file = self.manifest_fixture(root, repo, sha, 30000, mode="boundary",
+                    symbol="a" if scope[0] == "--symbol" else None,
+                    scope=None if scope[0] == "--symbol" else "full")
                     manifest["model"]["prompt_sha256"] = prompt_hash("boundary")
                     file.write_text(json.dumps(manifest))
-                    issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+                    
                     source_id = verify_git_source(bundle)["evidence"][0]["id"]
                     candidate = {
                         "root_symbol": "a", "mechanism": "zero input reaches division",
@@ -112,7 +110,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                                 "content": [{"type": "text", "text": json.dumps({"candidates": rows})}]}
 
                     with patch("modules.diagnosis.model._request", side_effect=reply):
-                        result = self.invoke(bundle, file, receipt, *scope, "--boundary-review",
+                        result = self.invoke(bundle, file, *scope, "--boundary-review",
                                              "--final-output", str(root / "final"),
                                              expected_code=0 if boundary_line == 2 else 3)
                     sealed = verify_final_bundle(Path(result["final_source_only_bundle"]), bundle)
@@ -141,9 +139,8 @@ class ApprovedDiagnosisTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(value):\n    return 1 / value\n"})
-            bundle, manifest, file, receipt = self.approved(
-                root, repo, sha, 20000, symbol=None, scope="full")
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000, symbol=None, scope="full")
+            
             source_id = verify_git_source(bundle)["evidence"][0]["id"]
             valid = {"root_symbol": "a", "mechanism": "zero input reaches division",
                      "condition": "value is zero", "trigger": "a(0)", "impact": "request fails",
@@ -163,7 +160,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                             "candidates": rows if role == "structure" else []})}]}
 
             with patch("modules.diagnosis.model._request", side_effect=respond):
-                result = self.invoke(bundle, file, receipt, "--scope", "full",
+                result = self.invoke(bundle, file, "--scope", "full",
                                      "--final-output", str(root / "final"), expected_code=3)
             sealed = verify_final_bundle(Path(result["final_source_only_bundle"]), bundle)
             self.assertEqual(len(sealed["findings"]), 1)
@@ -187,7 +184,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                 self.assertEqual(entry["candidate_sha256"], context_hash(original))
             self.assertEqual(sealed["report"]["confirmed_count"], 0)
 
-    def test_analysis_scope_mode_and_context_mismatch_preserve_approval(self):
+    def test_analysis_scope_mode_and_context_mismatch_block_transmission(self):
         cases = [
             (("--symbol", "other"), None),
             (("--scope", "full"), None),
@@ -200,43 +197,84 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                 root = Path(directory)
                 repo, sha, _ = self.fixture(
                     root, {"a.py": "def a(): return 1\n\ndef other(): return 2\n"})
-                bundle, manifest, file, receipt = self.approved(root, repo, sha, 20000)
+                bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000)
                 if altered == "context":
                     manifest["analysis"]["contexts"][0]["sha256"] = "0" * 64
                 elif altered == "roles":
                     manifest["analysis"]["mode"] = "single"
                     manifest["analysis"]["roles"] = ["all"]
                 file.write_text(json.dumps(manifest))
-                issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+                
                 with patch("modules.diagnosis.model._request") as request:
                     with self.assertRaises(SystemExit) as rejected:
-                        self.invoke(bundle, file, receipt, *options)
+                        self.invoke(bundle, file, *options)
                 self.assertEqual(rejected.exception.code, 2)
                 request.assert_not_called()
-                self.assertFalse(Path(str(receipt) + ".used").exists())
+                
                 self.assertFalse((root / "responses").exists())
 
-    def test_response_output_required_without_consuming_approval(self):
+    def test_response_output_required_before_transmission(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-            bundle, manifest, file, receipt = self.approved(root, repo, sha, 20000)
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000)
+            
             with patch.object(sys, "argv", [
-                    "diagnose_approved.py", str(bundle), str(file), str(receipt),
+                    "diagnose_approved.py", str(bundle), str(file),
                     "--symbol", "a"]), patch("modules.diagnosis.model._request") as request:
                 with self.assertRaises(SystemExit) as rejected:
                     diagnose_approved.main()
             self.assertEqual(rejected.exception.code, 2)
             request.assert_not_called()
-            self.assertFalse(Path(str(receipt) + ".used").exists())
+            
 
-    def test_response_storage_failure_stops_after_consuming_one_use_approval(self):
+    def test_invalid_manifest_blocks_model_and_runtime(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-            bundle, manifest, file, receipt = self.approved(root, repo, sha, 20000)
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000)
+            manifest["snapshot_sha"] = "0" * 40
+            file.write_text(json.dumps(manifest))
+            with patch("modules.diagnosis.model._request") as request, patch.object(
+                    diagnose_approved, "execute_nodes") as runtime:
+                with self.assertRaises(SystemExit) as rejected:
+                    self.invoke(bundle, file, "--symbol", "a",
+                                "--runtime-output", str(root / "runtime"))
+            self.assertEqual(rejected.exception.code, 2)
+            request.assert_not_called()
+            runtime.assert_not_called()
+            self.assertFalse((root / "responses").exists())
+
+    def test_prepare_manifest_stays_offline_and_binds_scope(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000)
+            manifest["analysis"] = None
+            manifest["model"]["prompt_sha256"] = "0" * 64
+            file.write_text(json.dumps(manifest))
+            destination = root / "prepared.json"
+            output = io.StringIO()
+            with patch("modules.diagnosis.model._request") as request, patch.object(
+                    diagnose_approved, "execute_nodes") as runtime, patch.object(
+                    sys, "argv", ["diagnose_approved.py", str(bundle), str(file),
+                                  "--symbol", "a", "--prepare-manifest", str(destination)]), \
+                    contextlib.redirect_stdout(output):
+                self.assertEqual(diagnose_approved.main(), 0)
+            request.assert_not_called()
+            runtime.assert_not_called()
+            saved = json.loads(destination.read_text())
+            self.assertEqual(saved["analysis"]["scope"], "symbol")
+            self.assertEqual(saved["snapshot_sha"], sha)
+            self.assertEqual(json.loads(output.getvalue())["manifest_sha256"], manifest_hash(saved))
+            self.assertFalse((root / "responses").exists())
+
+    def test_response_storage_failure_stops_before_sealing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000)
+            
             output = root / "responses"
 
             def response(endpoint, payload, timeout):
@@ -248,52 +286,49 @@ class ApprovedDiagnosisTest(unittest.TestCase):
 
             with patch("modules.diagnosis.model._request", side_effect=response) as request:
                 with self.assertRaises(SystemExit) as rejected:
-                    self.invoke(bundle, file, receipt, "--symbol", "a",
+                    self.invoke(bundle, file, "--symbol", "a",
                                 "--final-output", str(root / "final"))
             self.assertEqual(rejected.exception.code, 2)
             self.assertEqual(request.call_count, 1)
-            self.assertTrue(Path(str(receipt) + ".used").exists())
+            
             self.assertFalse((root / "final").exists())
 
-    def test_boundary_mode_requires_matching_approval_before_transmission(self):
+    def test_boundary_mode_requires_matching_manifest_before_transmission(self):
         cases = [
             (prompt_hash("five"), ("--boundary-review",)),
             (prompt_hash("boundary"), ()),
             (prompt_hash("boundary"), ("--boundary-review", "--single-baseline")),
             (prompt_hash("boundary"), ("--boundary-review", "--plain-baseline")),
         ]
-        for approved_hash, options in cases:
-            with self.subTest(options=options, prompt_hash=approved_hash), tempfile.TemporaryDirectory() as directory:
+        for pinned_hash, options in cases:
+            with self.subTest(options=options, prompt_hash=pinned_hash), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-                bundle, manifest, file, receipt = self.approved(
-                    root, repo, sha, 30000,
-                    mode="boundary" if approved_hash == prompt_hash("boundary") else "five")
-                manifest["model"]["prompt_sha256"] = approved_hash
+                bundle, manifest, file = self.manifest_fixture(root, repo, sha, 30000,
+                mode="boundary" if pinned_hash == prompt_hash("boundary") else "five")
+                manifest["model"]["prompt_sha256"] = pinned_hash
                 file.write_text(json.dumps(manifest))
-                issue_approval(manifest, sha, receipt, manifest_hash(manifest))
                 with patch("modules.diagnosis.model._request",
-                           side_effect=AssertionError("unapproved mode transmitted source")):
+                           side_effect=AssertionError("mismatched mode transmitted source")):
                     with self.assertRaises(SystemExit) as error:
-                        self.invoke(bundle, file, receipt, "--symbol", "a", *options)
+                        self.invoke(bundle, file, "--symbol", "a", *options)
                 self.assertEqual(error.exception.code, 2)
-                self.assertFalse(Path(str(receipt) + ".used").exists())
+                
 
     def test_boundary_budget_defers_extra_role_and_remaining_modules(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n",
                                               "b.py": "def b(): return 2\n"})
-            bundle, manifest, file, receipt = self.approved(
-                root, repo, sha, 24000, mode="boundary", symbol=None, scope="full")
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 24000, mode="boundary", symbol=None, scope="full")
             manifest["model"]["prompt_sha256"] = prompt_hash("boundary")
             file.write_text(json.dumps(manifest))
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            
             response = {"usage": {"input_tokens": 3800, "output_tokens": 100},
                         "stop_reason": "end_turn",
                         "content": [{"type": "text", "text": '{"candidates": []}'}]}
             with patch("modules.diagnosis.model._request", return_value=response):
-                result = self.invoke(bundle, file, receipt, "--scope", "full", "--boundary-review",
+                result = self.invoke(bundle, file, "--scope", "full", "--boundary-review",
                                      "--final-output", str(root / "final"), expected_code=3)
             audit = result["perspectives"]
             self.assertEqual([row["status"] for row in audit[0]["perspectives"]],
@@ -306,12 +341,11 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             sealed = verify_final_bundle(Path(result["final_source_only_bundle"]), bundle)
             self.assertEqual(sealed["report"]["confirmed_count"], 0)
 
-    def test_single_call_baseline_needs_approval_and_cannot_claim_final_report(self):
+    def test_single_call_baseline_cannot_claim_final_report(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-            bundle, manifest, manifest_file, receipt = self.approved(
-                root, repo, sha, 10000, mode="single")
+            bundle, manifest, manifest_file = self.manifest_fixture(root, repo, sha, 10000, mode="single")
             manifest["tools"] = []
             manifest["nodes"] = []
             manifest["limits"]["per_node"] = {}
@@ -334,13 +368,8 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                         "stop_reason": "end_turn",
                         "content": [{"type": "text", "text": json.dumps({"candidates": [candidate]})}]}
 
-            with patch("modules.diagnosis.model._request", side_effect=AssertionError("network before consent")):
-                with self.assertRaises(SystemExit):
-                    self.invoke(bundle, manifest_file, receipt, "--symbol", "a", "--single-baseline")
-            self.assertFalse(Path(str(receipt) + ".used").exists())
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
             with patch("modules.diagnosis.model._request", side_effect=response):
-                result = self.invoke(bundle, manifest_file, receipt, "--symbol", "a", "--single-baseline")
+                result = self.invoke(bundle, manifest_file, "--symbol", "a", "--single-baseline")
             self.assertEqual(calls, ["all"])
             self.assertEqual(result["stage"], "pilot_baseline_provisional")
             self.assertEqual(result["model_version"], "gpt-6-sol")
@@ -348,9 +377,9 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             self.assertEqual(result["findings"][0]["root_symbol"], "a")
             self.assertEqual(result["findings"][0]["state"], "deferred")
             self.assertEqual(result["findings"][0]["perspectives"], ["all"])
-            self.assertTrue(Path(str(receipt) + ".used").exists())
+            
             with self.assertRaises(SystemExit):
-                self.invoke(bundle, manifest_file, receipt, "--symbol", "a", "--single-baseline",
+                self.invoke(bundle, manifest_file, "--symbol", "a", "--single-baseline",
                             "--final-output", str(root / "not-a-final-report"))
             self.assertFalse((root / "not-a-final-report").exists())
 
@@ -359,13 +388,12 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "from b import answer\n",
                                                 "b.py": "def answer(): return 1\n"})
-            bundle, manifest, file, receipt = self.approved(
-                root, repo, sha, 20000, mode="single", symbol=None, scope="full")
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000, mode="single", symbol=None, scope="full")
             manifest["tools"] = []
             manifest["nodes"] = []
             manifest["limits"]["per_node"] = {}
             file.write_text(json.dumps(manifest))
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            
             seen = []
             evidence_id = next(item["id"] for item in verify_git_source(bundle)["evidence"]
                                if item["path"] == "b.py")
@@ -385,7 +413,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                         "content": [{"type": "text", "text": json.dumps({"candidates": [candidate]})}]}
 
             with patch("modules.diagnosis.model._request", side_effect=respond):
-                result = self.invoke(bundle, file, receipt, "--scope", "full", "--single-baseline")
+                result = self.invoke(bundle, file, "--scope", "full", "--single-baseline")
             self.assertEqual(len(seen), 1)
             self.assertEqual(seen[0]["perspective"], "all")
             self.assertEqual({node["path"] for node in seen[0]["context"]["nodes"]}, {"a.py", "b.py"})
@@ -396,14 +424,13 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             self.assertEqual(result["findings"][0]["location"]["path"], "b.py")
             self.assertEqual(result["findings"][0]["state"], "deferred")
 
-    def test_plain_baseline_sends_only_target_raw_source_after_matching_approval(self):
+    def test_plain_baseline_sends_only_target_raw_source(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {
                 "a.py": "def target(x):\n    return 1 / x\n",
                 "oracle.py": "SECRET_EXPECTED_ZERO_DIVISION\n"})
-            bundle, manifest, file, receipt = self.approved(
-                root, repo, sha, 10000, mode="plain", symbol="target")
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 10000, mode="plain", symbol="target")
             manifest["tools"] = []
             manifest["nodes"] = []
             manifest["limits"]["per_node"] = {}
@@ -411,12 +438,6 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                                      name_version="gpt-6-luna",
                                      prompt_sha256=prompt_hash("plain"))
             file.write_text(json.dumps(manifest))
-            with patch("modules.diagnosis.model._request",
-                       side_effect=AssertionError("network before approval")):
-                with self.assertRaises(SystemExit):
-                    self.invoke(bundle, file, receipt, "--symbol", "target", "--plain-baseline")
-            self.assertFalse(Path(str(receipt) + ".used").exists())
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
             evidence_id = next(item["id"] for item in verify_git_source(bundle)["evidence"]
                                if item["path"] == "a.py")
             requests = []
@@ -435,7 +456,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                                             "time_minutes": 1}}]})}]}
 
             with patch("modules.diagnosis.model._request", side_effect=respond):
-                result = self.invoke(bundle, file, receipt, "--symbol", "target", "--plain-baseline")
+                result = self.invoke(bundle, file, "--symbol", "target", "--plain-baseline")
             self.assertEqual(len(requests), 1)
             sent = json.loads(requests[0]["input"][0]["content"])
             self.assertEqual(sent["function"], "target")
@@ -453,23 +474,14 @@ class ApprovedDiagnosisTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-            bundle, manifest, file, receipt = self.approved(
-                root, repo, sha, 10000, mode="single")
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 10000, mode="single")
             manifest["tools"], manifest["nodes"], manifest["limits"]["per_node"] = [], [], {}
             file.write_text(json.dumps(manifest))
             output = root / "responses"
-            with patch("modules.diagnosis.model._request",
-                       side_effect=AssertionError("network before approval")) as request:
-                with self.assertRaises(SystemExit):
-                    self.invoke(bundle, file, receipt, "--symbol", "a", "--single-baseline",
-                                "--response-output", str(output))
-            request.assert_not_called()
-            self.assertFalse(output.exists())
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
             reply = {"stop_reason": "end_turn", "usage": {"output_tokens": 5, "input_tokens": 30},
                      "content": [{"type": "text", "text": 'NOT JSON private-only marker ☃'}]}
             with patch("modules.diagnosis.model._request", return_value=reply):
-                result = self.invoke(bundle, file, receipt, "--symbol", "a",
+                result = self.invoke(bundle, file, "--symbol", "a",
                                      "--single-baseline", "--response-output", str(output),
                                      expected_code=3)
             audit = result["perspectives"][0]
@@ -485,16 +497,16 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             self.assertEqual(stat.S_IMODE(output.stat().st_mode), 0o700)
             self.assertEqual(stat.S_IMODE(Path(artifact["path"]).stat().st_mode), 0o600)
             self.assertNotIn("private-only marker", json.dumps(result))
-            self.assertTrue(Path(str(receipt) + ".used").exists())
+            
 
     def test_batch_responses_have_unique_paths_and_audit_hashes_on_candidate_failure(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-            bundle, manifest, file, receipt = self.approved(root, repo, sha, 20000)
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000)
             manifest["tools"], manifest["nodes"], manifest["limits"]["per_node"] = [], [], {}
             file.write_text(json.dumps(manifest))
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            
             def respond(endpoint, payload, timeout):
                 perspective = json.loads(payload["messages"][0]["content"])["perspective"]
                 claim = {"taxonomy": perspective, "location": {"path": "a.py", "line": 1},
@@ -504,7 +516,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                         "content": [{"type": "text", "text": json.dumps(
                             {"candidates": [claim] if perspective == "structure" else []})}]}
             with patch("modules.diagnosis.model._request", side_effect=respond):
-                result = self.invoke(bundle, file, receipt, "--symbol", "a",
+                result = self.invoke(bundle, file, "--symbol", "a",
                                      "--response-output", str(root / "responses"),
                                      "--final-output", str(root / "final"), expected_code=3)
             self.assertEqual(result["perspectives"][0]["status"], "completed")
@@ -522,15 +534,14 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                 self.assertEqual(hashlib.sha256(Path(artifact["path"]).read_bytes()).hexdigest(),
                                  artifact["response_sha256"])
 
-    def test_unsafe_response_output_rejected_before_consuming_receipt(self):
+    def test_unsafe_response_output_rejected_before_transmission(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-            bundle, manifest, file, receipt = self.approved(
-                root, repo, sha, 10000, mode="single")
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 10000, mode="single")
             manifest["tools"], manifest["nodes"], manifest["limits"]["per_node"] = [], [], {}
             file.write_text(json.dumps(manifest))
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            
             existing = root / "existing"
             existing.mkdir()
             linked = root / "linked"
@@ -541,115 +552,103 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                         "modules.diagnosis.model._request",
                         side_effect=AssertionError("unsafe response output must not transmit")) as request:
                     with self.assertRaises(SystemExit):
-                        self.invoke(bundle, file, receipt, "--symbol", "a", "--single-baseline",
+                        self.invoke(bundle, file, "--symbol", "a", "--single-baseline",
                                     "--response-output", str(destination))
                     request.assert_not_called()
-                    self.assertFalse(Path(str(receipt) + ".used").exists())
+                    
             self.assertFalse((existing / "responses").exists())
 
 
-    def test_full_baseline_refuses_partial_python_source_before_approval(self):
+    def test_full_baseline_refuses_partial_python_source(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def ready(): return 1\n",
                                                 "broken.py": "def incomplete(\n"})
-            bundle, manifest, file, receipt = self.approved(
-                root, repo, sha, 20000, mode="single", symbol="ready")
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000, mode="single", symbol="ready")
             with self.assertRaises(ValueError):
                 prepare_analysis(verify_git_source(bundle), mode="single", scope="full")
             manifest["tools"] = []
             manifest["nodes"] = []
             manifest["limits"]["per_node"] = {}
             file.write_text(json.dumps(manifest))
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            
             with patch("modules.diagnosis.model._request",
                        side_effect=AssertionError("partial source must not be transmitted")):
                 with self.assertRaises(SystemExit):
-                    self.invoke(bundle, file, receipt, "--scope", "full", "--single-baseline")
-            self.assertFalse(Path(str(receipt) + ".used").exists())
+                    self.invoke(bundle, file, "--scope", "full", "--single-baseline")
+            
 
-    def test_parser_mismatch_rejects_before_consuming_approval(self):
+    def test_parser_mismatch_rejects_before_transmission(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-            _, manifest, file, receipt = self.approved(root, repo, sha, 10000)
+            _, manifest, file = self.manifest_fixture(root, repo, sha, 10000)
             staged = scan(repo, sha)
             staged["python_parser"] = "another-parser"
             other_bundle = write_source_run(root / "other-source", str(repo), staged)
             file.write_text(json.dumps(manifest))
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            
             response = {"usage": {"input_tokens": 30, "output_tokens": 10},
                         "stop_reason": "end_turn",
                         "content": [{"type": "text", "text": '{"candidates": []}'}]}
             with patch("modules.diagnosis.model._request", return_value=response) as request:
                 with self.assertRaises(SystemExit):
-                    self.invoke(other_bundle, file, receipt, "--symbol", "a")
+                    self.invoke(other_bundle, file, "--symbol", "a")
             request.assert_not_called()
-            self.assertFalse(Path(str(receipt) + ".used").exists())
+            
 
-    def test_unsupported_model_plan_preserves_unused_approval(self):
+    def test_unsupported_model_plan_blocks_transmission(self):
         for field, value in (("prompt_sha256", "0" * 64),
                              ("endpoint", "https://example.invalid/v1/messages"),
                              ("transmitted_data", ["source"])):
             with self.subTest(field=field), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-                bundle, manifest, file, receipt = self.approved(root, repo, sha, 10000)
+                bundle, manifest, file = self.manifest_fixture(root, repo, sha, 10000)
                 manifest["model"][field] = value
                 file.write_text(json.dumps(manifest))
-                issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+                
                 with patch("modules.diagnosis.model._request",
                            side_effect=AssertionError("invalid plan must not contact model")):
                     with self.assertRaises(SystemExit):
-                        self.invoke(bundle, file, receipt, "--symbol", "a")
-                self.assertFalse(Path(str(receipt) + ".used").exists())
+                        self.invoke(bundle, file, "--symbol", "a")
+                
 
-    def test_invalid_runtime_plan_preserves_unused_approval(self):
+    def test_invalid_runtime_plan_blocks_execution(self):
         for misplaced_output in (True, False):
             with self.subTest(misplaced_output=misplaced_output), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-                bundle, manifest, file, receipt = self.approved(root, repo, sha, 10000)
+                bundle, manifest, file = self.manifest_fixture(root, repo, sha, 10000)
                 output = bundle / "runtime" if misplaced_output else root / "runtime"
                 if not misplaced_output:
                     manifest["nodes"][0]["argv"] = ["python", "missing.py"]
                 file.write_text(json.dumps(manifest))
-                issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+                
                 with patch.object(diagnose_approved, "validate_runtime_host"), patch.object(
                         diagnose_approved, "execute_nodes",
                         side_effect=AssertionError("invalid plan must not run target")), patch(
                         "modules.diagnosis.model._request",
                         side_effect=AssertionError("invalid plan must not transmit source")):
                     with self.assertRaises(SystemExit):
-                        self.invoke(bundle, file, receipt, "--symbol", "a",
+                        self.invoke(bundle, file, "--symbol", "a",
                                     "--runtime-output", str(output))
-                self.assertFalse(Path(str(receipt) + ".used").exists())
+                
 
-    def test_source_bundle_cannot_hold_approval(self):
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-            bundle, manifest, file, _ = self.approved(root, repo, sha, 10000)
-            receipt = bundle / "approval.json"
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
-            with patch("modules.diagnosis.model._request",
-                       side_effect=AssertionError("source bundle must not hold approval")):
-                with self.assertRaises(SystemExit):
-                    self.invoke(bundle, file, receipt, "--symbol", "a")
-            self.assertFalse(Path(str(receipt) + ".used").exists())
+            
 
     def test_selected_symbol_report_keeps_symbol_scope_through_both_sealers(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             source = "def a(): return 1\n\ndef unrelated():\n" + "    # padding\n" * 2500 + "    return 3\n"
             repo, sha, _ = self.fixture(root, {"a.py": source, "b.py": "def b(): return 2\n"})
-            bundle, manifest, manifest_file, receipt = self.approved(root, repo, sha, 15000)
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            bundle, manifest, manifest_file = self.manifest_fixture(root, repo, sha, 15000)
+            
             response = {"usage": {"input_tokens": 500, "output_tokens": 1},
                         "stop_reason": "end_turn",
                         "content": [{"type": "text", "text": '{"candidates": []}'}]}
             with patch("modules.diagnosis.model._request", return_value=response):
-                review = self.invoke(bundle, manifest_file, receipt, "--symbol", "a",
+                review = self.invoke(bundle, manifest_file, "--symbol", "a",
                                      "--final-output", str(root / "reports"))
             first = verify_final_bundle(Path(review["final_source_only_bundle"]), bundle)
             self.assertEqual(first["run"]["scope"], "selected_symbol_only")
@@ -697,18 +696,17 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             source = "def huge():\n" + "    # padding\n" * 2500 + "    return small()\n"
             source += "def small(): return 1\n"
             repo, sha, _ = self.fixture(root, {"a.py": source})
-            bundle, manifest, manifest_file, receipt = self.approved(
-                root, repo, sha, 6000, symbol="small")
+            bundle, manifest, manifest_file = self.manifest_fixture(root, repo, sha, 6000, symbol="small")
             with self.assertRaises(ValueError):
                 prepare_analysis(verify_git_source(bundle), symbol="huge")
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            
             with patch("modules.diagnosis.model._request",
                        side_effect=AssertionError("model must not see neighbor-only context")):
                 with self.assertRaises(SystemExit) as denied:
-                    self.invoke(bundle, manifest_file, receipt, "--symbol", "huge",
+                    self.invoke(bundle, manifest_file, "--symbol", "huge",
                                 "--final-output", str(root / "reports"))
             self.assertEqual(denied.exception.code, 2)
-            self.assertFalse(Path(str(receipt) + ".used").exists())
+            
             self.assertFalse((root / "reports").exists())
 
     def test_provisional_symbol_review_discards_claim_outside_supplied_context(self):
@@ -716,7 +714,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             root = Path(directory)
             source = "def a(): return 1\n\ndef unrelated():\n" + "    # padding\n" * 2500 + "    return 3\n"
             repo, sha, _ = self.fixture(root, {"a.py": source})
-            bundle, manifest, manifest_file, receipt = self.approved(root, repo, sha, 6000)
+            bundle, manifest, manifest_file = self.manifest_fixture(root, repo, sha, 6000)
             evidence_id = verify_git_source(bundle)["evidence"][0]["id"]
             candidate = {"root_symbol": "unrelated", "mechanism": "wrong result",
                          "condition": "when called", "impact": "incorrect output",
@@ -741,9 +739,9 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                         "stop_reason": "end_turn",
                         "content": [{"type": "text", "text": json.dumps({"candidates": rows})}]}
 
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            
             with patch("modules.diagnosis.model._request", side_effect=fake_request):
-                review = self.invoke(bundle, manifest_file, receipt, "--symbol", "a",
+                review = self.invoke(bundle, manifest_file, "--symbol", "a",
                                      "--final-output", str(root / "reports"), expected_code=3)
             self.assertEqual([(row["root_symbol"], row["location"]) for row in review["findings"]],
                              [("a", {"path": "a.py", "line": 1})])
@@ -764,23 +762,16 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             self.assertEqual(len(final["findings"]), 1)
             self.assertEqual(final["findings"][0]["state"], "deferred")
 
-    def test_full_scope_requires_one_approval_and_marks_unobserved_unknown(self):
+    def test_full_scope_marks_unobserved_unknown_under_token_cap(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n",
                                                 "b.py": "def b(): return 2\n"})
-            bundle, manifest, manifest_file, receipt = self.approved(
-                root, repo, sha, 1, symbol=None, scope="full")
-            with patch("modules.diagnosis.model._request", side_effect=AssertionError("network contacted")):
-                with self.assertRaises(SystemExit) as denied:
-                    self.invoke(bundle, manifest_file, receipt, "--scope", "full",
-                                "--final-output", str(root / "reports"))
-                self.assertEqual(denied.exception.code, 2)
-                self.assertFalse(Path(str(receipt) + ".used").exists())
-                self.assertFalse((root / "reports").exists())
-                issue_approval(manifest, sha, receipt, manifest_hash(manifest))
-                result = self.invoke(bundle, manifest_file, receipt, "--scope", "full",
-                                     expected_code=3)
+            bundle, manifest, manifest_file = self.manifest_fixture(root, repo, sha, 1, symbol=None, scope="full")
+            with patch("modules.diagnosis.model._request",
+                       side_effect=AssertionError("budget exhausted before model call")) as request:
+                result = self.invoke(bundle, manifest_file, "--scope", "full", expected_code=3)
+            request.assert_not_called()
             coverage = result["diagnosis_coverage"]
             self.assertEqual(coverage["selected_paths"], ["a.py", "b.py"])
             self.assertEqual(coverage["analyzed_paths"], [])
@@ -793,7 +784,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             self.assertTrue(all(row["status"] == "deferred" for entry in result["perspectives"]
                                 for row in entry["perspectives"]))
             self.assertEqual(result["findings"], [])
-            self.assertTrue(Path(str(receipt) + ".used").exists())
+            
 
     def test_impact_keeps_out_of_scope_and_partial_budget_unknown(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -805,10 +796,9 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             git("add", "a.py")
             git("-c", "user.name=A", "-c", "user.email=a@b.c", "commit", "-qm", "candidate")
             sha = git("rev-parse", "HEAD")
-            bundle, manifest, manifest_file, receipt = self.approved(
-                root, repo, sha, 4500, symbol=None, scope="impact",
-                main_ref=base, candidate_ref=sha)
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            bundle, manifest, manifest_file = self.manifest_fixture(root, repo, sha, 4500, symbol=None, scope="impact",
+            main_ref=base, candidate_ref=sha)
+            
             calls = []
 
             def fake_request(endpoint, payload, timeout):
@@ -818,7 +808,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                         "content": [{"type": "text", "text": '{"candidates": []}'}]}
 
             with patch("modules.diagnosis.model._request", side_effect=fake_request):
-                result = self.invoke(bundle, manifest_file, receipt, "--scope", "impact",
+                result = self.invoke(bundle, manifest_file, "--scope", "impact",
                                      "--main-ref", base, "--candidate-ref", sha, expected_code=3)
             coverage = result["diagnosis_coverage"]
             self.assertEqual(result["base_sha"], base)
@@ -837,9 +827,8 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def first(): return 1\n",
                                                 "b.py": "def second(): return 2\n"})
-            bundle, manifest, manifest_file, receipt = self.approved(
-                root, repo, sha, 4000, symbol=None, scope="full")
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            bundle, manifest, manifest_file = self.manifest_fixture(root, repo, sha, 4000, symbol=None, scope="full")
+            
             sent = []
 
             def fake_request(endpoint, payload, timeout):
@@ -850,7 +839,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                         "content": [{"type": "text", "text": '{"candidates": []}'}]}
 
             with patch("modules.diagnosis.model._request", side_effect=fake_request):
-                result = self.invoke(bundle, manifest_file, receipt, "--scope", "full", expected_code=3)
+                result = self.invoke(bundle, manifest_file, "--scope", "full", expected_code=3)
             self.assertTrue(sent)
             self.assertEqual(set(sent), {"a.py"})
             self.assertEqual(result["perspectives"][1]["scope_id"], "module:b.py")
@@ -865,9 +854,8 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def first(): return 1\n",
                                                 "b.py": "def second(): return 2\n"})
-            bundle, manifest, manifest_file, receipt = self.approved(
-                root, repo, sha, 20000, symbol=None, scope="full")
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            bundle, manifest, manifest_file = self.manifest_fixture(root, repo, sha, 20000, symbol=None, scope="full")
+            
             sent = []
 
             def fake_request(endpoint, payload, timeout):
@@ -878,7 +866,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                         "content": [{"type": "text", "text": '{"candidates": []}'}]}
 
             with patch("modules.diagnosis.model._request", side_effect=fake_request):
-                result = self.invoke(bundle, manifest_file, receipt, "--scope", "full")
+                result = self.invoke(bundle, manifest_file, "--scope", "full")
             self.assertEqual([scope for scope, _ in sent], ["module:a.py"] * 5 + ["module:b.py"] * 5)
             self.assertEqual([perspective for _, perspective in sent],
                              ["structure", "correctness", "performance", "concurrency", "tests"] * 2)
@@ -891,9 +879,8 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "from b import second\ndef first(): return second()\n",
                                                 "b.py": "def second(): return 2\n"})
-            bundle, manifest, manifest_file, receipt = self.approved(
-                root, repo, sha, 20000, symbol=None, scope="full")
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            bundle, manifest, manifest_file = self.manifest_fixture(root, repo, sha, 20000, symbol=None, scope="full")
+            
 
             def fake_request(endpoint, payload, timeout):
                 request = json.loads(payload["messages"][0]["content"])
@@ -914,7 +901,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                         "content": [{"type": "text", "text": json.dumps({"candidates": candidates})}]}
 
             with patch("modules.diagnosis.model._request", side_effect=fake_request):
-                result = self.invoke(bundle, manifest_file, receipt, "--scope", "full", expected_code=3)
+                result = self.invoke(bundle, manifest_file, "--scope", "full", expected_code=3)
             self.assertEqual(result["findings"], [])
             call = result["perspectives"][0]["perspectives"][0]
             self.assertEqual(call["status"], "completed")
@@ -928,13 +915,12 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def first(): return 1\n",
                                                 "b.py": "def second(): return 2\n"})
-            bundle, manifest, manifest_file, receipt = self.approved(
-                root, repo, sha, 20000, symbol=None, scope="full")
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            bundle, manifest, manifest_file = self.manifest_fixture(root, repo, sha, 20000, symbol=None, scope="full")
+            
             response = {"stop_reason": "end_turn", "content": [{"type": "text",
                                                                  "text": '{"candidates": []}'}]}
             with patch("modules.diagnosis.model._request", return_value=response) as request:
-                result = self.invoke(bundle, manifest_file, receipt, "--scope", "full", expected_code=3)
+                result = self.invoke(bundle, manifest_file, "--scope", "full", expected_code=3)
             self.assertEqual(request.call_count, 1)
             self.assertEqual(result["perspectives"][0]["perspectives"][0]["status"], "failed")
             self.assertEqual({row["status"] for row in result["perspectives"][1]["perspectives"]},
@@ -952,10 +938,10 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             with self.subTest(reason=reason), tempfile.TemporaryDirectory() as directory:
                 root = Path(directory)
                 repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-                bundle, manifest, file, receipt = self.approved(root, repo, sha, 20000)
-                issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+                bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000)
+                
                 with patch("modules.diagnosis.model._request", return_value=response):
-                    result = self.invoke(bundle, file, receipt, "--symbol", "a",
+                    result = self.invoke(bundle, file, "--symbol", "a",
                                          "--final-output", str(root / "final"), expected_code=3)
                 self.assertEqual(result["perspectives"][0]["reason"], reason)
                 self.assertEqual(result["perspectives"][0]["tokens"], 24)
@@ -966,7 +952,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-            bundle, manifest, file, receipt = self.approved(root, repo, sha, 20000)
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000)
             evidence_id = verify_git_source(bundle)["evidence"][0]["id"]
             candidate = {"root_symbol": "a", "mechanism": "incorrect output",
                          "condition": "on call", "impact": "wrong answer", "trigger": "a()",
@@ -984,9 +970,9 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                         "stop_reason": "end_turn",
                         "content": [{"type": "text", "text": json.dumps({"candidates": rows})}]}
 
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            
             with patch("modules.diagnosis.model._request", side_effect=respond):
-                result = self.invoke(bundle, file, receipt, "--symbol", "a",
+                result = self.invoke(bundle, file, "--symbol", "a",
                                      "--final-output", str(root / "final"), expected_code=3)
             self.assertEqual(result["findings"], [])
             self.assertEqual(result["perspectives"][1]["status"], "completed")
@@ -1010,13 +996,14 @@ class ApprovedDiagnosisTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-            bundle, manifest, file, receipt = self.approved(root, repo, sha, 30000)
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 30000)
             output = root / "runtime"
             manifest["model"]["transmitted_data"] += ["log", "evidence"]
             file.write_text(json.dumps(manifest))
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            
 
-            def failed_execution(verified, approved, digest, destination, *, run_deadline):
+            def failed_execution(verified, approved, destination, *, run_deadline):
+                digest = manifest_hash(approved)
                 destination.mkdir(mode=0o700)
                 stdout, stderr = b"", b"AssertionError: got 2\n"
                 (destination / "work-0.stdout").write_bytes(stdout)
@@ -1048,7 +1035,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
             with patch.object(diagnose_approved, "validate_runtime_host"), patch.object(
                     diagnose_approved, "execute_nodes", side_effect=failed_execution), patch(
                     "modules.diagnosis.model._request", side_effect=review):
-                result = self.invoke(bundle, file, receipt, "--symbol", "a",
+                result = self.invoke(bundle, file, "--symbol", "a",
                                      "--runtime-output", str(output),
                                      "--final-output", str(root / "final"), expected_code=3)
             self.assertEqual(len(seen), 5)
@@ -1063,22 +1050,22 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                 verify_final_bundle(Path(result["final_source_only_bundle"]), bundle,
                                     runtime_trace_dir=output)
 
-    def test_runtime_transmission_scope_denied_before_consumption(self):
+    def test_runtime_transmission_scope_denied_before_execution(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, sha, _ = self.fixture(root, {"a.py": "def a(): return 1\n"})
-            bundle, manifest, file, receipt = self.approved(root, repo, sha, 20000)
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            bundle, manifest, file = self.manifest_fixture(root, repo, sha, 20000)
+            
             with patch.object(diagnose_approved, "validate_runtime_host"), patch.object(
                     diagnose_approved, "execute_nodes",
                     side_effect=AssertionError("must not execute")), patch(
                     "modules.diagnosis.model._request",
                     side_effect=AssertionError("must not transmit")):
                 with self.assertRaises(SystemExit) as denied:
-                    self.invoke(bundle, file, receipt, "--symbol", "a",
+                    self.invoke(bundle, file, "--symbol", "a",
                                 "--runtime-output", str(root / "runtime"))
             self.assertEqual(denied.exception.code, 2)
-            self.assertFalse(Path(str(receipt) + ".used").exists())
+            
 
     def test_large_or_empty_neighbor_does_not_abort_complete_primary(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -1087,9 +1074,8 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                 "a.py": "import b\nimport c\ndef first(): return 1\n",
                 "b.py": "VALUE = " + repr("x" * 25_000) + "\n",
                 "c.py": ""})
-            bundle, manifest, manifest_file, receipt = self.approved(
-                root, repo, sha, 20000, symbol=None, scope="full")
-            issue_approval(manifest, sha, receipt, manifest_hash(manifest))
+            bundle, manifest, manifest_file = self.manifest_fixture(root, repo, sha, 20000, symbol=None, scope="full")
+            
             seen = []
 
             def fake_request(endpoint, payload, timeout):
@@ -1104,7 +1090,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                         "content": [{"type": "text", "text": '{"candidates": []}'}]}
 
             with patch("modules.diagnosis.model._request", side_effect=fake_request):
-                result = self.invoke(bundle, manifest_file, receipt, "--scope", "full", expected_code=3)
+                result = self.invoke(bundle, manifest_file, "--scope", "full", expected_code=3)
             self.assertEqual(len(seen), 5)
             self.assertEqual(result["diagnosis_coverage"]["analyzed_paths"], ["a.py"])
             self.assertEqual(result["diagnosis_coverage"]["omitted_unknown_paths"], ["b.py", "c.py"])
@@ -1185,7 +1171,7 @@ class ApprovedDiagnosisTest(unittest.TestCase):
         self.assertEqual({row["status"] for row in audit}, {"deferred"})
         self.assertEqual({row["reason"] for row in audit}, {"budget_exhausted"})
 
-    def test_prompt_hash_and_no_approval_never_contact_model(self):
+    def test_prompt_hash_without_source_never_contacts_model(self):
         command = [sys.executable, str(ROOT / "src" / "diagnose_approved.py")]
         fingerprint = subprocess.run([*command, "--prompt-hash"], capture_output=True, text=True)
         self.assertEqual(fingerprint.returncode, 0, fingerprint.stderr)
@@ -1197,46 +1183,6 @@ class ApprovedDiagnosisTest(unittest.TestCase):
                                           capture_output=True, text=True)
                 self.assertEqual(selected.returncode, 0, selected.stderr)
                 self.assertEqual(selected.stdout.strip(), prompt_hash(mode))
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            repo = root / "repo"
-            repo.mkdir()
-            def git(*args):
-                return subprocess.run(["git", "-C", str(repo), *args], check=True,
-                                      capture_output=True, text=True).stdout.strip()
-            git("init", "-q")
-            (repo / "sample.py").write_text("def work(): return 1\n")
-            git("add", "sample.py")
-            git("-c", "user.name=A", "-c", "user.email=a@b.c", "commit", "-qm", "frozen")
-            sha = git("rev-parse", "HEAD")
-            bundle = write_source_run(root / "source", str(repo), scan(repo, sha))
-            bounds = {"wall_seconds": 30, "cpu_seconds": 30, "memory_bytes": 1048576,
-                      "tokens": 1000, "tool_seconds": 30}
-            analysis, _, _ = prepare_analysis(verify_git_source(bundle), symbol="work")
-            manifest = {"schema_version": "run-manifest-v3", "snapshot_sha": sha,
-                        "analysis": analysis,
-                        "image_digest": "sha256:" + "a" * 64,
-                        "tools": ["python"],
-                        "nodes": [{"id": "work", "argv": ["python", "sample.py"],
-                                   "cwd": "/workspace", "workload": "sample.py",
-                                   "trigger": "always", "tool": "python"}],
-                        "limits": {**bounds, "per_node": {"work": bounds}},
-                        "network": {"dependency": False, "model": True, "workload": False},
-                        "writable_paths": ["/work/evidence"],
-                        "model": {"endpoint": "https://api.anthropic.com/v1/messages",
-                                  "name_version": "pinned-model", "prompt_sha256": prompt_hash("five"),
-                                  "transmitted_data": ["source", "context"]}}
-            file = root / "manifest.json"
-            file.write_text(json.dumps(manifest))
-            receipt = root / "missing-approval"
-            denied = subprocess.run([*command, str(bundle), str(file), str(receipt),
-                                     "--symbol", "work", "--final-output", str(root / "reports"),
-                                     "--response-output", str(root / "responses")],
-                                    capture_output=True, text=True)
-            self.assertEqual(denied.returncode, 2)
-            self.assertIn("approval", denied.stderr)
-            self.assertFalse((root / "reports").exists())
-            self.assertFalse(Path(str(receipt) + ".used").exists())
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""Consume one manual approval then run declared, network-isolated Docker nodes.
+"""Run declared, network-isolated Docker nodes from an authenticated source snapshot.
 
 A container exit code is an execution trace, not independent defect confirmation.
 """
@@ -9,7 +9,6 @@ import subprocess
 from pathlib import Path
 
 from modules.evidence.authenticity import verify_git_source
-from modules.run_policy import consume_approval, verify_approval
 from modules.runtime_exec.docker import (
     execute_nodes, validate_runtime_host, validate_runtime_plan, validate_source_workloads,
     verify_execution,
@@ -19,18 +18,15 @@ from modules.runtime_exec.docker import (
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--verify", action="store_true",
-                        help="verify a recorded trace and artifact bytes offline; never consume approval")
+                        help="verify a recorded trace and artifact bytes offline")
     parser.add_argument("source_bundle", type=Path)
     parser.add_argument("run_manifest", type=Path)
-    parser.add_argument("paths", nargs="+", type=Path,
-                        help="execution: RECEIPT EVIDENCE_ROOT; --verify: EVIDENCE_ROOT")
+    parser.add_argument("evidence_root", type=Path)
     args = parser.parse_args()
-    if len(args.paths) != (1 if args.verify else 2):
-        parser.error("--verify needs EVIDENCE_ROOT; execution needs RECEIPT EVIDENCE_ROOT")
     try:
         manifest = json.loads(args.run_manifest.read_text(encoding="utf-8"))
         if args.verify:
-            result = verify_execution(args.source_bundle, manifest, args.paths[0])
+            result = verify_execution(args.source_bundle, manifest, args.evidence_root)
         else:
             verified = verify_git_source(args.source_bundle)
             run = verified["run"]
@@ -40,17 +36,12 @@ def main() -> int:
             validate_source_workloads(verified, manifest)
             repository = Path(run["repository"]).resolve()
             source = args.source_bundle.resolve()
-            receipt, evidence_root = args.paths
-            if (receipt.resolve().is_relative_to(repository)
-                    or receipt.resolve().is_relative_to(source)):
-                raise ValueError("Approval receipt must be outside target repository and source bundle")
+            evidence_root = args.evidence_root
             if (evidence_root.resolve().is_relative_to(repository)
                     or evidence_root.resolve().is_relative_to(source)):
                 raise ValueError("Execution evidence must be outside target repository and source bundle")
-            verify_approval(manifest, run["commit"], receipt)
             validate_runtime_host()
-            digest = consume_approval(manifest, run["commit"], receipt)
-            result = execute_nodes(verified, manifest, digest, evidence_root)
+            result = execute_nodes(verified, manifest, evidence_root)
     except (OSError, ValueError, TypeError, KeyError, subprocess.CalledProcessError) as error:
         parser.exit(2, f"execution rejected: {error}\n")
     print(json.dumps(result, sort_keys=True, ensure_ascii=True))

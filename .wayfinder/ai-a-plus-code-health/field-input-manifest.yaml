@@ -1,4 +1,4 @@
-schema_version: field-input-manifest-v30
+schema_version: field-input-manifest-v32
 status: scope_frozen
 frozen_at: "2026-09-26"
 confirmed_by:
@@ -94,8 +94,8 @@ evaluation_dataset_contract:
       purpose: inspect_input_external_return_state_and_exit_assumptions_against_available_guards_and_contracts
       forced_counterexample_or_bug: prohibited
       taxonomy: existing_five_primary_categories_only
-      approval: distinct_v3_ordered_role_instruction_set_hash_and_exact_single_use_RunManifest
-      budget: all_six_reviewers_and_modules_share_approved_total
+      manifest_binding: distinct_v3_ordered_role_instruction_set_hash
+      budget: all_six_reviewers_and_modules_share_declared_total
       report: separate_development_run_with_six_audited_roles_and_source_only_deferred_findings
       incomplete_role: preserve_other_valid_candidates_and_mark_development_run_incomplete
       final_core_and_two_shadow_experiments: unchanged_no_automatic_promotion
@@ -104,13 +104,13 @@ evaluation_dataset_contract:
       default: raw_unchanged
       optional: [ast_outline, ast_local_cards]
       supported_modes: [five, boundary, generic]
-      source: authenticated_git_ast_within_approved_source_slices
+      source: authenticated_git_ast_within_declared_source_slices
       limits: syntactic_observations_not_runtime_paths_or_verified_coverage
       audit: extracted_delivered_and_omitted_ids_with_unknown_overflow
     generic_comparator:
       option: --generic-review
       roles: [structure, correctness, performance, concurrency, tests, generic]
-      approval: distinct_v3_mode_and_ordered_prompt_hash
+      manifest_binding: distinct_v3_mode_and_ordered_prompt_hash
       final_claim: development_only_not_promoted
     comparison_v1:
       scope: single_exact_symbol_in_immutable_git_source
@@ -442,16 +442,16 @@ incremental_scan_contract:
     - minimum_report_admission_limit
 
 execution_capabilities:
-  policy_shape: automatic_static_read_plus_one_RunManifest_approval
+  policy_shape: automatic_static_read_plus_bounded_RunManifest_execution
   environment_kind: local_linux_docker
   container_runtime: Docker
   rationale: reproducible_execution_boundary
   image_policy: immutable_digest_required_before_pilot
   development_runtime:
-    cgroup_unavailable: allow_with_explicit_warning_and_exact_owner_approval
-    cpu_memory_pid_ceilings: requested_not_proven_enforced
+    cgroup_unavailable: reject_unattended_target_execution
+    cpu_memory_pid_ceilings: must_be_enforced_before_target_execution
     wall_and_tool_timeouts: enforced_by_host_runner
-    evaluation_claim: development_only_not_final_isolation_evidence
+    evaluation_claim: no_runtime_attestation_from_static_or_model_only_run
   automatic_read:
     scope: immutable_repository_snapshot_only
     includes:
@@ -461,25 +461,20 @@ execution_capabilities:
       - paths_outside_snapshot
       - symlink_escape
       - untracked_or_ignored_workspace_files
-  run_approval:
+  run_policy:
     unit: one_RunManifest_per_scan_with_optional_declared_validation_DAG
-    validity: single_execution
+    user_confirmation: none
+    receipt: none
     model_only: empty_tools_nodes_and_per_node_disallow_runtime_execution
-    shows:
-      - commands_workloads_and_dag_trigger_conditions
-      - selected_tools
-      - total_time_cpu_memory_limits
-      - network_and_writable_paths
-      - external_model_and_data_transmission
-    approved_capabilities:
+    declared_capabilities:
       - locked_dependency_materialization
       - import_and_test_collection
       - test_benchmark_and_profiler
       - configured_external_model_api
-      - declared_container_process_attach
       - automatic_routing_between_declared_DAG_nodes
-    invalidated_by: snapshot_or_RunManifest_hash_change
-    approval_owner: project_owner
+    binding: snapshot_and_RunManifest_hash_checked_before_transmission_or_execution
+    limits: total_and_per_node_time_memory_cpu_tokens_and_tools
+    runtime_host: reject_when_cpu_memory_or_pid_limits_not_enforced
   network_policy:
     dependency_and_model_api: allowed_when_declared_in_RunManifest
     target_workload: disabled_unless_declared_in_RunManifest
@@ -526,7 +521,7 @@ execution_capabilities:
       - confirmed
       - rejected
       - deferred
-    outside_DAG_tool: update_RunManifest_and_request_new_approval
+    outside_DAG_tool: create_new_RunManifest_and_validate_before_execution
 
 analysis_dag_contract:
   order:
@@ -534,25 +529,25 @@ analysis_dag_contract:
     - static_facts_and_code_graph
     - deterministic_context
     - fixed_five_perspective_hypotheses
-    - approved_conditional_runtime_nodes
+    - declared_conditional_runtime_nodes
     - evidence_adjudication
     - identity_merge_and_report
-  parallelism: fixed_five_perspectives_share_frozen_context_then_independent_approved_validations
+  parallelism: fixed_five_perspectives_share_frozen_context_then_independent_declared_validations
   budget:
-    approved_in_RunManifest:
+    declared_in_RunManifest:
       - total_wall_cpu_memory_token_and_tool_second
       - per_node_timeout_and_concurrency_limit
     reserve: minimum_static_report_before_optional_dynamic_nodes
     same_budget: identical_ceiling_across_six_evaluation_arms
     exact_limits: freeze_after_pilot
     record: spent_budget_and_stop_node_in_ScanRun
-  rejection: snapshot_or_approval_mismatch_missing_source_or_budget_exhausted_before_minimum_report
+  rejection: snapshot_or_manifest_mismatch_missing_source_or_budget_exhausted_before_minimum_report
   partial: accepted_with_coverage_gap_deferred_hypotheses_and_unknown_comparison
   node_failure: preserve_independent_results_and_record_failed_node_reason
   retries:
-    transient_model_or_read_error: once_within_original_approval_and_budget
+    transient_model_or_read_error: once_within_original_RunManifest_and_budget
     executable_node: only_if_idempotent_and_retry_count_declared_in_RunManifest
-    expanded_approval: prohibited
+    expanded_execution: prohibited_without_new_valid_RunManifest
   timeout: stop_process_record_exit_and_artifact_hash_then_defer_affected_hypothesis
   merge: deterministic_identity_key_and_sorted_evidence_ids
   conflicting_or_missing_evidence: deferred_without_majority_vote
@@ -591,16 +586,16 @@ code_and_evidence_policy:
   model_provider: selectable_and_frozen_per_run
   model_name_version_and_prompt_hash: required_per_run
   audit_record: RunManifest_hash_and_result_hash
-  approval_contract:
+  manifest_contract:
     schema_version: run-manifest-v3
     model_disabled_analysis: null
     model_analysis_fields: [mode, roles, scope, symbol, base_sha, context_policy, contexts]
     context_policies: [git-ast-context-v1, git-ast-outline-v1, git-ast-cards-v1]
     context_binding: ordered_scope_id_and_canonical_context_sha256
-    live_execution: reject_v1_v2_and_any_reconstructed_analysis_or_prompt_mismatch_before_consumption
+    live_execution: reject_v1_v2_and_any_reconstructed_analysis_or_prompt_mismatch_before_transmission
     previous_verifier: preserved_offline_only_never_authorizes_new_transmission
     prompt_hash: sha256_of_canonical_json_ordered_role_and_actual_instructions_by_mode
-    v28_archive: offline_verifier_archive_before_P1_not_for_new_authorization
+    v28_archive: offline_verifier_archive_before_P1_not_for_new_transmission
     first_five_instructions: identical_in_five_boundary_and_generic
     single_instructions: shared_evidence_contract_plus_short_generic_review
     plain_instructions: legacy_generic_text_with_v3_mode_hash
@@ -789,7 +784,7 @@ evaluation_environment:
     endpoint: http://127.0.0.1:10531/v1/responses
     authorization: owner_local_codex_login_completed
     account_model_catalog: both_models_seen_without_forced_overrides
-    transmission: exact_RunManifest_single_use_approval_required
+    transmission: exact_RunManifest_and_source_context_validation_without_user_confirmation
     cost_evidence: subscription_tokens_only_no_per_call_billed_usd_receipt
     final_cost_comparison: requires_independent_provider_billing_receipts
 
@@ -974,9 +969,9 @@ completion_gates:
     - source_connects_both_git_modes_static_graph_fixed_five_runtime_policy_and_priority_report
     - five_immutable_json_record_types_with_replayable_hash_lineage
     - changed_contract_tests_and_success_failure_end_to_end_traces
-    - real_approval_denial_no_run_timeout_partial_and_cache_mismatch_traces
+    - invalid_manifest_no_run_timeout_partial_and_cache_mismatch_traces
   pilot:
-    - python314_synthetic_fixture_and_two_approved_runtime_pilots_with_oracles
+    - python314_synthetic_fixture_and_two_declared_runtime_pilots_with_oracles
     - langflow_static_scale_trace
     - full_impact_and_clean_replay_equivalence
     - immutable_image_dependency_lock_and_reproduction_commands

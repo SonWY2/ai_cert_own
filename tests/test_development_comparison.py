@@ -140,13 +140,28 @@ class DevelopmentComparisonTests(unittest.TestCase):
         doc = _document(self, self.directory, claims={
             ("B", 0): [{"claim": "first"}, {"claim": "second"}]})
         doc["judgments"].append(_judgment(doc, "t1", "B", 0, 0, "TP", "cause-1"))
-        summary = development.evaluate(doc)["actual"]["B"]
+        doc["judgments"].append(_judgment(doc, "t1", "B", 0, 1, "U"))
+        report = development.evaluate(doc)
+        summary = report["actual"]["B"]
         self.assertEqual((summary["tp"], summary["u"]), (0, 6))
         self.assertIsNone(summary["precision_conditional"])
         self.assertEqual((summary["precision_lower"], summary["precision_upper"]), (0, 1))
         self.assertIsNone(summary["known_gold_recall"])
+        self.assertEqual((summary["missing_judgments"], summary["explicit_unknown_judgments"]), (4, 1))
+        self.assertEqual(summary["incomplete_trials"], 2)
+        self.assertIn("missing_judgment", report["blocking_reasons"])
         self.assertIsNone(development.evaluate(_document(self, self.directory, gold=[]))
                           ["actual"]["B"]["precision_upper"])
+
+    def test_explicit_unknown_judgment_is_not_missing(self):
+        doc = _document(self, self.directory, gold=[], claims={("B", 0): [{"claim": "uncertain"}]})
+        for trial in ("t1", "t2", "t3"):
+            doc["judgments"].append(_judgment(doc, trial, "B", 0, 0, "U"))
+        report = development.evaluate(doc)
+        summary = report["actual"]["B"]
+        self.assertEqual((summary["explicit_unknown_judgments"], summary["missing_judgments"]), (3, 0))
+        self.assertEqual(summary["incomplete_trials"], 0)
+        self.assertNotIn("missing_judgment", report["blocking_reasons"])
 
     def test_overbudget_failure_cost_and_missing_trial_preserve_denominator(self):
         doc = _document(self, self.directory, gold=[{"cause_id": "cause-1", "independent_ref": "regression:1"}])
@@ -188,6 +203,21 @@ class DevelopmentComparisonTests(unittest.TestCase):
         generic["calls"][0]["audit"]["request_sha256"] = SHA
         with self.assertRaisesRegex(ValueError, "verified final bundle"):
             development.evaluate(changed)
+
+    def test_fixed_base_reports_missing_sixth_judgment_separately_from_abstention(self):
+        doc = _document(self, self.directory, gold=[], claims={
+            ("B_generic", 5): [{"claim": "sixth reviewer"}]})
+        incomplete = development.evaluate(doc)
+        derived = incomplete["derived_fixed_B"]["B_plus_generic"]
+        self.assertEqual((derived["missing_judgments"], derived["explicit_unknown_judgments"]), (3, 0))
+        self.assertEqual(derived["incomplete_trials"], 3)
+        self.assertEqual(incomplete["actual"]["B"]["missing_judgments"], 0)
+
+        for trial in ("t1", "t2", "t3"):
+            doc["judgments"].append(_judgment(doc, trial, "B_generic", 5, 0, "U"))
+        complete = development.evaluate(doc)["derived_fixed_B"]["B_plus_generic"]
+        self.assertEqual((complete["missing_judgments"], complete["explicit_unknown_judgments"]), (0, 3))
+        self.assertEqual(complete["incomplete_trials"], 0)
 
     def test_baseline_candidate_overlap_not_gold_recall(self):
         doc = _document(self, self.directory, experiment="baseline", claims={

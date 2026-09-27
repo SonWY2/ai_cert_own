@@ -110,6 +110,8 @@ def _summary(rows, gold):
     fp = {item for row in rows for item in row["fp"]}
     # A cause is scoped to its case and trial, never merged across independent trials.
     unknown = sum(row["unknown"] for row in rows)
+    missing_judgments = sum(row["judgment_missing"] for row in rows)
+    explicit_unknown_judgments = sum(row["judgment_u"] for row in rows)
     judged = len(tp) + len(fp)
     total = judged + unknown
     known = sum(len(gold[row["case_id"]]) for row in rows if gold[row["case_id"]] is not None)
@@ -121,6 +123,8 @@ def _summary(rows, gold):
     return {"raw_claims": raw, "accepted_claims": accepted,
             "unverified_claims": raw - accepted,
             "unknown_claims": unknown, "unique_causes": len(causes),
+            "missing_judgments": missing_judgments,
+            "explicit_unknown_judgments": explicit_unknown_judgments,
             "tp": len(tp), "fp": len(fp), "u": unknown,
             "precision_conditional": _ratio(len(tp), judged),
             "precision_lower": _ratio(len(tp), total),
@@ -473,7 +477,8 @@ def evaluate(document: dict) -> dict:
         record = recorded.get(key)
         role_count = len(roles[arm])
         row = {"case_id": cid, "trial_id": trial, "arm": arm, "raw": 0, "accepted": 0,
-               "unknown": 0, "tp": set(), "fp": set(), "causal_true": 0,
+               "unknown": 0, "judgment_missing": 0, "judgment_u": 0,
+               "tp": set(), "fp": set(), "causal_true": 0,
                "causal_false": 0, "causal_unknown": 0,
                "calls": dict.fromkeys((*STATUSES, "missing"), 0),
                "tokens": dict.fromkeys(("input", "cache_creation", "cache_read", "output"), 0),
@@ -517,7 +522,13 @@ def evaluate(document: dict) -> dict:
                         continue
                     row["accepted"] += 1
                     judgment = judgments.get((*key, position, entry["index"]))
-                    if judgment is None or judgment["verdict"] == "U" or judgment["verdict"] == "TP" and gold[cid] is None:
+                    if judgment is None:
+                        row["judgment_missing"] += 1
+                        row["incomplete"] = True
+                    elif judgment["verdict"] == "U":
+                        row["judgment_u"] += 1
+                    if judgment is None or judgment["verdict"] == "U" or (
+                            judgment["verdict"] == "TP" and gold[cid] is None):
                         row["unknown"] += 1
                         row["causal_unknown"] += 1
                         continue
@@ -586,7 +597,13 @@ def evaluate(document: dict) -> dict:
                                 continue
                             row["accepted"] += 1
                             judgment = judgments.get((cid, trial, extra, role, entry["index"]))
-                            if judgment is None or judgment["verdict"] == "U" or judgment["verdict"] == "TP" and gold[cid] is None:
+                            if judgment is None:
+                                row["judgment_missing"] += 1
+                                row["incomplete"] = True
+                            elif judgment["verdict"] == "U":
+                                row["judgment_u"] += 1
+                            if judgment is None or judgment["verdict"] == "U" or (
+                                    judgment["verdict"] == "TP" and gold[cid] is None):
                                 row["unknown"] += 1
                                 row["causal_unknown"] += 1
                                 continue
@@ -642,6 +659,7 @@ def evaluate(document: dict) -> dict:
                 "all_trials_complete": not any(row["incomplete"] for row in arm_rows)}
     incomplete = any(row["incomplete"] for row in rows)
     overbudget = any(row["overbudget"] for row in rows)
+    missing_judgment = any(row["judgment_missing"] for row in rows)
     return {"version": "development-comparison-report-v1", "experiment": experiment,
             "plan_sha256": hashlib.sha256(json.dumps(
                 plan, sort_keys=True, ensure_ascii=False, separators=(",", ":"),
@@ -657,6 +675,7 @@ def evaluate(document: dict) -> dict:
                                   static_report["status"] == "incomplete" else []) +
                                 (["overbudget_comparison_bundle"] if overbudget else []) +
                                 (["first_five_payload_drift"] if first_five_payload_drift else []) +
+                                (["missing_judgment"] if missing_judgment else []) +
                                 ["development_only_no_independent_promotion_evidence"],
             "first_five_payload_drift": first_five_payload_drift,
             "provenance": {"git_source": "local_immutable_commit_verified",

@@ -1,6 +1,6 @@
-schema_version: field-input-manifest-v18
+schema_version: field-input-manifest-v30
 status: scope_frozen
-frozen_at: "2026-08-29"
+frozen_at: "2026-09-26"
 confirmed_by:
   - role: project_owner
     identity: user
@@ -82,10 +82,46 @@ repository_portfolio:
 
 evaluation_dataset_contract:
   protocol_version: evaluation-protocol-v1
+  head_to_head_protocol_version: evaluation-protocol-v2
   development_lane:
     source: pinned_public_pilot_repositories
     use: development_reproduction_and_preliminary_results
     excluded_from_final_metric: true
+    additional_review:
+      option: --boundary-review
+      retained_reviewers: [structure, correctness, performance, concurrency, tests]
+      additional_reviewer: assumptions
+      purpose: inspect_input_external_return_state_and_exit_assumptions_against_available_guards_and_contracts
+      forced_counterexample_or_bug: prohibited
+      taxonomy: existing_five_primary_categories_only
+      approval: distinct_v3_ordered_role_instruction_set_hash_and_exact_single_use_RunManifest
+      budget: all_six_reviewers_and_modules_share_approved_total
+      report: separate_development_run_with_six_audited_roles_and_source_only_deferred_findings
+      incomplete_role: preserve_other_valid_candidates_and_mark_development_run_incomplete
+      final_core_and_two_shadow_experiments: unchanged_no_automatic_promotion
+      comparisons: [fixed_five, fixed_five_plus_generic_review, fixed_five_plus_assumptions]
+    review_units:
+      default: raw_unchanged
+      optional: [ast_outline, ast_local_cards]
+      supported_modes: [five, boundary, generic]
+      source: authenticated_git_ast_within_approved_source_slices
+      limits: syntactic_observations_not_runtime_paths_or_verified_coverage
+      audit: extracted_delivered_and_omitted_ids_with_unknown_overflow
+    generic_comparator:
+      option: --generic-review
+      roles: [structure, correctness, performance, concurrency, tests, generic]
+      approval: distinct_v3_mode_and_ordered_prompt_hash
+      final_claim: development_only_not_promoted
+    comparison_v1:
+      scope: single_exact_symbol_in_immutable_git_source
+      arms: [small_single, small_five, strong_single, adjacent_P0_P1_P2a_P2b, five_generic_assumptions]
+      repeats: three_independent_trials_per_case_and_arm
+      order: preregistered_seed_shuffle_before_results
+      judgments: independent_cause_and_causal_location_or_explicit_unknown
+      static_baseline: existing_zero_denominator_and_empty_index_only
+      historical_P0: archived_offline_not_integrated_into_v3_comparator
+      promotion: blocked_development_only_no_independent_evidence
+      final_holdout: unchanged_80_cases
   final_claim_lanes:
     - hidden_synthetic_holdout
     - temporal_public_holdout
@@ -119,6 +155,14 @@ evaluation_dataset_contract:
       - expected_invariant_or_failure
       - root_cause_symbol
       - impact_and_relative_priority
+  head_to_head_gold_record:
+    unit: zero_or_more_independently_sealed_finding_ids_per_case
+    required_per_finding:
+      - immutable_finding_id_and_case_id
+      - root_cause_symbol_and_risk_type
+      - severity_and_cross_file_scope
+      - executable_or_known_regression_or_mutation_truth
+    clean_negative_case: zero_gold_findings_and_all_predictions_checked_as_possible_false_positives
   truth_precedence:
     - executable_behavior_oracle
     - known_regression_test
@@ -361,12 +405,53 @@ git_topology:
     automatic_release_block: prohibited
 
 
+incremental_scan_contract:
+  cache_unit: per_file_ast_and_symtable_facts_only
+  cache_key:
+    - source_bytes_sha256
+    - normalized_repository_relative_path_and_source_root
+    - python_parser_version
+    - analyzer_and_config_version
+  snapshot_validation: verify_source_hash_on_every_hit
+  cache_evidence: emit_new_current_run_Evidence_with_cached_fact_hash_and_origin
+  recompute_per_snapshot:
+    - import_targets_and_graph_edges
+    - context_slices
+    - findings_and_reports
+  never_reuse_across_runs:
+    - model_outputs
+    - runtime_observations
+    - evidence
+  impact_scope: partial_observation_of_changed_python_files_and_resolved_reverse_graph_dependencies
+  base_inventory: preserve_prior_full_findings_outside_impact_as_target_unobserved
+  unresolved_boundary: preserve_unknown_and_never_infer_resolved_outside_complete_scope
+  clean_replay: weekly_main_full_without_cache
+  equivalence:
+    pilot: pair_each_impact_case_with_clean_full_at_same_sha
+    operation: first_candidate_per_repository_per_week
+    compare: canonical_ordered_identity_category_severity_status_priority_evidence_payload_source_hash_and_coverage_within_same_scope
+    exclude: run_local_ids_timestamps_and_cost
+    mismatch: invalidate_delta_rerun_clean_full_and_disable_cache_until_investigated
+  run_provenance: per_file_cache_key_artifact_hash_origin_hit_miss_invalidation_reason_scope_completeness_and_replay_run_id
+  partial_after_minimum_report: accepted_with_missing_paths_deferred_findings_and_unknown_comparison
+  before_minimum_report_budget_exceeded: rejected
+  budget_freeze_after_pilot:
+    - p50_p95_wall_time_and_peak_rss
+    - cache_hit_rate_and_full_vs_delta_cost
+    - equivalence_mismatch_count
+    - minimum_report_admission_limit
+
 execution_capabilities:
   policy_shape: automatic_static_read_plus_one_RunManifest_approval
   environment_kind: local_linux_docker
   container_runtime: Docker
   rationale: reproducible_execution_boundary
   image_policy: immutable_digest_required_before_pilot
+  development_runtime:
+    cgroup_unavailable: allow_with_explicit_warning_and_exact_owner_approval
+    cpu_memory_pid_ceilings: requested_not_proven_enforced
+    wall_and_tool_timeouts: enforced_by_host_runner
+    evaluation_claim: development_only_not_final_isolation_evidence
   automatic_read:
     scope: immutable_repository_snapshot_only
     includes:
@@ -377,8 +462,9 @@ execution_capabilities:
       - symlink_escape
       - untracked_or_ignored_workspace_files
   run_approval:
-    unit: one_RunManifest_per_scan_with_declared_validation_DAG
+    unit: one_RunManifest_per_scan_with_optional_declared_validation_DAG
     validity: single_execution
+    model_only: empty_tools_nodes_and_per_node_disallow_runtime_execution
     shows:
       - commands_workloads_and_dag_trigger_conditions
       - selected_tools
@@ -442,6 +528,47 @@ execution_capabilities:
       - deferred
     outside_DAG_tool: update_RunManifest_and_request_new_approval
 
+analysis_dag_contract:
+  order:
+    - immutable_snapshot_and_RunManifest_validation
+    - static_facts_and_code_graph
+    - deterministic_context
+    - fixed_five_perspective_hypotheses
+    - approved_conditional_runtime_nodes
+    - evidence_adjudication
+    - identity_merge_and_report
+  parallelism: fixed_five_perspectives_share_frozen_context_then_independent_approved_validations
+  budget:
+    approved_in_RunManifest:
+      - total_wall_cpu_memory_token_and_tool_second
+      - per_node_timeout_and_concurrency_limit
+    reserve: minimum_static_report_before_optional_dynamic_nodes
+    same_budget: identical_ceiling_across_six_evaluation_arms
+    exact_limits: freeze_after_pilot
+    record: spent_budget_and_stop_node_in_ScanRun
+  rejection: snapshot_or_approval_mismatch_missing_source_or_budget_exhausted_before_minimum_report
+  partial: accepted_with_coverage_gap_deferred_hypotheses_and_unknown_comparison
+  node_failure: preserve_independent_results_and_record_failed_node_reason
+  retries:
+    transient_model_or_read_error: once_within_original_approval_and_budget
+    executable_node: only_if_idempotent_and_retry_count_declared_in_RunManifest
+    expanded_approval: prohibited
+  timeout: stop_process_record_exit_and_artifact_hash_then_defer_affected_hypothesis
+  merge: deterministic_identity_key_and_sorted_evidence_ids
+  conflicting_or_missing_evidence: deferred_without_majority_vote
+  perspectives: all_five_invocation_status_cost_and_failure_reason_required
+  candidate_admission:
+    caller_role: assigned_by_host_not_model_output
+    taxonomy: any_existing_primary_category_independent_of_caller_role
+    unit: individual_raw_candidate_row
+    invalid_row: retain_raw_row_as_unverified_and_preserve_independent_valid_rows
+    identity_conflict: quarantine_whole_exact_normalized_identity_group
+    conflict_fields: [trigger, taxonomy, next_action, location_path]
+    semantic_deduplication: not_implemented
+    call_completion: independent_of_row_admission
+    incomplete_analysis: any_unverified_row_failed_or_deferred_call_or_runtime_node
+    evidence_state: source_only_deferred_not_confirmed
+
 
 code_and_evidence_policy:
   data_classes:
@@ -464,10 +591,33 @@ code_and_evidence_policy:
   model_provider: selectable_and_frozen_per_run
   model_name_version_and_prompt_hash: required_per_run
   audit_record: RunManifest_hash_and_result_hash
+  approval_contract:
+    schema_version: run-manifest-v3
+    model_disabled_analysis: null
+    model_analysis_fields: [mode, roles, scope, symbol, base_sha, context_policy, contexts]
+    context_policies: [git-ast-context-v1, git-ast-outline-v1, git-ast-cards-v1]
+    context_binding: ordered_scope_id_and_canonical_context_sha256
+    live_execution: reject_v1_v2_and_any_reconstructed_analysis_or_prompt_mismatch_before_consumption
+    previous_verifier: preserved_offline_only_never_authorizes_new_transmission
+    prompt_hash: sha256_of_canonical_json_ordered_role_and_actual_instructions_by_mode
+    v28_archive: offline_verifier_archive_before_P1_not_for_new_authorization
+    first_five_instructions: identical_in_five_boundary_and_generic
+    single_instructions: shared_evidence_contract_plus_short_generic_review
+    plain_instructions: legacy_generic_text_with_v3_mode_hash
+    later_call_input_reserve: previous_provider_input_including_cached_plus_previous_and_current_role_and_instruction_utf8_bytes_plus_256
+  normalized_model_responses:
+    required: true
+    capture: before_candidate_parsing_in_owner_only_files_outside_source_and_repository
+    wire_bytes_or_provider_attestation: false
+    verification: exact_file_hash_order_candidate_row_digest_and_valid_usage_totals
+    embedded_audit: raw_row_index_digest_admission_reason_and_finding_id
 
 
 traceability_contract:
-  schema_version: evidence-contract-v1
+  schema_version: evidence-contract-v2
+  source_stage_schema_version: evidence-contract-v1
+  previous_final_validation: archived_verifier_without_new_execution
+  baseline_single_plain_final_sealing: prohibited
   storage_root: runs/{run_id}
   files:
     ScanRun: run.json
@@ -485,7 +635,10 @@ traceability_contract:
         - run_id_mode_and_scope
         - repository_base_and_target_sha
         - RunManifest_config_model_prompt_and_budget_hash
+        - per_file_cache_key_artifact_hash_origin_hit_miss_and_invalidation_reason
+        - observed_scope_completeness_and_clean_replay_run_id
         - run_status
+        - approved_analysis_and_raw_candidate_admission_audit
     Evidence:
       kinds:
         - source
@@ -496,6 +649,7 @@ traceability_contract:
         - producer_and_kind
         - source_locator_or_exact_command
         - payload_or_artifact_hash
+        - cached_fact_hash_and_origin_run_for_fresh_static_Evidence_if_reused
         - observed_value
     Finding:
       fields:
@@ -511,6 +665,7 @@ traceability_contract:
         - report_id_and_run_id
         - ordered_finding_ids
         - coverage_and_scan_status
+        - candidate_row_counts_and_analysis_status
     UserAction:
       fields:
         - action_id_run_id_and_finding_id
@@ -530,7 +685,26 @@ traceability_contract:
     - evidence_without_source_or_command_provenance
 
 evaluation_metric_contract:
-  primary:
+  head_to_head_primary:
+    name: GoldFindingRecall_small_system_vs_strong_single
+    baseline_arm: S_strong_single
+    proposed_arm: F_runtime_feedback
+    unique_final_cases: 80
+    paired_evaluation: both_arms_run_on_every_case
+    unit: independently_sealed_gold_finding_not_one_recommendation_per_case
+    numerator: independently_matched_true_positive_findings
+    denominator: all_frozen_gold_findings_including_unreported_findings
+    success:
+      proposed_minus_baseline_recall_family_bootstrap_95_percent_ci_lower_bound_above_zero: true
+      proposed_critical_high_recall_minimum: 0.90
+      proposed_precision_minimum: 0.75
+      proposed_unjustified_critical_high_dismissals: 0
+    reporting:
+      - baseline_only_and_proposed_only_detected_gold_findings_by_risk_type_and_cross_file_scope
+      - false_positives_missing_timeout_and_judge_failures
+      - total_actual_api_cost_and_cost_per_matched_true_positive
+    claim_boundary: no_superiority_or_lower_cost_claim_without_independent_final_observations
+  within_small_model_gate:
     name: ValidNextVerificationRecommendation_at_20m
     baseline_arm: A_plain_llm
     proposed_arm: F_runtime_feedback
@@ -573,6 +747,7 @@ evaluation_metric_contract:
     - token_and_tool_seconds
     - recommendation_retry_rate
     - valid_recommendations_per_compute_hour
+    - billed_api_cost_per_arm_including_failed_and_retried_calls
   prohibited_human_claims:
     - human_decision_time_reduction
     - human_rework_reduction
@@ -586,8 +761,7 @@ evaluation_judge:
     - known_regression_test
     - hidden_mutation_manifest
   llm_role: semantic_match_of_risk_evidence_and_next_action_only
-  model_rule: fixed_version_and_different_model_family_from_evaluated_system
-  settings: temperature_zero_and_frozen_prompt_hash
+  model_rule: fixed_version_and_different_model_family_from_both_evaluated_models
   blinding: no_arm_identity_and_randomized_candidate_order
   output: valid_or_invalid_with_reason_code
   calibration: known_valid_and_invalid_synthetic_decisions
@@ -604,8 +778,20 @@ evaluation_environment:
   dependency_lock: required_per_repository
   ci_or_runner: local_reproducible_runner
   model_provider: external_api_allowed
-  model_name_and_version: freeze_per_pilot_and_final_run
-  token_and_tool_budget: freeze_after_pilot_calibration
+  model_name_and_version: freeze_small_strong_and_judge_versions_after_pilot_before_final_run
+  selected_comparison_candidates:
+    strong_single: gpt-6-sol
+    small_full_system: gpt-6-luna
+    availability: verified_in_account_catalog_and_no_source_live_calls
+    final_version_freeze: after_pilot_before_final_holdout
+  local_oauth_pilot:
+    package: openai-oauth@2.0.0
+    endpoint: http://127.0.0.1:10531/v1/responses
+    authorization: owner_local_codex_login_completed
+    account_model_catalog: both_models_seen_without_forced_overrides
+    transmission: exact_RunManifest_single_use_approval_required
+    cost_evidence: subscription_tokens_only_no_per_call_billed_usd_receipt
+    final_cost_comparison: requires_independent_provider_billing_receipts
 
 claims_boundary:
   allowed:
@@ -623,8 +809,25 @@ claims_boundary:
     - human_rework_reduction_claim
     - reviewer_productivity_improvement_claim
 
+head_to_head_contract:
+  baseline: S_strong_single_one_review_of_full_scoped_source
+  proposed: F_runtime_feedback_using_smaller_model_for_every_operational_llm_call
+  model_strength: declare_selected_model_versions_and_reason_for_strong_vs_small_before_final
+  controls:
+    - same_case_task_source_snapshot_scope_and_gold_secrecy
+    - same_risk_taxonomy_output_schema_and_20_minute_ceiling
+    - same_total_token_ceiling_across_all_operational_calls
+    - single_strong_call_vs_all_small_system_calls_and_tools_reported
+    - tool_and_context_advantage_is_system_effect_not_model_only_effect
+  gold: independent_multi_finding_labels_with_negative_cases_and_finding_type
+  missing_output: all_unreported_gold_findings_count_as_false_negatives
+  cost: provider_billed_input_output_and_cache_tokens_all_calls_including_failures_plus_operational_tools_reported_separately
+  preregistration: freeze_both_models_prices_prompts_case_set_and_judge_before_final_outputs
+  existing_six_arm_ablation: same_smaller_model_version_and_budget_within_A_to_F_only
+
 core_ablation_contract:
   design: six_cumulative_arms_with_adjacent_pair_comparison
+  model_scope: A_to_F_use_one_smaller_model_version_not_the_strong_single_comparator
   arms:
     A_plain_llm: raw_diff_or_user_seeded_source_plus_one_generic_review
     B_structured_review: A_plus_fixed_five_perspective_schema
@@ -764,6 +967,32 @@ claim_policy:
   reporting:
     pilot: preliminary_result_with_sample_tuning_exposure_and_uncertainty
     final: validated_project_result_only_after_frozen_holdout
+
+completion_gates:
+  design: closed_wayfinder_decisions_and_consistent_manifest_only
+  implemented:
+    - source_connects_both_git_modes_static_graph_fixed_five_runtime_policy_and_priority_report
+    - five_immutable_json_record_types_with_replayable_hash_lineage
+    - changed_contract_tests_and_success_failure_end_to_end_traces
+    - real_approval_denial_no_run_timeout_partial_and_cache_mismatch_traces
+  pilot:
+    - python314_synthetic_fixture_and_two_approved_runtime_pilots_with_oracles
+    - langflow_static_scale_trace
+    - full_impact_and_clean_replay_equivalence
+    - immutable_image_dependency_lock_and_reproduction_commands
+    - time_memory_cache_safety_retention_and_manifest_rollback_traces
+  final_validation:
+    - frozen_80_paired_cases_with_each_holdout_lane_reported_separately
+    - six_same_budget_arms_and_two_separate_shadow_experiments
+    - primary_effect_ci_guardrails_judge_calibration_and_raw_replay_bundle
+    - independent_multi_finding_strong_single_vs_small_full_comparison_with_api_cost_and_exclusive_misses
+  failure: downgrade_claim_to_last_completed_gate
+  no_success_claim_if:
+    - unauthorized_execution
+    - source_or_evidence_hash_mismatch
+    - hidden_gold_exposure
+    - critical_high_unjustified_dismissal
+  reviewer_grade: not_guaranteed_without_official_assessment
 
 deferred_but_not_blocking_this_manifest:
   - actual Python 3.14 dependency and workload replay result for each pinned repository
